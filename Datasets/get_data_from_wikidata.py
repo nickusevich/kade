@@ -90,8 +90,8 @@ def fetch_grouped_attributes(movie_uris, attribute_property, attribute_label, in
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
         SELECT DISTINCT ?movie 
-               (GROUP_CONCAT(DISTINCT ?{attribute_label}; separator=", ") AS ?{attribute_label}s)
-               {'(GROUP_CONCAT(DISTINCT ?attribute; separator=", ") AS ?attributeURIs)' if include_uri else ''}
+               (GROUP_CONCAT(DISTINCT ?{attribute_label}; separator="; ") AS ?{attribute_label}s)
+               {'(GROUP_CONCAT(DISTINCT ?attribute; separator="; ") AS ?attributeURIs)' if include_uri else ''}
         WHERE {{
           VALUES ?movie {{ {values} }}
           OPTIONAL {{
@@ -123,7 +123,7 @@ def fetch_grouped_attributes(movie_uris, attribute_property, attribute_label, in
 
 # Main function to fetch movies for multiple years and save as CSV
 def main():
-    start_year = 2024
+    start_year = 2016
     end_year = 2024
     all_data = []
 
