@@ -11,29 +11,36 @@ import pandas as pd
 import numpy as np
 from db import Neo4jConnection
 from environs import Env
+import requests
 
-#variables
-env = Env()
-env.read_env() 
+# #variables
+# env = Env()
+# env.read_env() 
 
-NEO4J_URI = env("NEO4J_URI")
-NEO4J_USER = env("NEO4J_USER")
-NEO4J_PASSWORD = env("NEO4J_PASSWORD")
-#________________________________________________________________________________
+# NEO4J_URI = env("NEO4J_URI")
+# NEO4J_USER = env("NEO4J_USER")
+# NEO4J_PASSWORD = env("NEO4J_PASSWORD")
+# #________________________________________________________________________________
 
 
-conn = Neo4jConnection(uri=NEO4J_URI, user=NEO4J_USER, password=NEO4J_PASSWORD)
+# conn = Neo4jConnection(uri=NEO4J_URI, user=NEO4J_USER, password=NEO4J_PASSWORD)
 
-# Test the connection and display status
-try:
-    status = conn.verify_connectivity()
-    print(status)
-except Exception as e:
-    print(f"Error: {str(e)}")
+# # Test the connection and display status
+# try:
+#     status = conn.verify_connectivity()
+#     print(status)
+# except Exception as e:
+#     print(f"Error: {str(e)}")
 
-#________________________________________________________________________________
+# #________________________________________________________________________________
 
-# UI for now
+# # UI for now
+
+response = requests.get("http://localhost:7200")
+
+
+    
+
 
 st.sidebar.markdown(
     "<h1 style='text-align: center;'>Find your next favorite movie 😊</h1>",

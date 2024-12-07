@@ -1,33 +1,45 @@
-from dash import Dash, html, dcc, Input, Output
+from dash import Dash, dcc, html, State, Input, Output
 import pandas as pd
 from db import Neo4jConnection
-from environs import Env
-
-env = Env()
-env.read_env()
-
-NEO4J_URI = env("NEO4J_URI")
-NEO4J_USER = env("NEO4J_USER")
-NEO4J_PASSWORD = env("NEO4J_PASSWORD")
-
-# Establish Neo4j connection
-conn = Neo4jConnection(uri=NEO4J_URI, user=NEO4J_USER, password=NEO4J_PASSWORD)
-print(conn.verify_connectivity)
+import requests
+# from environs import Env
 
 
+# env = Env()
+# env.read_env()
 
-from dash import Dash, dcc, html, State, Input, Output
+# NEO4J_URI = env("NEO4J_URI")
+# NEO4J_USER = env("NEO4J_USER")
+# NEO4J_PASSWORD = env("NEO4J_PASSWORD")
+
+# # Establish Neo4j connection
+# conn = Neo4jConnection(uri=NEO4J_URI, user=NEO4J_USER, password=NEO4J_PASSWORD)
+
+# print('__')
+# print(conn.verify_connectivity())
+# print('__')
+
+
+
+
+graphdb_url = 'http://localhost:7200'
+
+
+# Send the query to GraphDB
+response = requests.get(graphdb_url)
+print(response)
+
 
 app = Dash(__name__)
 
-from dash import dcc, html
+
 
 app.layout = html.Div([
-    # Sidebar styling
+    
     html.Div([
         html.H2("Find Your Next Movie 😊", className="sidebar-title"),
 
-        # Film title selection
+       
         html.Div([
             html.Label("Select Film Title:"),
             dcc.Dropdown(
@@ -50,7 +62,7 @@ app.layout = html.Div([
             )
         ], className="input-group"),
 
-        # Rating Range slider
+        
         html.Div([
             html.Label("Rating Range:"),
             dcc.RangeSlider(
@@ -63,7 +75,7 @@ app.layout = html.Div([
             )
         ], className="input-group"),
 
-        # Director selection
+
         html.Div([
             html.Label("Select Director:"),
             dcc.Dropdown(
@@ -93,7 +105,7 @@ app.layout = html.Div([
             )
         ], className="input-group"),
 
-        # Actors selection
+
         html.Div([
             html.Label("Select Actors:"),
             dcc.Dropdown(
@@ -110,7 +122,7 @@ app.layout = html.Div([
             )
         ], className="input-group"),
 
-        # New Description field
+
         html.Div([
             html.Label("Write a Short Description of the Plot:"),
             dcc.Textarea(
@@ -121,11 +133,9 @@ app.layout = html.Div([
             )
         ], className="input-group"),
 
-        # Search button
         html.Button("Search", id="search-btn", className="button", n_clicks=0)
     ], className="sidebar"),
 
-    # Main content for output
     html.Div([
         html.Div(id="output", className="results-container")
     ], className="content")
@@ -133,13 +143,13 @@ app.layout = html.Div([
 
 
 
-@app.callback(
-    Output("search-btn", "disabled"),
-    [Input("film-title", "value"), Input("rating-range", "value")]
-)
-def enable_button(film_title, rating_range):
-    # Enable the button only when all fields have valid values
-    return film_title == "Select a title" or not rating_range
+# @app.callback(
+#     Output("search-btn", "disabled"),
+#     [Input("film-title", "value"), Input("rating-range", "value")]
+# )
+# def enable_button(film_title, rating_range):
+    
+#     return film_title == "Select a title" or not rating_range
 
 
 @app.callback(
