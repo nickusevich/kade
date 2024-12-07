@@ -1,255 +1,298 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
 import time
+import os
 
-# Define the SPARQL endpoint for DBpedia
-endpoint_url = "https://dbpedia.org/sparql"
+# Retry configuration
 MAX_RETRIES = 3
 RETRY_DELAY = 5  # seconds
-BATCH_SIZE = 100  # Process movies in batches of 100
+CHUNK_SIZE = 100  # Process movies in chunks of 100
 
+# Define the SPARQL endpoint
+endpoint_url = "http://dbpedia.org/sparql"
 
-def fetch_dbpedia_uris_from_wikidata(movie_uris):
-    """
-    Fetch DBpedia URIs for given Wikidata URIs using owl:sameAs property.
-    Handles large lists by splitting into manageable batches.
-    """
-    results = []
+# Step 1: Fetch mandatory information for a specific date range
+def fetch_mandatory_information(start_date, end_date, limit=5000):
     sparql = SPARQLWrapper(endpoint_url)
+    query = f"""
+    PREFIX dbo: <http://dbpedia.org/ontology/>
+    PREFIX dbr: <http://dbpedia.org/resource/>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-    for i in range(0, len(movie_uris), BATCH_SIZE):
-        batch = movie_uris[i:i + BATCH_SIZE]
-        values = " ".join([f"<{uri}>" for uri in batch])
-        sparql.setQuery(f"""
-        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    SELECT DISTINCT ?movie ?movieLabel (MIN(?releaseDate) AS ?releaseDate)
+    WHERE {{
+      ?movie a dbo:Film ;
+             dbo:releaseDate ?releaseDate .
 
-        SELECT DISTINCT ?dbpedia_uri ?wikidata_uri
-        WHERE {{
-          ?dbpedia_uri owl:sameAs ?wikidata_uri .
-          VALUES ?wikidata_uri {{ {values} }}
-        }}
-        """)
-        sparql.setReturnFormat(JSON)
+      FILTER((?releaseDate >= "{start_date}"^^xsd:date) &&
+             (?releaseDate <= "{end_date}"^^xsd:date))
 
-        for attempt in range(MAX_RETRIES):
-            try:
-                print(f"Mapping Wikidata URIs to DBpedia URIs for batch {i // BATCH_SIZE + 1} (attempt {attempt + 1})...")
-                batch_results = sparql.query().convert()
-                results.extend(batch_results["results"]["bindings"])
-                break
-            except Exception as e:
-                print(f"Error mapping URIs (batch {i // BATCH_SIZE + 1}, attempt {attempt + 1}): {e}")
-                time.sleep(RETRY_DELAY)
-
-    return {
-        result["wikidata_uri"]["value"]: result["dbpedia_uri"]["value"]
-        for result in results
-    }
-
-
-def fetch_dbpedia_uris_by_label(movie_labels):
+      ?movie rdfs:label ?movieLabel .
+      FILTER(LANG(?movieLabel) = "en")
+    }}
+    GROUP BY ?movie ?movieLabel
+    LIMIT {limit}
     """
-    Fetch DBpedia URIs for movies using their labels as a fallback method.
-    """
-    results = []
+    sparql.setQuery(query)
+    sparql.setReturnFormat(JSON)
+
+    try:
+        print(f"Fetching mandatory movie information from {start_date} to {end_date}...")
+        results = sparql.query().convert()
+        data = [
+            {
+                "movie_uri": result["movie"]["value"],
+                "movie": result["movieLabel"]["value"],
+                "releaseDate": result["releaseDate"]["value"]
+            }
+            for result in results["results"]["bindings"]
+        ]
+        return pd.DataFrame(data)
+    except Exception as e:
+        print(f"Failed to fetch mandatory data for {start_date} to {end_date}: {e}")
+        return pd.DataFrame()
+
+# Step 2: Fetch optional single-valued attributes
+def fetch_single_valued_attributes(movie_uris, attribute_property, attribute_label, prefix, prefix_url, filter_lang=False):
     sparql = SPARQLWrapper(endpoint_url)
-
-    for i in range(0, len(movie_labels), BATCH_SIZE):
-        batch = movie_labels[i:i + BATCH_SIZE]
-        values = " ".join([f'"{label}"@en' for label in batch])
-        sparql.setQuery(f"""
+    results = []
+    if filter_lang:
+        print(f"Fetching {attribute_label} with English language filter...")
+    for i in range(0, len(movie_uris), CHUNK_SIZE):
+        chunk = movie_uris[i:i + CHUNK_SIZE]
+        values = " ".join([f"<{uri}>" for uri in chunk])
+        query = f"""
+        PREFIX {prefix}: <{prefix_url}>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT DISTINCT ?dbpedia_uri ?label
-        WHERE {{
-          ?dbpedia_uri rdfs:label ?label .
-          VALUES ?label {{ {values} }}
-        }}
-        """)
-        sparql.setReturnFormat(JSON)
-
-        for attempt in range(MAX_RETRIES):
-            try:
-                print(f"Mapping movie labels to DBpedia URIs for batch {i // BATCH_SIZE + 1} (attempt {attempt + 1})...")
-                batch_results = sparql.query().convert()
-                results.extend(batch_results["results"]["bindings"])
-                break
-            except Exception as e:
-                print(f"Error mapping labels (batch {i // BATCH_SIZE + 1}, attempt {attempt + 1}): {e}")
-                time.sleep(RETRY_DELAY)
-
-    return {
-        result["label"]["value"]: result["dbpedia_uri"]["value"]
-        for result in results
-    }
-
-def fetch_single_valued_features(movie_uris):
-    """
-    Fetch single-valued features for movies.
-    """
-    results = []
-    for i in range(0, len(movie_uris), BATCH_SIZE):
-        batch = movie_uris[i:i + BATCH_SIZE]
-        sparql = SPARQLWrapper(endpoint_url)
-        values = " ".join([f"<{uri}>" for uri in batch])
-        sparql.setQuery(f"""
-        PREFIX dbo: <http://dbpedia.org/ontology/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-        
-        SELECT DISTINCT ?movie ?boxOffice ?plot ?franchise 
-                        ?abstract ?depiction ?wikiPageWikiLink ?primaryTopic ?wasDerivedFrom
+        SELECT DISTINCT ?movie ?{attribute_label}
         WHERE {{
           VALUES ?movie {{ {values} }}
-          OPTIONAL {{ ?movie dbo:gross ?boxOffice. }}
-          OPTIONAL {{ ?movie dbo:abstract ?plot. FILTER(LANG(?plot) = "en") }}
-          OPTIONAL {{ ?movie dbo:franchise ?franchise. }}
-          OPTIONAL {{ ?movie foaf:depiction ?depiction. }}
-          OPTIONAL {{ ?movie foaf:wikiPageWikiLink ?wikiPageWikiLink. }}
-          OPTIONAL {{ ?movie foaf:primaryTopic  ?primaryTopic. }}
-          OPTIONAL {{ ?movie foaf:wasDerivedFrom  ?wasDerivedFrom. }}
+          OPTIONAL {{ ?movie {prefix}:{attribute_property} ?{attribute_label}. }}
+          {f"FILTER(LANG(?{attribute_label}) = 'en')" if filter_lang else ""}
         }}
-        """)
-        sparql.setReturnFormat(JSON)
-
+        """
         for attempt in range(MAX_RETRIES):
             try:
-                print(f"Fetching single-valued features for batch {i // BATCH_SIZE + 1} (attempt {attempt + 1})...")
-                batch_results = sparql.query().convert()
-                results.extend(batch_results["results"]["bindings"])
+                print(f"Fetching {attribute_label} for chunk {i // CHUNK_SIZE + 1} (attempt {attempt + 1})...")
+                sparql.setQuery(query)
+                sparql.setReturnFormat(JSON)
+                chunk_results = sparql.query().convert()
+                results.extend(chunk_results["results"]["bindings"])
                 break
             except Exception as e:
-                print(f"Error fetching single-valued features (batch {i // BATCH_SIZE + 1}, attempt {attempt + 1}): {e}")
+                print(f"Error fetching {attribute_label} for chunk {i // CHUNK_SIZE + 1} (attempt {attempt + 1}): {e}")
                 time.sleep(RETRY_DELAY)
-    print(f"From {len(movie_uris)} URIs, found {len(results)} in DBpedia.")
-    return [
-        {
-            "movie_uri": result["movie"]["value"],
-            "boxOffice": result.get("boxOffice", {}).get("value", None),
-            "abstract": result.get("abstract", {}).get("value", None),
-            "plot": result.get("plot", {}).get("value", None),
-            "franchise": result.get("franchise", {}).get("value", None),
-            "depiction": result.get("depiction", {}).get("value", None),
-            "wikiPageWikiLink": result.get("wikiPageWikiLink", {}).get("value", None),
-            "primaryTopic": result.get("primaryTopic", {}).get("value", None),
-            "wasDerivedFrom": result.get("wasDerivedFrom", {}).get("value", None),
-        }
+    return {
+        result["movie"]["value"]: result.get(attribute_label, {}).get("value", "N/A")
         for result in results
-    ]
+    }
 
-
-def fetch_multi_valued_features(movie_uris, property_label, property_uri, prefix, prefix_url):
-    """
-    Fetch multi-valued features for movies.
-    """
+# Step 3: Fetch Rotten Tomatoes ID
+def fetch_rotten_tomatoes_id(movie_uris):
+    sparql = SPARQLWrapper(endpoint_url)
     results = []
-    for i in range(0, len(movie_uris), BATCH_SIZE):
-        batch = movie_uris[i:i + BATCH_SIZE]
-        sparql = SPARQLWrapper(endpoint_url)
-        values = " ".join([f"<{uri}>" for uri in batch])
-        sparql.setQuery(f"""
+    for i in range(0, len(movie_uris), CHUNK_SIZE):
+        chunk = movie_uris[i:i + CHUNK_SIZE]
+        values = " ".join([f"<{uri}>" for uri in chunk])
+        query = f"""
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT DISTINCT ?movie ?externalLink
+        WHERE {{
+          VALUES ?movie {{ {values} }}
+          ?movie dbo:wikiPageExternalLink ?externalLink .
+          FILTER(CONTAINS(LCASE(STR(?externalLink)), "rottentomatoes"))
+        }}
+        """
+        for attempt in range(MAX_RETRIES):
+            try:
+                print(f"Fetching RottenTomatoesID for chunk {i // CHUNK_SIZE + 1} (attempt {attempt + 1})...")
+                sparql.setQuery(query)
+                sparql.setReturnFormat(JSON)
+                chunk_results = sparql.query().convert()
+                results.extend(chunk_results["results"]["bindings"])
+                break
+            except Exception as e:
+                print(f"Error fetching RottenTomatoesID for chunk {i // CHUNK_SIZE + 1} (attempt {attempt + 1}): {e}")
+                time.sleep(RETRY_DELAY)
+    return {
+        result["movie"]["value"]: result.get("externalLink", {}).get("value", "N/A")
+        for result in results
+    }
+
+# Step 4: Fetch grouped attributes (e.g., genres, actors, directors, distributors)
+def fetch_grouped_attributes(movie_uris, attribute_property, attribute_label, prefix, prefix_url, include_uri=False):
+    sparql = SPARQLWrapper(endpoint_url)
+    results = []
+    for i in range(0, len(movie_uris), CHUNK_SIZE):
+        chunk = movie_uris[i:i + CHUNK_SIZE]
+        values = " ".join([f"<{uri}>" for uri in chunk])
+        query = f"""
         PREFIX {prefix}: <{prefix_url}>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
         SELECT DISTINCT ?movie 
-               (GROUP_CONCAT(DISTINCT ?{property_label}; separator=", ") AS ?{property_label}s)
-               (GROUP_CONCAT(DISTINCT ?property_uri; separator=", ") AS ?{property_label}URIs)
+               (GROUP_CONCAT(DISTINCT ?{attribute_label}; separator="; ") AS ?{attribute_label}s)
+               {'(GROUP_CONCAT(DISTINCT ?attribute; separator="; ") AS ?attributeURIs)' if include_uri else ''}
         WHERE {{
           VALUES ?movie {{ {values} }}
-          ?movie {prefix}:{property_uri} ?property_uri.
-          ?property_uri rdfs:label ?{property_label}.
-          FILTER (LANG(?{property_label}) = "en")
+          OPTIONAL {{
+            ?movie {prefix}:{attribute_property} ?attribute.
+            ?attribute rdfs:label ?{attribute_label}.
+            FILTER(LANG(?{attribute_label}) = "en")
+          }}
         }}
         GROUP BY ?movie
-        """)
-        sparql.setReturnFormat(JSON)
-
+        """
         for attempt in range(MAX_RETRIES):
             try:
-                print(f"Fetching {property_label} for batch {i // BATCH_SIZE + 1} (attempt {attempt + 1})...")
-                batch_results = sparql.query().convert()
-                results.extend(batch_results["results"]["bindings"])
+                print(f"Fetching {attribute_label} for chunk {i // CHUNK_SIZE + 1} (attempt {attempt + 1})...")
+                sparql.setQuery(query)
+                sparql.setReturnFormat(JSON)
+                chunk_results = sparql.query().convert()
+                results.extend(chunk_results["results"]["bindings"])
                 break
             except Exception as e:
-                print(f"Error fetching {property_label} (batch {i // BATCH_SIZE + 1}, attempt {attempt + 1}): {e}")
+                print(f"Error fetching {attribute_label} for chunk {i // CHUNK_SIZE + 1} (attempt {attempt + 1}): {e}")
                 time.sleep(RETRY_DELAY)
-
     return {
         result["movie"]["value"]: {
-            f"{property_label}s": result.get(f"{property_label}s", {}).get("value", "N/A"),
-            f"{property_label}URIs": result.get(f"{property_label}URIs", {}).get("value", "N/A"),
+            f"{attribute_label}s": result.get(f"{attribute_label}s", {}).get("value", "N/A"),
+            "attributeURIs": result.get("attributeURIs", {}).get("value", "N/A") if include_uri else "N/A"
         }
         for result in results
     }
 
+# Main function to fetch movies for multiple years and save as CSV
 def main():
-    # Load movies fetched from Wikidata
-    wikidata_movies_file = "Datasets/english_movies_2024_2024_detailed.csv"  # Adjust to your file path
-    wikidata_movies = pd.read_csv(wikidata_movies_file)
-    wikidata_uris = wikidata_movies["movie_uri"].tolist()
-    movie_labels = wikidata_movies["movie"].tolist()
+    start_year = 1990
+    end_year = 2024
+    all_data = []
+    attribute_summary = {}
 
-    # Map Wikidata URIs to DBpedia URIs
-    print("Mapping Wikidata URIs to DBpedia URIs...")
-    uri_mapping = fetch_dbpedia_uris_from_wikidata(wikidata_uris)
+    for year in range(start_year, end_year + 1):
+        print(f"Processing year {year}...")
+        # Fetch mandatory information
+        basic_info = fetch_mandatory_information(f"{year}-01-01", f"{year}-12-31", limit=1000)
+        print(f"Fetched {len(basic_info)} movies from {year}")
+        if basic_info.empty:
+            continue
+        movie_uris = basic_info["movie_uri"].tolist()
+        info = basic_info
 
-    # Fallback: Map movie labels to DBpedia URIs for unmatched movies
-    unmatched_movies = wikidata_movies[~wikidata_movies["movie_uri"].isin(uri_mapping.keys())]
+        # Fetch optional single-valued attributes
+        single_valued_attributes = {
+            "country": {"property": "country", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "language": {"property": "language", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "runtime": {"property": "runtime", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "budget": {"property": "budget", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "boxOffice": {"property": "gross", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "basedOn": {"property": "basedOn", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "IMDbID": {"property": "imdbId", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "plot": {"property": "abstract", "prefix": "dbo", "url": "http://dbpedia.org/ontology/", "filter_lang": True},
+            "franchise": {"property": "franchise", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "depiction": {"property": "depiction", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "wikiPageWikiLink": {"property": "wikiPageWikiLink", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "primaryTopic": {"property": "primaryTopic", "prefix": "foaf", "url": "http://xmlns.com/foaf/0.1/"},
+            "wasDerivedFrom": {"property": "wasDerivedFrom", "prefix": "prov", "url": "http://www.w3.org/ns/prov#"}
+        }
 
-    # Fetch DBpedia URIs using labels
-    print("Fallback: Mapping movie labels to DBpedia URIs...")
-    label_mapping = fetch_dbpedia_uris_by_label(unmatched_movies["movie"].tolist())
+        for label, details in single_valued_attributes.items():
+            print(f"Fetching {label}...")
+            single_data = fetch_single_valued_attributes(movie_uris, details["property"], label, details["prefix"], details["url"], details.get("filter_lang", False))
+            info[label] = info["movie_uri"].map(lambda uri: single_data.get(uri, "N/A"))
+            count = len(info[info[label] != 'N/A'])
+            if label not in attribute_summary:
+                attribute_summary[label] = {"status": "none", "count": 0}
+            attribute_summary[label]["count"] += count
+            if count > 0:
+                if count < len(info):
+                    attribute_summary[label]["status"] = "some"
+                else:
+                    attribute_summary[label]["status"] = "all"
 
-    # Combine mappings
-    combined_mapping = uri_mapping.copy()
-    for index, row in unmatched_movies.iterrows():
-        movie_label = row["movie"]
-        if movie_label in label_mapping:
-            combined_mapping[row["movie_uri"]] = label_mapping[movie_label]
+        # Fetch Rotten Tomatoes ID separately
+        print("Fetching RottenTomatoesID...")
+        rotten_tomatoes_data = fetch_rotten_tomatoes_id(movie_uris)
+        info["RottenTomatoesID"] = info["movie_uri"].map(lambda uri: rotten_tomatoes_data.get(uri, "N/A"))
+        count = len(info[info["RottenTomatoesID"] != 'N/A'])
+        if "RottenTomatoesID" not in attribute_summary:
+            attribute_summary["RottenTomatoesID"] = {"status": "none", "count": 0}
+        attribute_summary["RottenTomatoesID"]["count"] += count
+        if count > 0:
+            if count < len(info):
+                attribute_summary["RottenTomatoesID"]["status"] = "some"
+            else:
+                attribute_summary["RottenTomatoesID"]["status"] = "all"
 
-    print(f"len of combined_mapping: {len(combined_mapping)}")
+        # Fetch grouped attributes
+        grouped_attributes = {
+            "genres": {"property": "genre", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "actors": {"property": "starring", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "directors": {"property": "director", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "distributors": {"property": "distributor", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "writer": {"property": "writer", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "producers": {"property": "producer", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "composers": {"property": "musicComposer", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "cinematographers": {"property": "cinematography", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "filmingLocations": {"property": "filmingLocation", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "productionCompanies": {"property": "productionCompany", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
+            "mainSubjects": {"property": "subject", "prefix": "dcterms", "url": "http://purl.org/dc/terms/"},
+            "series": {"property": "series", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"}
+        }
 
-    # Map combined DBpedia URIs to the original Wikidata dataframe
-    wikidata_movies["dbpedia_uri"] = wikidata_movies["movie_uri"].map(combined_mapping)
+        grouped_data = {}
+        for label, details in grouped_attributes.items():
+            print(f"Fetching {label}...")
+            grouped_data[label] = fetch_grouped_attributes(movie_uris, details["property"], f"{label[:-1]}Label", details["prefix"], details["url"], include_uri=True)
 
+        for label in grouped_attributes.keys():
+            info[label] = info["movie_uri"].map(
+                lambda uri: grouped_data[label].get(uri, {}).get(f"{label[:-1]}Labels", "N/A") if grouped_data[label].get(uri, {}).get(f"{label[:-1]}Labels") else "N/A"
+            )
+            info[f"{label}_URIs"] = info["movie_uri"].map(
+                lambda uri: grouped_data[label].get(uri, {}).get("attributeURIs", "N/A") if grouped_data[label].get(uri, {}).get("attributeURIs") else "N/A"
+            )
 
-    # Filter out movies without a corresponding DBpedia URI
-    dbpedia_movies = wikidata_movies.dropna(subset=["dbpedia_uri"]).reset_index(drop=True)
+            count = len(info[info[label] != 'N/A'])
+            if label not in attribute_summary:
+                attribute_summary[label] = {"status": "none", "count": 0}
+            attribute_summary[label]["count"] += count
+            if count > 0:
+                if count < len(info):
+                    attribute_summary[label]["status"] = "some"
+                else:
+                    attribute_summary[label]["status"] = "all"
 
-    # Fetch single-valued features from DBpedia
-    print("Fetching single-valued features...")
-    single_features = fetch_single_valued_features(dbpedia_movies["dbpedia_uri"].tolist())
-    df_single = pd.DataFrame(single_features)
+        # Deduplicate rows
+        info = info.drop_duplicates(subset=["movie", "releaseDate"])
+        all_data.append(info)
+        time.sleep(1)  # Add a delay to avoid overloading the server
 
-    # Fetch multi-valued features from DBpedia
-    multi_valued_properties = {
-        "subject": {"property": "subject", "prefix": "dcterms", "url": "http://purl.org/dc/terms/"},
-        "wikiPageWikiLink": {"property": "wikiPageWikiLink", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-    }
-
-    for label, details in multi_valued_properties.items():
-        print(f"Fetching {label}...")
-        grouped_data = fetch_multi_valued_features(
-            dbpedia_movies["dbpedia_uri"].tolist(),
-            label,
-            details["property"],
-            details["prefix"],
-            details["url"],
-        )
-        df_single[label] = df_single["movie_uri"].map(lambda uri: grouped_data.get(uri, {}).get(f"{label}s", "N/A"))
-        df_single[f"{label}_URIs"] = df_single["movie_uri"].map(lambda uri: grouped_data.get(uri, {}).get(f"{label}URIs", "N/A"))
-
-    # Combine Wikidata and DBpedia data
-    combined_df = pd.merge(dbpedia_movies, df_single, on="movie_uri", how="left")
+    # Combine all fetched data
+    combined_data = pd.concat(all_data, ignore_index=True)
 
     # Drop columns that are entirely N/A
-    combined_df = combined_df.dropna(axis=1, how="all")
+    combined_data = combined_data.dropna(axis=1, how="all")
 
-    # Save to CSV
-    output_file = "Datasets/combined_movies_detailed.csv"
-    combined_df.to_csv(output_file, index=False)
+    print(f"Combined data has {len(combined_data)} rows and {len(combined_data.columns)} columns")
+    
+    # Ensure output directory exists
+    os.makedirs("Datasets", exist_ok=True)
+    output_file = f"Datasets/dbpedia_movies_{start_year}_{end_year}.csv"
+    combined_data.to_csv(output_file, index=False)
     print(f"Data saved to {output_file}")
 
+    # Save attribute summary to CSV
+    attribute_summary_df = pd.DataFrame([
+        {"attribute": k, "status": v["status"], "count": v["count"]}
+        for k, v in attribute_summary.items()
+    ])
+    attribute_summary_file = f"Datasets/attribute_summary_{start_year}_{end_year}.csv"
+    attribute_summary_df.to_csv(attribute_summary_file, index=False)
+    print(f"Attribute summary saved to {attribute_summary_file}")
 
 if __name__ == "__main__":
     main()

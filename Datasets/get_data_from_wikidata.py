@@ -19,7 +19,7 @@ def fetch_basic_information(start_date, end_date, limit=1000):
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
     SELECT DISTINCT ?movie ?movieLabel (MIN(?releaseDate) AS ?earliestReleaseDate) 
-           ?runtime ?duration ?languageLabel ?budget ?boxOffice ?basedOn ?basedOnLabel ?IMDbID ?RottenTomatoesID ?dbpediaURI
+           ?runtime ?duration ?languageLabel ?budget ?boxOffice ?basedOn ?basedOnLabel ?IMDbID ?RottenTomatoesID
     WHERE {{
       ?movie wdt:P31 wd:Q11424;              # Instance of film
              wdt:P577 ?releaseDate;          # Release date
@@ -32,7 +32,6 @@ def fetch_basic_information(start_date, end_date, limit=1000):
       OPTIONAL {{ ?movie wdt:P144 ?basedOn. }}                 # Based On (optional)
       OPTIONAL {{ ?movie wdt:P345 ?IMDbID. }}                  # IMDb ID (optional)
       OPTIONAL {{ ?movie wdt:P1258 ?RottenTomatoesID. }}       # Rotten Tomatoes ID (optional)
-      OPTIONAL {{ ?movie wdt:P1628 ?dbpediaURI. }}             # DBpedia URI (optional)
 
                     
       FILTER((?releaseDate >= "{start_date}T00:00:00Z"^^xsd:dateTime) &&
@@ -66,7 +65,6 @@ def fetch_basic_information(start_date, end_date, limit=1000):
                 "basedOn_uri": result.get("basedOn", {}).get("value", None),
                 "IMDbID": result.get("IMDbID", {}).get("value", None),
                 "RottenTomatoesID": result.get("RottenTomatoesID", {}).get("value", None),
-                "dbpediaURI": result.get("dbpediaURI", {}).get("value", None),
             }
             for result in results["results"]["bindings"]
         ]
@@ -123,7 +121,7 @@ def fetch_grouped_attributes(movie_uris, attribute_property, attribute_label, in
 
 # Main function to fetch movies for multiple years and save as CSV
 def main():
-    start_year = 2016
+    start_year = 2024
     end_year = 2024
     all_data = []
 
@@ -143,15 +141,20 @@ def main():
     }
 
     for year in range(start_year, end_year + 1):
+         # Step 1: Fetch single attributes
         basic_info = fetch_basic_information(f"{year}-01-01", f"{year}-12-31", limit=1000)
         movie_uris = basic_info["movie_uri"].tolist()
         info = basic_info
         grouped_data = {}
+
+        movies_count = len(set(basic_info["movie_uri"]))
+        print(f"We fetched  {movies_count} movies for {year}")
+
+        # Step 2 Add grouped attributes to the dataframe
         for label, prop in grouped_attributes.items():
             print(f"Fetching {label}...")
             grouped_data[label] = fetch_grouped_attributes(movie_uris, prop, f"{label[:-1]}Label", include_uri=True)
 
-        # Add grouped attributes to the dataframe
         for label in grouped_attributes.keys():
             info[label] = info["movie_uri"].map(
                 lambda uri: grouped_data[label].get(uri, {}).get(f"{label[:-1]}Labels", "N/A")

@@ -46,11 +46,6 @@ def get_reviews(url):
     
     return review_data
 
-data = get_reviews('https://www.rottentomatoes.com/m/interstellar_2014/reviews')
-df = pd.json_normalize(data)
-
-
 if __name__ == "__main__":
     data = get_reviews('https://www.rottentomatoes.com/m/interstellar_2014/reviews')
     df = pd.json_normalize(data)
-
