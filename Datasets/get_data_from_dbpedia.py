@@ -1,3 +1,9 @@
+"""
+File: get_reviews.py
+Date: 09-12-2024
+Description: Get movie data from dbpedia
+"""
+
 from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
 import time

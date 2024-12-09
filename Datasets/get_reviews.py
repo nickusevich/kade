@@ -1,3 +1,9 @@
+"""
+File: get_reviews.py
+Date: 09-12-2024
+Description: Get reviews from IMDb
+"""
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd

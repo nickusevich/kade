@@ -1,3 +1,9 @@
+"""
+File: get_reviews.py
+Date: 09-12-2024
+Description: Preprocess the movie csv data and convert it to RDF format (ttl) to feed into GraphDB
+"""
+
 import csv
 from rdflib import Graph, URIRef, Literal, Namespace
 from rdflib.namespace import RDF, RDFS, XSD
@@ -94,10 +100,14 @@ def csv_to_rdf(csv_file, rdf_file, minimal=False):
             else:
                 # Include all properties for full mode
                 for key, value in row.items():
-                    if value:
+                    if value is not None and value != '' and value != 'N/A':
                         try:
                             predicate = DBO[key] if key != 'movie' else RDFS.label
-                            g.add((movie_uri, predicate, Literal(value, datatype=XSD.string)))
+                            # Split the value by ';' and add each part separately
+                            values = value.split(';')
+                            for val in values:
+                                val = val.strip()  # Remove any leading/trailing whitespace
+                                g.add((movie_uri, predicate, Literal(val, datatype=XSD.string)))
                         except Exception as e:
                             print(f"Error adding property: {key} -> {value}, Error: {e}")
 
@@ -113,15 +123,16 @@ def csv_to_rdf(csv_file, rdf_file, minimal=False):
     print(f"Total rows skipped: {skipped_count}")
     print(f"Total unique movies added: {movie_count}")
 
+csv_file="Datasets\CSVs\dbpedia_movies_1990_2024.csv"
 
 csv_to_rdf(
-    csv_file="/Users/kostas/Documents/Data Science/p2/knowledge/project/dbpedia_movies_1990_2024.csv",  # Adjust the path to your CSV file
-    rdf_file="/Users/kostas/Documents/Data Science/p2/knowledge/project/full3.ttl",  # Path to save the full Turtle file
+    csv_file,  # Adjust the path to your CSV file
+    rdf_file="Datasets\TTLs\full3.ttl",  # Path to save the full Turtle file
     minimal=False  # Set to True for minimal output
 )
 
 csv_to_rdf(
-    csv_file="/Users/kostas/Documents/Data Science/p2/knowledge/project/dbpedia_movies_1990_2024.csv",  # Adjust the path to your CSV file
-    rdf_file="/Users/kostas/Documents/Data Science/p2/knowledge/project/minimal3.ttl",  # Path to save the minimal Turtle file
+    csv_file,  # Adjust the path to your CSV file
+    rdf_file="Datasets\TTLs\minimal3.ttl",  # Path to save the minimal Turtle file
     minimal=True  # Minimal output
 )
