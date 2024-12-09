@@ -3,7 +3,6 @@ File: get_reviews.py
 Date: 09-12-2024
 Description: Preprocess the movie csv data and convert it to RDF format (ttl) to feed into GraphDB
 """
-#######
 
 import csv
 from rdflib import Graph, URIRef, Literal, Namespace
@@ -132,8 +131,8 @@ csv_to_rdf(
     minimal=False  # Set to True for minimal output
 )
 
-csv_to_rdf(
-    csv_file,  # Adjust the path to your CSV file
-    rdf_file="Datasets\TTLs\minimal3.ttl",  # Path to save the minimal Turtle file
-    minimal=True  # Minimal output
-)
+# csv_to_rdf(
+#     csv_file,  # Adjust the path to your CSV file
+#     rdf_file="Datasets\TTLs\minimal3.ttl",  # Path to save the minimal Turtle file
+#     minimal=True  # Minimal output
+# )
