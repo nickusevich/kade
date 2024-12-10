@@ -94,8 +94,6 @@ def csv_to_rdf(csv_file, rdf_file):
             if release_date is not None and release_date != '' and release_date != 'N/A':
                 release_year = release_date.split("-")[0]  # Extract the year
                 g.add((movie_uri, DBO.releaseYear, Literal(release_year, datatype=XSD.gYear)))
-            else:
-                g.add((movie_uri, DBO.releaseYear, Literal(release_year, datatype=XSD.string)))
 
             # Handle literal string attributes
             for attr, predicate in str_attributes.items():
@@ -147,9 +145,9 @@ def csv_to_rdf(csv_file, rdf_file):
     print(f"Total unique movies added: {movie_count}")
 
 
-# File paths
-csv_file = "/Users/kostas/Documents/Data Science/p2/knowledge/project/dbpedia_movies_1990_2024.csv"  # Adjust the path to your CSV file
-rdf_file = "/Users/kostas/Documents/Data Science/p2/knowledge/project/output.ttl"  # Path to save the Turtle file
+# File paths Datasets\CSVs\actors_URIs.csv
+csv_file = "Datasets/CSVs/dbpedia_movies.csv"  # Adjust the path to your CSV file
+rdf_file = "Datasets/TTLs/dbpedia_movies.ttl"  # Path to save the Turtle file
 
 # Convert CSV to RDF
 csv_to_rdf(csv_file, rdf_file)
