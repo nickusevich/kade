@@ -7,7 +7,7 @@ http://localhost:7200/
 
 ### After accessing the DB a repository should be created
 1. Navigation side bar -> Setup -> Create new repository
-![alt text](<Screenshots\Create repository.png>)
+![alt text](<Screenshots/Create repository.png>)
 2. Select the opton of GraphDB repository (the first one from the left)
 ![alt text](<Screenshots\Create repository 2.png>)
 3. Repository ID (any name you want)
