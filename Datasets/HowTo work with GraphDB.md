@@ -45,3 +45,121 @@ Leave default values as is
 ### Support
 1. Through help you can find documentation and step-by-step tutorial
 2. Except for that Interactive Guides have 2 examples that demonstrate all that mentioned step-by-step
+
+
+### Example SPARQL queries
+
+1. **Retrieve all movies and their abstracts:**
+```sparql
+SELECT ?movie ?abstract
+WHERE {
+  ?movie a <http://dbpedia.org/ontology/Film> ;
+         <http://dbpedia.org/ontology/abstract> ?abstract .
+}
+```
+
+2. **Retrieve all movies directed by a specific director (e.g., "Conrad Vernon"):**
+```sparql
+SELECT ?movie
+WHERE {
+  ?movie a <http://dbpedia.org/ontology/Film> ;
+         <http://dbpedia.org/ontology/director> <http://dbpedia.org/resource/Conrad_Vernon> .
+}
+```
+
+3. **Retrieve movies and their genres (exclude N/A):**
+```sparql
+SELECT ?movie ?genre
+WHERE {
+  ?movie a <http://dbpedia.org/ontology/Film> ;
+         <http://dbpedia.org/ontology/genre> ?genre .
+  FILTER (?genre != <http://dbpedia.org/resource/N/A>)
+} limit 500
+```
+
+4. **Retrieve movies released in a specific year (e.g., 2001):**
+```sparql
+PREFIX dbo: <http://dbpedia.org/ontology/>
+
+SELECT ?movie ?releaseYear
+WHERE {
+  ?movie a dbo:Film .
+  ?movie dbo:releaseYear ?releaseYear .
+  FILTER(?releaseYear = "2001"^^<http://www.w3.org/2001/XMLSchema#gYear>)
+}
+LIMIT 500
+```
+
+5. **Retrieve movies and their main subjects:**
+```sparql
+SELECT ?movie ?mainSubject
+WHERE {
+  ?movie a <http://dbpedia.org/ontology/Film> ;
+         <http://dbpedia.org/ontology/mainSubject> ?mainSubject .
+} LIMIT 500
+```
+
+6. **Retrieve movies and their runtimes:**
+```sparql
+SELECT ?movie ?runtime
+WHERE {
+  ?movie a <http://dbpedia.org/ontology/Film> ;
+         <http://dbpedia.org/ontology/runtime> ?runtime .
+    FILTER(?runtime != "N/A")
+} limit 500
+```
+
+7. **Retrieve movies and their starring actors:**
+```sparql
+SELECT ?movie ?actor
+WHERE {
+  ?movie a <http://dbpedia.org/ontology/Film> ;
+         <http://dbpedia.org/ontology/starring> ?actor .
+  FILTER (?actor != <http://dbpedia.org/resource/N/A>)
+} limit 500
+```
+
+8. Retrieve movies, their directors, and the number of genres they belong to:
+```sparql
+PREFIX dbo: <http://dbpedia.org/ontology/>
+
+SELECT ?movie ?director (COUNT(?genre) AS ?genreCount)
+WHERE {
+  ?movie a dbo:Film ;
+         dbo:director ?director ;
+         dbo:genre ?genre .
+ FILTER (?genre != <http://dbpedia.org/resource/N/A>)
+ FILTER (?director != <http://dbpedia.org/resource/N/A>)
+}
+GROUP BY ?movie ?director
+LIMIT 500
+```
+
+9. Count the number of movies for each country:
+```sparql
+PREFIX dbo: <http://dbpedia.org/ontology/>
+
+SELECT ?country (COUNT(?movie) AS ?movieCount)
+WHERE {
+  ?movie a dbo:Film ;
+         dbo:country ?country .
+}
+GROUP BY ?country
+ORDER BY DESC(?movieCount)
+```
+
+10. Count the number of movies for each production company:
+```sparql
+PREFIX dbo: <http://dbpedia.org/ontology/>
+
+SELECT ?productionCompany (COUNT(?movie) AS ?movieCount)
+WHERE {
+  ?movie a dbo:Film ;
+         dbo:productionCompany ?productionCompany .
+   FILTER (?productionCompany != <http://dbpedia.org/resource/N/A>)
+
+}
+GROUP BY ?productionCompany
+HAVING (COUNT(?movie) >= 5)
+ORDER BY DESC(?movieCount)
+```

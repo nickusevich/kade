@@ -126,8 +126,9 @@ def csv_to_rdf(csv_file, rdf_file):
                 value = row.get(attr)
                 if value is not None and value != '' and value.strip() != 'N/A':
                     for val in value.split('; '):
-                        object_uri = URIRef(clean_uri(f"{DBR}{val.replace(' ', '_')}"))
-                        g.add((movie_uri, predicate, object_uri))
+                        if val is not None and val != '' and val.strip() != 'N/A':
+                            object_uri = URIRef(clean_uri(f"{DBR}{val.replace(' ', '_')}"))
+                            g.add((movie_uri, predicate, object_uri))
 
     # Serialize the graph to RDF (Turtle format)
     try:
