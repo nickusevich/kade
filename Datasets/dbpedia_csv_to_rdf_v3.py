@@ -98,7 +98,7 @@ def csv_to_rdf(csv_file, rdf_file):
             # Handle literal string attributes
             for attr, predicate in str_attributes.items():
                 value = row.get(attr)
-                if value:
+                if value is not None and value != '' and value.strip() != 'N/A':
                     for val in value.split('; '):
                         g.add((movie_uri, predicate, Literal(val.strip(), datatype=XSD.string)))
             
@@ -112,7 +112,7 @@ def csv_to_rdf(csv_file, rdf_file):
             #         g.add((movie_uri, predicate, Literal(value, datatype=XSD.string)))
             for attr, predicate in num_attributes.items():
                 value = row.get(attr)
-                if value:
+                if value is not None and value != '' and value.strip() != 'N/A':
                 # Split by semicolon for multiple values
                     for val in value.split(';'):
                         val = val.strip()  # Remove leading/trailing whitespace
@@ -120,14 +120,11 @@ def csv_to_rdf(csv_file, rdf_file):
                             g.add((movie_uri, predicate, Literal(int(val), datatype=XSD.integer)))
                         else:
                             g.add((movie_uri, predicate, Literal(val.strip(), datatype=XSD.string)))
-                else:
-                     for val in value.split('; '):
-                        g.add((movie_uri, predicate, Literal(val.strip(), datatype=XSD.string)))
 
             # Handle object attributes
             for attr, predicate in object_attributes.items():
                 value = row.get(attr)
-                if value:
+                if value is not None and value != '' and value.strip() != 'N/A':
                     for val in value.split('; '):
                         object_uri = URIRef(clean_uri(f"{DBR}{val.replace(' ', '_')}"))
                         g.add((movie_uri, predicate, object_uri))
