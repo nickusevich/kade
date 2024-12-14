@@ -1,0 +1,7 @@
+fastapi~=0.89.1
+pydantic~=1.10.8
+uvicorn~=0.22.0
+numpy
+SPARQLWrapper
+fastapi-cache2
+redis
