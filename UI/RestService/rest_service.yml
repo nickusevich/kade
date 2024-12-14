@@ -1,0 +1,126 @@
+# Persistent Volume and Persistent Volume Claim for Redis
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cache-pv
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data"
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cache-pvc
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# Deployment for REST Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rest-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rest-service
+  template:
+    metadata:
+      labels:
+        app: rest-service
+    spec:
+      containers:
+        - name: rest-service
+          image: rest-service
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          env:
+            - name: DATABASE_URL
+              value: "http://localhost:7200/repositories/MoviesRepo"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "200m"
+            limits:
+              memory: "256Mi"
+              cpu: "0.4"
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 5
+
+---
+# Service for REST Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: rest-service
+spec:
+  selector:
+    app: rest-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+  type: NodePort
+
+
+---
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-cache
+  template:
+    metadata:
+      labels:
+        app: redis-cache
+    spec:
+      containers:
+        - name: redis-cache
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - mountPath: /data
+              name: cache
+      volumes:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: cache-pvc
+
+---
+# Service for Redis Cache
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cache
+spec:
+  selector:
+    app: redis-cache
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+  type: ClusterIP
