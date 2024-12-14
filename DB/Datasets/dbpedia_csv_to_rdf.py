@@ -20,7 +20,10 @@ def csv_to_rdf(csv_file, rdf_file):
     DBR = Namespace("http://dbpedia.org/resource/")
     DBO = Namespace("http://dbpedia.org/ontology/")
     DCT = Namespace("http://purl.org/dc/terms/")
+    RDF = Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
     RDFS = Namespace("http://www.w3.org/2000/01/rdf-schema#")
+    PROV = Namespace("http://www.w3.org/ns/prov#")
+
 
     # Create a new RDF graph
     g = Graph()
@@ -80,16 +83,16 @@ def csv_to_rdf(csv_file, rdf_file):
             }
 
             object_attributes = {
-                'genres' :DBO.genre,
-                'actors': DBO.starring,
-                'directors': DBO.director,
-                'distributors': DBO.distributor,
-                'writer': DBO.writer,
-                'producers': DBO.producer,
-                'composers': DBO.composer,
-                'cinematographers': DBO.cinematographer,
-                'productionCompanies': DBO.productionCompany,
-                'wasDerivedFrom': DBO.wasDerivedFrom,
+                'genres' :(DBO.genre, DBO.Genre, RDF.Property),
+                'actors': (DBO.starring, DBO.Actor, DBO.Person),
+                'directors': (DBO.director, DBO.Director, DBO.Person),
+                'distributors': (DBO.distributor, DBO.Distributor, DBO.Person),
+                'writer': (DBO.writer, DBO.Writer, DBO.Person),
+                'producers': (DBO.producer, DBO.Producer, DBO.Person),
+                'composers': (DBO.composer, DBO.Composer, DBO.Person),
+                'cinematographers': (DBO.cinematographer, DBO.Cinematographer, DBO.Person),
+                'productionCompanies': (DBO.productionCompany, DBO.productionCompany, RDF.Property),
+                'wasDerivedFrom': PROV.wasDerivedFrom,
                 'series': DBO.series,
             }
             # Handle literal date attributes
@@ -105,14 +108,6 @@ def csv_to_rdf(csv_file, rdf_file):
                     for val in value.split('; '):
                         g.add((movie_uri, predicate, Literal(val.strip(), lang="en")))
             
-            # # Handle literal numeric attributes
-            # for attr, predicate in num_attributes.items():
-            #     value = row.get(attr)
-            #     if value is not None and value != '' and value != 'N/A':
-            #         for val in value:
-            #             g.add((movie_uri, predicate, Literal(val, datatype=XSD.integer)))
-            #     else:
-            #         g.add((movie_uri, predicate, Literal(value, datatype=XSD.string)))
             for attr, predicate in num_attributes.items():
                 value = row.get(attr)
                 if value is not None and value != '' and value.strip() != 'N/A':
@@ -138,10 +133,16 @@ def csv_to_rdf(csv_file, rdf_file):
                         else:
                             object_uri = URIRef(clean_uri(f"{DBR}{value.replace(' ', '_')}"))
 
-                        g.add((movie_uri, predicate, object_uri))
-                        
-                        if value is not None and value != '' and value.strip() != 'N/A':
-                            g.add((object_uri, RDFS.label, Literal(value.strip(), lang="en")))
+                        if isinstance(predicate, tuple):
+                            tuple_tmp = predicate
+                            predicate = tuple_tmp[0] 
+                            classType = tuple_tmp[1]
+                            type = tuple_tmp[2]
+                            g.add((object_uri, RDF.type, type))
+                            g.add((object_uri, RDF.type, classType))
+                            
+                        g.add((movie_uri, predicate, object_uri))                        
+                        g.add((object_uri, RDFS.label, Literal(value.strip(), lang="en")))
 
     # Serialize the graph to RDF (Turtle format)
     try:

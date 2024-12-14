@@ -4,8 +4,8 @@ Date: Oct 3, 2024
 Description: rest api service for movie app
 """
 
-from filecmp import clear_cache
 from fastapi import FastAPI, HTTPException, Query, Depends
+from typing import Optional
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
@@ -13,14 +13,14 @@ import redis
 import pickle
 from redis.asyncio import Redis  # Async Redis client
 from contextlib import asynccontextmanager
-from contextlib import asynccontextmanager
 import logging
 from SPARQLWrapper import SPARQLWrapper, JSON
 
-from Backend.db_crud import MovieDatabase
+from db_crud import MovieDatabase
 
 graphdb_endpoint = "http://localhost:7200/repositories/MoviesRepo"
 sparql = SPARQLWrapper(graphdb_endpoint)
+movieDatabase = MovieDatabase()
 
 
 DO_LOGS = False
@@ -63,17 +63,16 @@ async def root():
 
 @app.get('/movies')
 @cache(expire=300)
-async def get_movies_titles(title: str = Query(..., alias="movieLabel"), redis_client: cache = Depends(get_redis_cache)):
+async def get_movies_titles(title: Optional[str] = Query(None, alias="movieLabel"), redis_client: cache = Depends(get_redis_cache)):
     try:
         write_log(f"Getting movies that contain {title} in their label", "info")
         var_name = f"movie_{title}"
 
         if (cached_answer := redis_client.get(var_name)) is not None:
             write_log(f"Found movie query {title} in cache")
-
             return pickle.loads(cached_answer)
 
-        results = await MovieDatabase.fetch_movies_by_title(title)  # Use CRUD operation
+        results = await movieDatabase.fetch_movies_by_title(title)  # Use CRUD operation
         redis_client.set(var_name, pickle.dumps(results))
         write_log(f"Written movie query {title} into cache")
     except Exception as e:

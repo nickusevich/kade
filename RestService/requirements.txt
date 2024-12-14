@@ -5,3 +5,6 @@ numpy
 SPARQLWrapper
 fastapi-cache2
 redis
+requests
+pandas
+asyncio

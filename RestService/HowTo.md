@@ -7,5 +7,5 @@ docker build -t rest-serice -f ".\RestService\Dockerfile".
 
 ## How to build Docker contianer for rest api:
 ```
-docker-compose -f ".\RestService\rest_service.yml" up -d
+docker-compose -f ".\RestService\rest_service.yml" up -d --build
 ```
