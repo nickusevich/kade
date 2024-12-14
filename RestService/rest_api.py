@@ -17,6 +17,8 @@ from contextlib import asynccontextmanager
 import logging
 from SPARQLWrapper import SPARQLWrapper, JSON
 
+from Backend.db_crud import MovieDatabase
+
 graphdb_endpoint = "http://localhost:7200/repositories/MoviesRepo"
 sparql = SPARQLWrapper(graphdb_endpoint)
 
@@ -71,15 +73,14 @@ async def get_movies_titles(title: str = Query(..., alias="movieLabel"), redis_c
 
             return pickle.loads(cached_answer)
 
-        results = await db_crud.get_out_of_range_temperatures(title)  # Use CRUD operation
-        return_info = [{"timestamp": result[0], "temperature": result[1]} for result in results]
-        redis_client.set(var_name, pickle.dumps(return_info))
+        results = await MovieDatabase.fetch_movies_by_title(title)  # Use CRUD operation
+        redis_client.set(var_name, pickle.dumps(results))
         write_log(f"Written movie query {title} into cache")
     except Exception as e:
         print(f"Error executing query: {e}")
         raise HTTPException(status_code=500, detail=f"The following error occurred during the operation: {str(e)}")
 
-    return return_info
+    return results
 
 @app.get('/ping')
 async def ping():
