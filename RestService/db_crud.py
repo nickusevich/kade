@@ -356,12 +356,6 @@ async def main():
     movies = await db.fetch_movies_by_properties(genre="Drama")
     print(f"Movies found by genre Drama: {len(movies)}")
     print(movies[:10])
-    
-
-    # Test the new method
-    # movies_by_properties = await db.fetch_movies_by_properties(title="matrix", actor="keanu", director="wachowski")
-    # print(f"Movies found by properties: {len(movies_by_properties)}")
-    # print(movies_by_properties[:10])
 
 if __name__ == "__main__":
     asyncio.run(main())
