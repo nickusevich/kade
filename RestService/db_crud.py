@@ -130,6 +130,18 @@ class MovieDatabase:
             list: A list of dictionaries containing movie URIs and labels.
         """
         return await self.fetch_objects_by_title("Film", title)
+    
+    async def fetch_genres_by_name(self, title: str = None):
+        """
+        Fetch genres by title from the SPARQL endpoint.
+
+        Args:
+            title (str, optional): The genre name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing genres URIs and labels.
+        """
+        return await self.fetch_objects_by_title("Genre", title)
 
     async def fetch_actors_by_name(self, name: str = None):
         """
@@ -227,12 +239,13 @@ class MovieDatabase:
         """
         return await self.fetch_objects_by_title("productionCompany", name)
 
-    async def fetch_movies_by_properties(self, title: str = None, actor: str = None, director: str = None, distributor: str = None, writer: str = None, producer: str = None, composer: str = None, cinematographer: str = None, production_company: str = None):
+    async def fetch_movies_by_properties(self, title: str = None, genre:str = None, actor: str = None, director: str = None, distributor: str = None, writer: str = None, producer: str = None, composer: str = None, cinematographer: str = None, production_company: str = None):
         """
         Fetch movies by various properties from the SPARQL endpoint.
 
         Args:
             title (str, optional): The title to search for. Defaults to None.
+            genre (str, optional): The genre to search for. Defaults to None.
             actor (str, optional): The actor to search for. Defaults to None.
             director (str, optional): The director to search for. Defaults to None.
             distributor (str, optional): The distributor to search for. Defaults to None.
@@ -270,6 +283,8 @@ class MovieDatabase:
         filters = []
         if title:
             filters.append(f'FILTER (CONTAINS(LCASE(STR(?movieLabel)), "{title.lower()}"))')
+        if genre:
+            filters.append(f'?movie dbo:genre ?genre . ?genre rdfs:label ?genreLabel . FILTER (CONTAINS(LCASE(STR(?genreLabel)), "{genre.lower()}")) . ')
         if actor:
             query += f'?movie dbo:starring ?actor . ?actor rdfs:label ?actorLabel . FILTER (CONTAINS(LCASE(STR(?actorLabel)), "{actor.lower()}")) . '
         if director:
@@ -324,7 +339,7 @@ async def main():
     Main function to test the MovieDatabase class methods.
     """
     db = MovieDatabase()
-    properties_to_test = ["movies", "actors", "directors", "distributors", "writers", "producers", "composers", "cinematographers", "productionCompanies"]
+    properties_to_test = ["movies", "genres", "actors", "directors", "distributors", "writers", "producers", "composers", "cinematographers", "productionCompanies"]
     for property_to_test in properties_to_test:
         print(f"Testing fetch_movies_by_properties with {property_to_test}")
         function_name = f"fetch_{property_to_test}_by_name"
@@ -335,8 +350,12 @@ async def main():
             print(f"No {property_to_test} found.")
 
     movies = await db.fetch_movies_by_properties(actor="Lauren Graham")
-    print(f"Movies found by title: {len(movies)}")
+    print(f"Movies by Lauren Graham found: {len(movies)}")
     print(movies)
+
+    movies = await db.fetch_movies_by_properties(genre="Drama")
+    print(f"Movies found by genre Drama: {len(movies)}")
+    print(movies[:10])
     
 
     # Test the new method
