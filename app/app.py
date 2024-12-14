@@ -2,11 +2,16 @@ from dash import Dash, html, dcc, Input, Output
 import pandas as pd
 from environs import Env
 from dash import Dash, dcc, html, State, Input, Output
+from querying import get_all_genres, get_all_actors, get_all_directors
 
 
+# Initializing the application
 app = Dash(__name__)
 
-from dash import dcc, html
+# Initializing graphdb endpoint
+graphdb_endpoint = "http://localhost:7200/repositories/MoviesRepo"
+
+
 
 app.layout = html.Div([
     # Sidebar styling
@@ -54,11 +59,7 @@ app.layout = html.Div([
             html.Label("Select Director:"),
             dcc.Dropdown(
                 id="director",
-                options=[
-                    {"label": "Director A", "value": "Director A"},
-                    {"label": "Director B", "value": "Director B"},
-                    {"label": "Director C", "value": "Director C"}
-                ],
+                options= get_all_directors(),
                 value="Select a director",
                 className="dropdown"
             )
@@ -84,13 +85,7 @@ app.layout = html.Div([
             html.Label("Select Actors:"),
             dcc.Dropdown(
                 id="actors",
-                options=[
-                    {"label": "Actor A", "value": "Actor A"},
-                    {"label": "Actor B", "value": "Actor B"},
-                    {"label": "Actor C", "value": "Actor C"},
-                    {"label": "Actor D", "value": "Actor D"},
-                    {"label": "Actor E", "value": "Actor E"}
-                ],
+                options= get_all_actors(),
                 multi=True,
                 value=[]
             )
@@ -133,16 +128,17 @@ def enable_button(film_title, rating_range):
     Input("search-btn", "n_clicks"),
     State("film-title", "value"),
     State("rating-range", "value"),
+    State("actors", "value"),  # Getting the selected actors
     prevent_initial_call=True
 )
-def display_output(n_clicks, film_title, rating_range):
+def display_output(n_clicks, film_title, rating_range, actors):
     output = f"""
     You selected:
     - Film Title: {film_title}
     - Rating Range: {rating_range}
+    - Actors: {', '.join(actors)}  # Displaying the selected actors
     """
     return html.Pre(output)
-
 
 
 if __name__ == '__main__':
