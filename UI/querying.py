@@ -47,11 +47,16 @@ def get_all_actors():
 
     query = """
     PREFIX dbo: <http://dbpedia.org/ontology/>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
     
-    SELECT DISTINCT ?actor
+    SELECT DISTINCT ?actor ?actorLabel
     WHERE {
       ?movie a dbo:Film .
       ?movie dbo:starring ?actor .
+      ?actor rdfs:label ?actorLabel .
+      FILTER (LANG(?actorLabel) = "en")
+      FILTER (?actor != <http://dbpedia.org/resource/N/A>)
     }
     """
     response = requests.get(
@@ -63,14 +68,15 @@ def get_all_actors():
     if response.status_code == 200:
         results = response.json()
         actors = [result["actor"]["value"] for result in results["results"]["bindings"]]
+        actors_names = [result["actorLabel"]["value"] for result in results["results"]["bindings"]]
 
-        for actor in actors:
+        # for actor in actors:
          
 
-            actor_name = actor.split("/")[-1].replace("_", " ").strip()
-            unique_actors.add(actor_name)
+        #     actor_name = actor.split("/")[-1].replace("_", " ").strip()
+        #     unique_actors.add(actor_name)
 
-        return list(unique_actors)
+        return list(set(actors_names))
     else:
         print(f"Query failed with status code {response.status_code}")
         return []
@@ -114,3 +120,5 @@ def get_all_genres():
         print(f"Query failed with status code {response.status_code}")
         return []
 
+
+print(get_all_actors())
