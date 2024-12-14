@@ -6,10 +6,3 @@ services:
     container_name: graphdb-instance
     ports:
       - "7200:7200" # GraphDB web interface
-    volumes:
-      - graphdb-data:/opt/graphdb/home       # Persistent volume for data
-      - ./import:/root/import                # Local directory for imports
-
-volumes:
-  graphdb-data:
-    driver: local
