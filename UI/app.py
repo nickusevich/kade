@@ -1,6 +1,6 @@
 from dash import Dash, html, dcc, Input, Output
 import pandas as pd
-from environs import Env
+# from environs import Env
 from dash import Dash, dcc, html, State, Input, Output
 from querying import get_all_genres, get_all_actors, get_all_directors
 

@@ -114,6 +114,3 @@ def get_all_genres():
         print(f"Query failed with status code {response.status_code}")
         return []
 
-# Fetch and display unique genres
-genres = get_all_genres()
-

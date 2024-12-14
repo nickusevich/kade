@@ -126,12 +126,22 @@ def csv_to_rdf(csv_file, rdf_file):
 
             # Handle object attributes
             for attr, predicate in object_attributes.items():
-                value = row.get(attr)
-                if value is not None and value != '' and value.strip() != 'N/A':
-                    for val in value.split('; '):
-                        if val is not None and val != '' and val.strip() != 'N/A':
-                            object_uri = URIRef(clean_uri(f"{DBR}{val.replace(' ', '_')}"))
-                            g.add((movie_uri, predicate, object_uri))
+                values = row.get(attr)
+                uri_values = row.get(f"{attr}_URIs")
+                if uri_values is None or uri_values == '' or uri_values == 'N/A':
+                    uri_values = ""
+
+                if values is not None and values != '' and values.strip() != 'N/A':
+                    for value, uri in  zip(values.split('; '), uri_values.split('; ')):
+                        if uri is not None and uri != '' and uri.strip() != 'N/A':
+                            object_uri = URIRef(clean_uri(uri))
+                        else:
+                            object_uri = URIRef(clean_uri(f"{DBR}{value.replace(' ', '_')}"))
+
+                        g.add((movie_uri, predicate, object_uri))
+                        
+                        if value is not None and value != '' and value.strip() != 'N/A':
+                            g.add((object_uri, RDFS.label, Literal(value.strip(), lang="en")))
 
     # Serialize the graph to RDF (Turtle format)
     try:
