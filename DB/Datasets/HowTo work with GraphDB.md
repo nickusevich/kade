@@ -20,7 +20,7 @@ http://localhost:7200/
 ### Importing files
 1. Navigation side bar -> Import -> Upload RDF files
 ![alt text](<Screenshots/import file 1.png>)
-2. Select TTL File (e.g. Datasets/TTLs/dbpedia_movies.ttl)
+2. Select TTL File (e.g. DB/Datasets/TTLs/dbpedia_movies.ttl)
 Leave default values as is
 ![alt text](<Screenshots/import file 2.png>)
 3. Press the Import button in the dialog and then you will see the data been loaded
