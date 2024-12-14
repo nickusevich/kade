@@ -1,22 +1,8 @@
 from dash import Dash, html, dcc, Input, Output
 import pandas as pd
-from db import Neo4jConnection
 from environs import Env
-
-env = Env()
-env.read_env()
-
-NEO4J_URI = env("NEO4J_URI")
-NEO4J_USER = env("NEO4J_USER")
-NEO4J_PASSWORD = env("NEO4J_PASSWORD")
-
-# Establish Neo4j connection
-conn = Neo4jConnection(uri=NEO4J_URI, user=NEO4J_USER, password=NEO4J_PASSWORD)
-print(conn.verify_connectivity)
-
-
-
 from dash import Dash, dcc, html, State, Input, Output
+
 
 app = Dash(__name__)
 
