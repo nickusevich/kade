@@ -17,6 +17,9 @@ CHUNK_SIZE = 100  # Process movies in chunks of 100
 # Define the SPARQL endpoint
 endpoint_url = "http://dbpedia.org/sparql"
 
+
+DIR_PATH = "DB/Datasets"
+
 # Step 1: Fetch mandatory information for a specific date range
 def fetch_mandatory_information(start_date, end_date, limit=5000):
     sparql = SPARQLWrapper(endpoint_url)
@@ -478,8 +481,7 @@ def main():
     print(f"all_movies_df has {len(all_movies_df)} rows and {len(all_movies_df.columns)} columns")
     
     # Ensure output directory exists
-    os.makedirs("Datasets", exist_ok=True)
-    output_file = f"Datasets/CSVs/dbpedia_movies.csv"
+    output_file = f"{DIR_PATH}/CSVs/dbpedia_movies.csv"
     all_movies_df.to_csv(output_file, index=False)
     print(f"Data saved to {output_file}")
 
@@ -488,7 +490,7 @@ def main():
         {"attribute": k, "status": v["status"], "count": v["count"]}
         for k, v in attribute_summary.items()
     ])
-    attribute_summary_file = f"Datasets/CSVs/attribute_summary.csv"
+    attribute_summary_file = f"{DIR_PATH}/CSVs/attribute_summary.csv"
     attribute_summary_df.to_csv(attribute_summary_file, index=False)
     print(f"Attribute summary saved to {attribute_summary_file}")
 
