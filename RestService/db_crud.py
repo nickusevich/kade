@@ -1,3 +1,8 @@
+"""
+This module provides a class for interacting with a SPARQL endpoint to fetch various types of objects
+such as movies, actors, directors, etc., from a GraphDB repository.
+"""
+
 from SPARQLWrapper import SPARQLWrapper, JSON
 import logging
 import asyncio
@@ -17,15 +22,30 @@ if is_running_in_docker():
     GRAPHDB_ENDPOINT = "http://host.docker.internal:7200/repositories/MoviesRepo"
 
 class MovieDatabase:
+    """
+    A class to interact with a SPARQL endpoint to fetch various types of objects.
+    """
 
     def __init__(self):
+        """
+        Initialize the MovieDatabase with the SPARQL endpoint.
+        """
         self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
         self.limit = 5000
 
     def close(self):
+        """
+        Close the connection to the SPARQL endpoint.
+        """
         self.sparql = None
 
     def is_connected(self):
+        """
+        Check if the connection to the SPARQL endpoint is active.
+
+        Returns:
+            bool: True if connected, False otherwise.
+        """
         try:
             self.sparql.queryType = 'SELECT'
             self.sparql.setQuery("ASK WHERE { ?s ?p ?o }")
@@ -37,6 +57,16 @@ class MovieDatabase:
             return False
 
     async def fetch_objects_by_title(self, object_type: str, title: str = None):
+        """
+        Fetch objects by title from the SPARQL endpoint.
+
+        Args:
+            object_type (str): The type of object to fetch (e.g., "Film", "Actor").
+            title (str, optional): The title to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing object URIs and labels.
+        """
         return_data = []
 
         # Check if connected to the database
@@ -89,51 +119,230 @@ class MovieDatabase:
 
         return return_data
 
-    async def fetch_movies_by_title(self, title: str = None):
+    async def fetch_movies_by_name(self, title: str = None):
+        """
+        Fetch movies by title from the SPARQL endpoint.
+
+        Args:
+            title (str, optional): The title to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing movie URIs and labels.
+        """
         return await self.fetch_objects_by_title("Film", title)
 
     async def fetch_actors_by_name(self, name: str = None):
+        """
+        Fetch actors by name from the SPARQL endpoint.
+
+        Args:
+            name (str, optional): The name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing actor URIs and labels.
+        """
         return await self.fetch_objects_by_title("Actor", name)
     
     async def fetch_directors_by_name(self, name: str = None):
+        """
+        Fetch directors by name from the SPARQL endpoint.
+
+        Args:
+            name (str, optional): The name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing director URIs and labels.
+        """
         return await self.fetch_objects_by_title("Director", name)
     
-    async def fetch_distributor_by_name(self, name: str = None):
+    async def fetch_distributors_by_name(self, name: str = None):
+        """
+        Fetch distributors by name from the SPARQL endpoint.
+
+        Args:
+            name (str, optional): The name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing distributor URIs and labels.
+        """
         return await self.fetch_objects_by_title("Distributor", name)
     
-    async def fetch_writer_by_name(self, name: str = None):
+    async def fetch_writers_by_name(self, name: str = None):
+        """
+        Fetch writers by name from the SPARQL endpoint.
+
+        Args:
+            name (str, optional): The name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing writer URIs and labels.
+        """
         return await self.fetch_objects_by_title("Writer", name)
     
-    async def fetch_producer_by_name(self, name: str = None):
-        return await self.fetch_objects_by_title("Producer", name)
+    async def fetch_producers_by_name(self, name: str = None):
+        """
+        Fetch producers by name from the SPARQL endpoint.
 
+        Args:
+            name (str, optional): The name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing producer URIs and labels.
+        """
+        return await self.fetch_objects_by_title("Producer", name)
+    
+    async def fetch_composers_by_name(self, name: str = None):
+        """
+        Fetch composers by name from the SPARQL endpoint.
+
+        Args:
+            name (str, optional): The name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing composer URIs and labels.
+        """
+        return await self.fetch_objects_by_title("Composer", name)
+    
+    async def fetch_cinematographers_by_name(self, name: str = None):
+        """
+        Fetch cinematographers by name from the SPARQL endpoint.
+
+        Args:
+            name (str, optional): The name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing cinematographer URIs and labels.
+        """
+        return await self.fetch_objects_by_title("Cinematographer", name)
+    
+    async def fetch_productionCompanies_by_name(self, name: str = None):
+        """
+        Fetch production companies by name from the SPARQL endpoint.
+
+        Args:
+            name (str, optional): The name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing production company URIs and labels.
+        """
+        return await self.fetch_objects_by_title("productionCompany", name)
+
+    async def fetch_movies_by_properties(self, title: str = None, actor: str = None, director: str = None, distributor: str = None, writer: str = None, producer: str = None, composer: str = None, cinematographer: str = None, production_company: str = None):
+        """
+        Fetch movies by various properties from the SPARQL endpoint.
+
+        Args:
+            title (str, optional): The title to search for. Defaults to None.
+            actor (str, optional): The actor to search for. Defaults to None.
+            director (str, optional): The director to search for. Defaults to None.
+            distributor (str, optional): The distributor to search for. Defaults to None.
+            writer (str, optional): The writer to search for. Defaults to None.
+            producer (str, optional): The producer to search for. Defaults to None.
+            composer (str, optional): The composer to search for. Defaults to None.
+            cinematographer (str, optional): The cinematographer to search for. Defaults to None.
+            production_company (str, optional): The production company to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing movie URIs and labels.
+        """
+        return_data = []
+
+        # Check if connected to the database
+        if not self.is_connected():
+            logging.info("Not connected to the database. Attempting to reconnect.")
+            self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
+            if not self.is_connected():
+                logging.error("Failed to reconnect to the database.")
+                raise Exception("Failed to reconnect to the database.")
+
+        # Construct the SPARQL query
+        query = """
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT DISTINCT ?movie ?movieLabel
+        WHERE {
+          ?movie a dbo:Film .
+          ?movie rdfs:label ?movieLabel .
+        """
+
+        # Add filters based on provided properties
+        filters = []
+        if title:
+            filters.append(f'FILTER (CONTAINS(LCASE(STR(?movieLabel)), "{title.lower()}"))')
+        if actor:
+            query += f'?movie dbo:starring ?actor . ?actor rdfs:label ?actorLabel . FILTER (CONTAINS(LCASE(STR(?actorLabel)), "{actor.lower()}")) . '
+        if director:
+            query += f'?movie dbo:director ?director . ?director rdfs:label ?directorLabel . FILTER (CONTAINS(LCASE(STR(?directorLabel)), "{director.lower()}")) . '
+        if distributor:
+            query += f'?movie dbo:distributor ?distributor . ?distributor rdfs:label ?distributorLabel . FILTER (CONTAINS(LCASE(STR(?distributorLabel)), "{distributor.lower()}")) . '
+        if writer:
+            query += f'?movie dbo:writer ?writer . ?writer rdfs:label ?writerLabel . FILTER (CONTAINS(LCASE(STR(?writerLabel)), "{writer.lower()}")) . '
+        if producer:
+            query += f'?movie dbo:producer ?producer . ?producer rdfs:label ?producerLabel . FILTER (CONTAINS(LCASE(STR(?producerLabel)), "{producer.lower()}")) . '
+        if composer:
+            query += f'?movie dbo:musicComposer ?composer . ?composer rdfs:label ?composerLabel . FILTER (CONTAINS(LCASE(STR(?composerLabel)), "{composer.lower()}")) . '
+        if cinematographer:
+            query += f'?movie dbo:cinematography ?cinematographer . ?cinematographer rdfs:label ?cinematographerLabel . FILTER (CONTAINS(LCASE(STR(?cinematographerLabel)), "{cinematographer.lower()}")) . '
+        if production_company:
+            query += f'?movie dbo:productionCompany ?productionCompany . ?productionCompany rdfs:label ?productionCompanyLabel . FILTER (CONTAINS(LCASE(STR(?productionCompanyLabel)), "{production_company.lower()}")) . '
+
+        query += " ".join(filters)
+        query += """
+        FILTER (LANG(?movieLabel) = "en")
+        }"""
+        query += f"""
+        LIMIT {self.limit}
+        """
+
+        self.sparql.setQuery(query)
+        self.sparql.setReturnFormat(JSON)
+
+        # Execute the query and process results
+        try:
+            logging.info(f"Executing SPARQL query: {query}")
+            results = self.sparql.query().convert()
+            if "results" in results and "bindings" in results["results"]:
+                return_data = [
+                    {
+                        "movie_uri": result["movie"]["value"],
+                        "movie": result["movieLabel"]["value"]
+                    }
+                    for result in results["results"]["bindings"]
+                ]
+            else:
+                logging.warning("No results found in SPARQL query response.")
+        except Exception as e:
+            logging.error(f"fetch_movies_by_properties - Failed: {e}")
+            raise
+
+        return return_data
 
 
 async def main():
+    """
+    Main function to test the MovieDatabase class methods.
+    """
     db = MovieDatabase()
-    movie_results = await db.fetch_movies_by_title("matrix")
-    print(f"Movies found: {len(movie_results)}")
-    print(movie_results[:10])
+    properties_to_test = ["movies", "actors", "directors", "distributors", "writers", "producers", "composers", "cinematographers", "productionCompanies"]
+    for property_to_test in properties_to_test:
+        print(f"Testing fetch_movies_by_properties with {property_to_test}")
+        function_name = f"fetch_{property_to_test}_by_name"
+        results = await getattr(db, function_name)()
+        if results:
+            print(f"{property_to_test} found: {len(results)}")
+        else:
+            print(f"No {property_to_test} found.")
 
-    actor_results = await db.fetch_actors_by_name()
-    print(f"Actors found: {len(actor_results)}")
-    print(actor_results[:10])
+    movies = await db.fetch_movies_by_properties(actor="Lauren Graham")
+    print(f"Movies found by title: {len(movies)}")
+    print(movies)
+    
 
-    director_results = await db.fetch_directors_by_name()
-    print(f"Directors found: {len(director_results)}")
-    print(director_results[:10])
-
-    distributor_results = await db.fetch_distributor_by_name()
-    print(f"Directors found: {len(distributor_results)}")
-    print(distributor_results[:10])
-
-    writer_results = await db.fetch_writer_by_name()
-    print(f"Writers found: {len(writer_results)}")
-    print(writer_results[:10])
-
-    producer_results = await db.fetch_producer_by_name()
-    print(f"Producers found: {len(producer_results)}")
-    print(producer_results[:10])
+    # Test the new method
+    # movies_by_properties = await db.fetch_movies_by_properties(title="matrix", actor="keanu", director="wachowski")
+    # print(f"Movies found by properties: {len(movies_by_properties)}")
+    # print(movies_by_properties[:10])
 
 if __name__ == "__main__":
     asyncio.run(main())
