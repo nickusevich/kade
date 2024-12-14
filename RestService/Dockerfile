@@ -2,11 +2,10 @@ FROM python:3.12
 
 WORKDIR /source
 
-COPY ../RestService /source/RestService
-COPY ../Backend /source/Backend/
+COPY . /source
 
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir --upgrade -r /source/RestService/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /source/requirements.txt
 
 EXPOSE 80
 

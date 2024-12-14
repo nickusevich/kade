@@ -1,126 +1,35 @@
-# Persistent Volume and Persistent Volume Claim for Redis
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: cache-pv
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 2Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/data"
+services:
+  rest-service:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      - DATABASE_URL=http://localhost:7200/repositories/MoviesRepo
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.4'
+        reservations:
+          memory: 128M
+          cpus: '0.2'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
 
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: cache-pvc
-spec:
-  storageClassName: manual
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+  redis-cache:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - cache:/data
 
----
-# Deployment for REST Service
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: rest-service
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: rest-service
-  template:
-    metadata:
-      labels:
-        app: rest-service
-    spec:
-      containers:
-        - name: rest-service
-          image: rest-service
-          imagePullPolicy: Never
-          ports:
-            - containerPort: 80
-          env:
-            - name: DATABASE_URL
-              value: "http://localhost:7200/repositories/MoviesRepo"
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "200m"
-            limits:
-              memory: "256Mi"
-              cpu: "0.4"
-          livenessProbe:
-            httpGet:
-              path: /ping
-              port: 80
-            initialDelaySeconds: 20
-            periodSeconds: 5
-
----
-# Service for REST Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: rest-service
-spec:
-  selector:
-    app: rest-service
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-      nodePort: 30080
-  type: NodePort
-
-
----
-# Redis Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: redis-cache
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: redis-cache
-  template:
-    metadata:
-      labels:
-        app: redis-cache
-    spec:
-      containers:
-        - name: redis-cache
-          image: redis:alpine
-          ports:
-            - containerPort: 6379
-          volumeMounts:
-            - mountPath: /data
-              name: cache
-      volumes:
-        - name: cache
-          persistentVolumeClaim:
-            claimName: cache-pvc
-
----
-# Service for Redis Cache
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis-cache
-spec:
-  selector:
-    app: redis-cache
-  ports:
-    - protocol: TCP
-      port: 6379
-      targetPort: 6379
-  type: ClusterIP
+volumes:
+  cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./RedisCache
