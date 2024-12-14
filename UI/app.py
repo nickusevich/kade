@@ -1,17 +1,22 @@
-from dash import Dash, html, dcc, Input, Output
-import pandas as pd
-# from environs import Env
-from dash import Dash, dcc, html, State, Input, Output
-from querying import get_all_genres, get_all_actors, get_all_directors
-
+from dash import Dash, html, dcc, Input, Output, State, exceptions
+import requests
 
 # Initializing the application
 app = Dash(__name__)
 
-# Initializing graphdb endpoint
-graphdb_endpoint = "http://localhost:7200/repositories/MoviesRepo"
+# Function to get options from REST API
+def get_options_from_api(endpoint):
+    response = requests.get(endpoint)
+    if response.status_code == 200:
+        data = response.json()
+        return [{"label": item["label"], "value": item["label"]} for item in data]
+    else:
+        return []
 
-
+# Fetch initial options for dropdowns
+movies_options = get_options_from_api('http://localhost:80/movies')
+director_options = get_options_from_api('http://localhost:80/directors')
+actor_options = get_options_from_api('http://localhost:80/actors')
 
 app.layout = html.Div([
     # Sidebar styling
@@ -23,21 +28,10 @@ app.layout = html.Div([
             html.Label("Select Film Title:"),
             dcc.Dropdown(
                 id="film-title",
-                options=[
-                    {"label": "Film A", "value": "Film A"},
-                    {"label": "Film B", "value": "Film B"},
-                    {"label": "Film C", "value": "Film C"},
-                    {"label": "Film 5", "value": "Film 5"},
-                    {"label": "Film 3", "value": "Film 3"},
-                    {"label": "Film 228", "value": "Film 228"},
-                    {"label": "Film XDD", "value": "Film XDD"},
-                    {"label": "Film XD", "value": "Film XD"},
-                    {"label": "Film 10", "value": "Film 10"},
-                    {"label": "Film X", "value": "Film X"}
-                ],
-                value="Select a title",
-                className="dropdown",
-                style={}
+                options=movies_options,
+                multi=True,
+                placeholder="Start typing to search for a title",
+                className="dropdown"
             )
         ], className="input-group"),
 
@@ -59,7 +53,7 @@ app.layout = html.Div([
             html.Label("Select Director:"),
             dcc.Dropdown(
                 id="director",
-                options= get_all_directors(),
+                options=director_options,
                 value="Select a director",
                 className="dropdown"
             )
@@ -85,7 +79,7 @@ app.layout = html.Div([
             html.Label("Select Actors:"),
             dcc.Dropdown(
                 id="actors",
-                options= get_all_actors(),
+                options=actor_options,
                 multi=True,
                 value=[]
             )
@@ -112,7 +106,16 @@ app.layout = html.Div([
     ], className="content")
 ])
 
-
+@app.callback(
+    Output("film-title", "options"),
+    Input("film-title", "search_value"),
+    prevent_initial_call=True
+)
+def update_movie_options(search_value):
+    if not search_value:
+        raise exceptions.PreventUpdate
+    endpoint = f'http://localhost:80/movies?movieLabel={search_value}'
+    return get_options_from_api(endpoint)
 
 @app.callback(
     Output("search-btn", "disabled"),
@@ -121,7 +124,6 @@ app.layout = html.Div([
 def enable_button(film_title, rating_range):
     # Enable the button only when all fields have valid values
     return film_title == "Select a title" or not rating_range
-
 
 @app.callback(
     Output("output", "children"),
@@ -140,8 +142,5 @@ def display_output(n_clicks, film_title, rating_range, actors):
     """
     return html.Pre(output)
 
-
 if __name__ == '__main__':
     app.run_server(debug=True)
-
-

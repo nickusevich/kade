@@ -31,7 +31,7 @@ class MovieDatabase:
         Initialize the MovieDatabase with the SPARQL endpoint.
         """
         self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
-        self.limit = 5000
+        self.limit = 50000
 
     def close(self):
         """
@@ -320,8 +320,8 @@ class MovieDatabase:
             if "results" in results and "bindings" in results["results"]:
                 return_data = [
                     {
-                        "movie_uri": result["movie"]["value"],
-                        "movie": result["movieLabel"]["value"]
+                        "object_uri": result["movie"]["value"],
+                        "label": result["movieLabel"]["value"]
                     }
                     for result in results["results"]["bindings"]
                 ]
@@ -339,6 +339,11 @@ async def main():
     Main function to test the MovieDatabase class methods.
     """
     db = MovieDatabase()
+
+    # Test fetching actors by name
+    actors = await db.fetch_actors_by_name("Ali")
+    print(f"Actors found: {len(actors)}")
+
     properties_to_test = ["movies", "genres", "actors", "directors", "distributors", "writers", "producers", "composers", "cinematographers", "productionCompanies"]
     for property_to_test in properties_to_test:
         print(f"Testing fetch_movies_by_properties with {property_to_test}")
@@ -356,6 +361,28 @@ async def main():
     movies = await db.fetch_movies_by_properties(genre="Drama")
     print(f"Movies found by genre Drama: {len(movies)}")
     print(movies[:10])
+
+
+    movies = await db.fetch_movies_by_properties()
+    print(movies[:10])
+
+    params = {
+            "title": "",
+            "genre": "",
+            "actor": "",
+            "director": "",
+            "distributor": "",
+            "writer": "",
+            "producer": "",
+            "composer": "",
+            "cinematographer": "",
+            "production_company": ""
+        }
+    filtered_params = {k: v for k, v in params.items() if v}
+    var_name = "movie_" + "_".join(f"{k}_{v}" for k, v in filtered_params.items())
+
+    print(var_name)
+    
 
 if __name__ == "__main__":
     asyncio.run(main())
