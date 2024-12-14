@@ -1,57 +1,89 @@
-"""
-File: get_reviews.py
-Date: 09-12-2024
-Description: Get reviews from IMDb
-"""
-
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import re
 import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-headers = {
-    'Referer': 'https://www.rottentomatoes.com/m/notebook/reviews?type=user',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36',
-    'X-Requested-With': 'XMLHttpRequest',
-}
+def fetch_imdb_reviews(imdb_id):
+    url = f"https://www.imdb.com/title/tt{imdb_id}/reviews?ref_=tt_ql_3"
 
-s = requests.Session()
+    # Configure Selenium options
+    options = Options()
+    options.add_argument("--headless")  # Run in headless mode
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
-def get_reviews(url):
-    r = requests.get(url)
-    movie_id_s = re.findall(r'(?<=movieId":")(.*)(?=","type)',r.text)
-    if len(movie_id_s) > 0:
-     movie_id = movie_id_s[0]
-    else:
-        print("Movie ID not found")
-        return []
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.get(url)
 
-    api_url = f"https://www.rottentomatoes.com/napi/movie/{movie_id}/criticsReviews/all" #use reviews/userfor user reviews
-    
-    payload = {
-        'direction': 'next',
-        'endCursor': '',
-        'startCursor': '',
-    }
-    
-    review_data = []
-    
-    while True:
-        r = s.get(api_url, headers=headers, params=payload)
-        data = r.json()
+    # Wait for a specific element to confirm the page is loaded
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-        if not data['pageInfo']['hasNextPage']:
-            break
+    try:
+        # Find all buttons with specific classes
+        buttons = driver.find_elements(By.CLASS_NAME, "ipc-btn")
 
-        payload['endCursor'] = data['pageInfo']['endCursor']
-        payload['startCursor'] = data['pageInfo']['startCursor'] if data['pageInfo'].get('startCursor') else ''
+        # Filter buttons by the text content "All"
+        show_all_button = None
+        for button in buttons:
+            if "All" in button.text:
+                show_all_button = button
+                break
 
-        review_data.extend(data['reviews'])
-        time.sleep(1)
-    
-    return review_data
+        if show_all_button:
+            # Click the button
+            driver.execute_script("arguments[0].click();", show_all_button)
+            time.sleep(2)  # Wait for the reviews to load
+        else:
+            print("No 'All' button found on the page.")
+
+        # Parse the page source after loading all reviews
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+
+    finally:
+        driver.quit()
+
+    # Extract reviews
+    reviews = []
+    review_divs = soup.find_all(class_="review-container")
+
+    for review in review_divs:
+        review_info = {
+            "rating": None,
+            "title": None,
+            "text": None
+        }
+
+        # Extract rating
+        rating_obj = review.find(class_="rating-other-user-rating")
+        if rating_obj:
+            review_info['rating'] = rating_obj.get_text(strip=True)
+
+        # Extract title
+        title_obj = review.find(class_="title")
+        if title_obj:
+            review_info['title'] = title_obj.get_text(strip=True)
+
+        # Extract text
+        text_obj = review.find(class_="text show-more__control")
+        if text_obj:
+            review_info['text'] = text_obj.get_text(strip=True)
+        
+        reviews.append(review_info)
+
+    return reviews
 
 if __name__ == "__main__":
-    data = get_reviews('https://www.rottentomatoes.com/m/interstellar_2014/reviews')
-    df = pd.json_normalize(data)
+    imdb_id = "0298148"  # Example: Shrek 2
+    reviews = fetch_imdb_reviews(imdb_id)
+    df = pd.DataFrame(reviews)
+    df.to_csv("imdb_reviews.csv", index=False)
+    print(df.head())

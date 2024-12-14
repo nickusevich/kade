@@ -20,6 +20,7 @@ def csv_to_rdf(csv_file, rdf_file):
     DBR = Namespace("http://dbpedia.org/resource/")
     DBO = Namespace("http://dbpedia.org/ontology/")
     DCT = Namespace("http://purl.org/dc/terms/")
+    RDFS = Namespace("http://www.w3.org/2000/01/rdf-schema#")
 
     # Create a new RDF graph
     g = Graph()
@@ -58,6 +59,7 @@ def csv_to_rdf(csv_file, rdf_file):
 
             # Map attributes to RDF properties
             str_attributes = {
+                'movie': RDFS.label,
                 'runtime': DBO.runtime,
                 'budget': DBO.budget,
                 'boxOffice': DBO.boxOffice,
@@ -100,7 +102,7 @@ def csv_to_rdf(csv_file, rdf_file):
                 value = row.get(attr)
                 if value is not None and value != '' and value.strip() != 'N/A':
                     for val in value.split('; '):
-                        g.add((movie_uri, predicate, Literal(val.strip(), datatype=XSD.string)))
+                        g.add((movie_uri, predicate, Literal(val.strip(), lang="en")))
             
             # # Handle literal numeric attributes
             # for attr, predicate in num_attributes.items():
