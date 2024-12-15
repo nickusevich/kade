@@ -238,6 +238,18 @@ class MovieDatabase:
             list: A list of dictionaries containing production company URIs and labels.
         """
         return await self.fetch_objects_by_title("productionCompany", name)
+    
+    async def fetch_countries_by_name(self, name: str = None):
+        """
+        Fetch countries by name from the SPARQL endpoint.
+
+        Args:
+            name (str, optional): The name to search for. Defaults to None.
+
+        Returns:
+            list: A list of dictionaries containing country URIs and labels.
+        """
+        return await self.fetch_objects_by_title("productionCompany", name)
 
     async def fetch_movies_by_properties(self, title: str = None, genre:str = None, actor: str = None, director: str = None, distributor: str = None, writer: str = None, producer: str = None, composer: str = None, cinematographer: str = None, production_company: str = None):
         """

@@ -66,7 +66,19 @@ def fetch_mandatory_information(start_date, end_date, limit=5000):
         return pd.DataFrame()
 
 # Step 2: Fetch optional single-valued attributes
-def fetch_single_valued_attributes(movie_uris, attribute_property, attribute_label, prefix, prefix_url, filter_lang=False):
+def fetch_single_valued_attributes(movie_uris, attribute_label, optional_fields=[], filter_lang=False):
+    """
+    Fetch single-valued attributes for a list of movie URIs.
+
+    Args:
+        movie_uris (list): List of movie URIs.
+        attribute_label (str): The label for the main attribute.
+        optional_fields (list): List of optional fields, each a tuple (prefix, prefix_url, attribute_property, attribute_label).
+        filter_lang (bool): Whether to filter by language (English).
+
+    Returns:
+        dict: A dictionary mapping movie URIs to their attributes.
+    """
     sparql = SPARQLWrapper(endpoint_url)
     results = []
     if filter_lang:
@@ -75,16 +87,27 @@ def fetch_single_valued_attributes(movie_uris, attribute_property, attribute_lab
         chunk = movie_uris[i:i + CHUNK_SIZE]
         values = " ".join([f"<{uri}>" for uri in chunk])
         query = f"""
-        PREFIX {prefix}: <{prefix_url}>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        """
+        for opt_prefix, opt_prefix_url, _ in optional_fields:
+            query += f"PREFIX {opt_prefix}: <{opt_prefix_url}>\n"
 
+        query += f"""
         SELECT DISTINCT ?movie ?{attribute_label}
+        """
+
+        query += f"""
         WHERE {{
           VALUES ?movie {{ {values} }}
-          OPTIONAL {{ ?movie {prefix}:{attribute_property} ?{attribute_label}. }}
-          {f"FILTER(LANG(?{attribute_label}) = 'en')" if filter_lang else ""}
-        }}
         """
+        for opt_prefix, _, opt_attr_property in optional_fields:
+            query += f" OPTIONAL {{ ?movie {opt_prefix}:{opt_attr_property} ?{attribute_label}. }}\n"
+        
+        if filter_lang:
+            query += f" FILTER(isURI(?{attribute_label}) || LANG(?{attribute_label}) = 'en' || LANG(?{attribute_label}) = '')\n"
+
+        query += "}"
+
         for attempt in range(MAX_RETRIES):
             try:
                 print(f"Fetching {attribute_label} for chunk {i // CHUNK_SIZE + 1} (attempt {attempt + 1})...")
@@ -367,17 +390,16 @@ def main():
     print("Fetching movies by name...")
     movies_by_names = fetch_movies_by_names(movie_names)
     print(f"We fetched {len(movies_by_names)} movies by name")
-    all_data = movies_by_names
 
-
-    companies_df, movies_by_companies = fetch_top_companies_and_movies(limit=10)
+    
+    companies_df, movies_by_companies = fetch_top_companies_and_movies(limit=100)
     print(f"we fetched {len(companies_df)} comapnies and {len(movies_by_companies)} movies")
     movies_by_years = []
     # Fetch movies by years
     for year in range(start_year, end_year + 1):
         print(f"Processing year {year}...")
         # Fetch mandatory information
-        basic_info = fetch_mandatory_information(f"{year}-01-01", f"{year}-12-31", limit=1000)
+        basic_info = fetch_mandatory_information(f"{year}-01-01", f"{year}-12-31", limit=5000)
         print(f"Fetched {len(basic_info)} movies from {year}")
         if not basic_info.empty:
             movies_by_years.extend(basic_info.to_dict('records'))
@@ -386,31 +408,48 @@ def main():
 
     # Remove duplicates based on movie_uri
     all_movies_df = pd.concat([movies_by_names, movies_by_companies, movies_by_years], ignore_index=True)
+    print(f"Before dropping duplicates: all_movies_df has {len(all_movies_df)} rows and {len(all_movies_df.columns)} columns")
     all_movies_df = pd.DataFrame(all_movies_df).drop_duplicates(subset=["movie_uri"])
+
+    print(f"After dropping duplicates: all_movies_df has {len(all_movies_df)} rows and {len(all_movies_df.columns)} columns")
  
     # Fetch optional single-valued attributes
     single_valued_attributes = {
-        "releaseDate": {"property": "releaseDate", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "country": {"property": "country", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "language": {"property": "language", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "runtime": {"property": "runtime", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "budget": {"property": "budget", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "boxOffice": {"property": "gross", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "basedOn": {"property": "basedOn", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "IMDbID": {"property": "imdbId", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "plot": {"property": "abstract", "prefix": "dbo", "url": "http://dbpedia.org/ontology/", "filter_lang": True},
-        "franchise": {"property": "franchise", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "depiction": {"property": "depiction", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "wikiPageWikiLink": {"property": "wikiPageWikiLink", "prefix": "dbo", "url": "http://dbpedia.org/ontology/"},
-        "primaryTopic": {"property": "primaryTopic", "prefix": "foaf", "url": "http://xmlns.com/foaf/0.1/"},
-        "wasDerivedFrom": {"property": "wasDerivedFrom", "prefix": "prov", "url": "http://www.w3.org/ns/prov#"}
+        "releaseDate": {"property": "releaseDate",
+                         "attributes": [("dbo", "http://dbpedia.org/ontology/", "releaseDate")]},
+        "country": {"property": "country", "filter_lang": True,
+                     "attributes": [("dbo", "http://dbpedia.org/ontology/", "country"), ("dbp", "http://dbpedia.org/property/", "country")]},
+        "language": {"property": "language", "filter_lang": True,
+                      "attributes": [("dbo", "http://dbpedia.org/ontology/", "language"), ("dbp", "http://dbpedia.org/property/", "language")]},
+        "runtime": {"property": "runtime",
+                     "attributes": [("dbo", "http://dbpedia.org/ontology/", "runtime"), ("dbp", "http://dbpedia.org/property/", "runtime")]},
+        "budget": {"property": "budget",
+                    "attributes": [("dbo", "http://dbpedia.org/ontology/", "budget"), ("dbp", "http://dbpedia.org/property/", "budget")]},
+        "boxOffice": {"property": "gross",
+                       "attributes": [("dbo", "http://dbpedia.org/ontology/", "gross"), ("dbp", "http://dbpedia.org/property/", "gross")]},
+        "basedOn": {"property": "basedOn", "filter_lang": True,
+                     "attributes": [("dbo", "http://dbpedia.org/ontology/", "basedOn")]},
+        "IMDbID": {"property": "imdbId",
+                    "attributes": [("dbo", "http://dbpedia.org/ontology/", "imdbId")]},
+        "plot": {"property": "abstract", "filter_lang": True,
+                  "attributes": [("dbo", "http://dbpedia.org/ontology/", "abstract")]},
+        "franchise": {"property": "franchise", "filter_lang": True,
+                       "attributes": [("dbo", "http://dbpedia.org/ontology/", "franchise")]},
+        "depiction": {"property": "depiction", "filter_lang": True,
+                       "attributes": [("dbo", "http://dbpedia.org/ontology/", "depiction")]},
+        "wikiPageWikiLink": {"property": "wikiPageWikiLink",
+                              "attributes": [("dbo", "http://dbpedia.org/ontology/", "wikiPageWikiLink")]},
+        "primaryTopic": {"property": "primaryTopic", "filter_lang": True,
+                          "attributes": [("foaf", "http://xmlns.com/foaf/0.1/", "primaryTopic")]},
+        "wasDerivedFrom": {"property": "wasDerivedFrom", "filter_lang": True,
+                            "attributes": [("prov", "http://www.w3.org/ns/prov#", "wasDerivedFrom")]}
     }
 
     movie_uris = all_movies_df["movie_uri"].tolist()
 
     for label, details in single_valued_attributes.items():
         print(f"Fetching {label}...")
-        single_data = fetch_single_valued_attributes(movie_uris, details["property"], label, details["prefix"], details["url"], details.get("filter_lang", False))
+        single_data = fetch_single_valued_attributes(movie_uris, details["property"], details["attributes"], details.get("filter_lang", False))
         all_movies_df[label] = all_movies_df["movie_uri"].map(lambda uri: single_data.get(uri, "N/A"))
         count = len(all_movies_df[all_movies_df[label] != 'N/A'])
         if label not in attribute_summary:
@@ -475,13 +514,18 @@ def main():
             else:
                 attribute_summary[label]["status"] = "all"
 
+    # Identify columns with only N/A values
+    na_columns = all_movies_df.columns[all_movies_df.isna().all()].tolist()
+    print(f"Columns with only N/A values: {na_columns}")
+
     # Drop columns that are entirely N/A
     all_movies_df = all_movies_df.dropna(axis=1, how="all")
 
     print(f"all_movies_df has {len(all_movies_df)} rows and {len(all_movies_df.columns)} columns")
     
     # Ensure output directory exists
-    output_file = f"{DIR_PATH}/CSVs/dbpedia_movies.csv"
+    time_str = time.strftime("%Y_%m_%d_%H_%M_%S")
+    output_file = f"{DIR_PATH}/CSVs/dbpedia_movies_{time_str}.csv"
     all_movies_df.to_csv(output_file, index=False)
     print(f"Data saved to {output_file}")
 
@@ -490,7 +534,7 @@ def main():
         {"attribute": k, "status": v["status"], "count": v["count"]}
         for k, v in attribute_summary.items()
     ])
-    attribute_summary_file = f"{DIR_PATH}/CSVs/attribute_summary.csv"
+    attribute_summary_file = f"{DIR_PATH}/CSVs/attribute_summary_{time_str}.csv"
     attribute_summary_df.to_csv(attribute_summary_file, index=False)
     print(f"Attribute summary saved to {attribute_summary_file}")
 

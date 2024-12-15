@@ -159,7 +159,7 @@ def csv_to_rdf(csv_file, rdf_file):
 
 # File paths Datasets\CSVs\actors_URIs.csv
 folder_path = "DB/Datasets"
-csv_file = f"{folder_path}/CSVs/dbpedia_movies.csv"  # Adjust the path to your CSV file
+csv_file = f"{folder_path}/CSVs/dbpedia_movies_2024_12_15_12_10_36.csv"  # Adjust the path to your CSV file
 rdf_file = f"{folder_path}/TTLs/dbpedia_movies.ttl"  # Path to save the Turtle file
 
 # Convert CSV to RDF
