@@ -27,11 +27,21 @@ def get_options_from_api(endpoint):
     else:
         return []
 
-# Fetch initial options for dropdowns
-movies_options = get_options_from_api(f'{REST_SERVICE_URL}movies')
-director_options = get_options_from_api(f'{REST_SERVICE_URL}directors')
-actor_options = get_options_from_api(f'{REST_SERVICE_URL}actors')
+app_data = {}
 
+# Function to initialize the app    
+def init_app():
+    global app_data
+    # Fetch initial options for dropdowns
+    app_data["movies_options"] = get_options_from_api(f'{REST_SERVICE_URL}movies')
+    app_data["director_options"] = get_options_from_api(f'{REST_SERVICE_URL}directors')
+    app_data["actor_options"] = get_options_from_api(f'{REST_SERVICE_URL}actors')
+    app_data["countries_options"] = get_options_from_api(f'{REST_SERVICE_URL}countries')
+
+# Call init_app to initialize the app data
+init_app()
+
+# Define the layout of the app
 app.layout = html.Div([
     # Sidebar styling
     html.Div([
@@ -42,9 +52,9 @@ app.layout = html.Div([
             html.Label("Select Film Title:"),
             dcc.Dropdown(
                 id="film-title",
-                options=movies_options,
+                options=app_data.get("movies_options", []),
                 multi=True,
-                placeholder="Start typing to search for a title",
+                placeholder="Select a title",
                 className="dropdown"
             )
         ], className="input-group"),
@@ -67,7 +77,7 @@ app.layout = html.Div([
             html.Label("Select Director:"),
             dcc.Dropdown(
                 id="director",
-                options=director_options,
+                options=app_data.get("director_options", []),
                 value="Select a director",
                 className="dropdown"
             )
@@ -78,11 +88,7 @@ app.layout = html.Div([
             html.Label("Select Country:"),
             dcc.Dropdown(
                 id="country",
-                options=[
-                    {"label": "USA", "value": "USA"},
-                    {"label": "UK", "value": "UK"},
-                    {"label": "France", "value": "France"}
-                ],
+                options=app_data.get("countries_options", []),
                 value="Select a country",
                 className="dropdown"
             )
@@ -93,7 +99,7 @@ app.layout = html.Div([
             html.Label("Select Actors:"),
             dcc.Dropdown(
                 id="actors",
-                options=actor_options,
+                options=app_data.get("actor_options", []),
                 multi=True,
                 value=[]
             )
