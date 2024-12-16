@@ -199,6 +199,8 @@ WHERE {
   OPTIONAL {?film :directors ?director.}
 
   FILTER(
-    ?genre = ?inputGenre || ?actor = ?inputActor || ?director = ?inputDirector|| ?title !=""
+    (?genre = ?inputGenre || !BOUND(?inputGenre)) && 
+    (?actor = ?inputActor || !BOUND(?inputActor)) &&
+    (?director = ?inputDirector || !BOUND(?inputDirector)) && (?title !=inputTitle)
   )
 }
