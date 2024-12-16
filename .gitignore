@@ -1,3 +1,6 @@
 .env
 .pyc
 *.pyc
+.rdb
+*.rdb
+RestService/RedisCache/dump.rdb

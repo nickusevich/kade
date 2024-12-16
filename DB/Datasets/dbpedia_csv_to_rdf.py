@@ -2,11 +2,133 @@ import csv
 from rdflib import Graph, URIRef, Literal, Namespace
 from rdflib.namespace import RDF, RDFS, XSD
 import urllib.parse
+import requests
+import re
+import pandas as pd
 
 # Function to sanitize URIs
 def clean_uri(uri):
     """Sanitize URIs by encoding special characters."""
     return urllib.parse.quote(uri, safe=':/')
+
+# Function to clean and standardize country literals
+def clean_country_value(country_value):
+    """Clean country values to remove trailing slashes, excess spaces, and incorrect formatting."""
+    if country_value.startswith("http://") or country_value.startswith("https://"):
+        return country_value
+    country_value = re.sub(r'/$', '', country_value)  # Remove trailing slashes
+    country_value = re.sub(r'ref\|.*', '', country_value)  # Remove references
+    country_value = re.sub(r'Umited States', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'United Satates', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'United States United States', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'United Statyes', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'Pennsylvania', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'^\bAmerican\b$', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'Pittsburgh', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'United Statesi', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'United States04', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'Phoenix Arizona', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'^\bUSA\b$', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'^\bUK\b$', 'United Kingdom', country_value) # Fix typo
+    country_value = re.sub(r'Made on location in England and Scotland', 'United Kingdom', country_value) # Fix typo
+    country_value = re.sub(r'^\bBritain\b$', 'United Kingdom', country_value) # Fix typo
+    country_value = re.sub(r'English', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'West Germany', 'Germany', country_value) # Fix typo
+    country_value = re.sub(r'Nazi Germany', 'Germany', country_value) # Fix typo
+    country_value = re.sub(r'Hong Kong S.A.R.', 'China', country_value) # Fix typo
+    country_value = re.sub(r'Hong Kong', 'China', country_value) # Fix typo
+    country_value = re.sub(r'^\bAustro\b$', 'Austria Hungary', country_value) # Fix typo
+    country_value = re.sub(r'Hungarian Empire', 'Hungary', country_value) # Fix typo
+    country_value = re.sub(r'^\blagos Nigeria\b$', 'Nigeria', country_value) # Fix typo
+    country_value = re.sub(r'^\bGeorgia\b$', 'Georgia (country)', country_value) # Fix typo
+    country_value = re.sub(r'^\bCzechia\b$', 'Czech Republic', country_value) # Fix typo
+    country_value = re.sub(r'^\bCongo\b$', 'Republic of the Congo', country_value) # Fix typo
+    country_value = re.sub(r'^\bFrench\b$', 'France', country_value) # Fix typo
+    country_value = re.sub(r'^\bSwedish\b$', 'sweden', country_value) # Fix typo
+    country_value = re.sub(r'^\bIndian\b$', 'India', country_value) # Fix typo
+    country_value = re.sub(r'^\bJapanese\b$', 'Japan', country_value) # Fix typo
+    country_value = re.sub(r'^\bLuxembourgh\b$', 'Luxembourg', country_value) # Fix typo
+    country_value = re.sub(r'CanadaChina', 'Canada , China', country_value) # Fix typo
+    country_value = re.sub(r'Dutch_East_Indies', 'Netherlands', country_value) # Fix typo
+    country_value = re.sub(r'United States. France & German', 'United States, France, Germany', country_value) # Fix typo
+    country_value = re.sub(r'United Kingdom Germany', 'United Kingdom, Germany', country_value) # Fix typo
+    country_value = re.sub(r'Türk', 'Turkey', country_value) # Fix typo
+    country_value = re.sub(r'Turkeyiye', 'Turkey', country_value) # Fix typo
+    country_value = re.sub(r'British China', 'United Kingdom , China', country_value) # Fix typo
+    country_value = re.sub(r'Palestine', 'Israel', country_value) # Fix typo
+    country_value = re.sub(r'FranceUnited Kingdom', 'France, United Kingdom', country_value) # Fix typo
+    country_value = re.sub(r'^\bMacedonia\b$', 'North Macedonia', country_value)  # Only replace if it is the only word
+    country_value = country_value.strip()  # Remove extra spaces
+    return country_value
+
+# Function to resolve country literals or URIs to DBpedia URIs and labels
+def resolve_country_uri(country_literal_or_uri):
+    """Resolve a country literal, URI, or a comma-separated list to its corresponding DBpedia URIs and English labels."""
+    DBPEDIA_SPARQL_ENDPOINT = "http://dbpedia.org/sparql"
+    headers = {"Accept": "application/sparql-results+json"}
+    if country_literal_or_uri.startswith("http://") or country_literal_or_uri.startswith("https://"):
+        countries = [country_literal_or_uri]
+    else:
+        countries = [clean_country_value(c.strip()) for c in re.split(r'[;,&\-\n/]', clean_country_value(str(country_literal_or_uri)))] 
+    
+    resolved_countries = []
+
+    for country in countries:
+        if country in ['', 'N/A', 'R.O.C.', 'among many other locations', 'Worldwide', 'Ibadan', 'Oyo state', 'Stuntman',
+                       'Dustin DeMont', 'Terrebonne', '87.0']:
+            continue
+        
+        if country.startswith("http://") or country.startswith("https://"):
+            # If input is already a URI, fetch the English label
+            query = f"""
+            SELECT ?label WHERE {{
+                <{country}> rdfs:label ?label .
+                FILTER (lang(?label) = 'en')
+            }}
+            """
+            uri = country
+        else:
+            # If input is a literal, resolve it to a DBpedia resource and fetch the URI and label
+            query = f"""
+                SELECT ?country ?label WHERE {{
+                    ?country a dbo:Country ;
+                            rdfs:label ?label .
+                    FILTER (lang(?label) = 'en' && 
+                            LCASE(STR(?label)) = LCASE("{country}"))
+                }}
+            """
+            uri = None
+
+        try:
+            response = requests.get(DBPEDIA_SPARQL_ENDPOINT, headers=headers, params={"query": query})
+            response.raise_for_status()
+            results = response.json().get("results", {}).get("bindings", [])
+
+            if results:
+                # Fetch the first match
+                uri = results[0].get("country", {}).get("value", uri) or uri
+                label = results[0].get("label", {}).get("value", "Unknown")
+                resolved_countries.append((URIRef(uri), label))
+            else:
+                print(f"Country '{country}' not found in DBpedia.")
+        except Exception as e:
+            print(f"Error resolving country '{country}': {e}")
+            resolved_countries.append((Literal(country), None))
+
+    return resolved_countries
+
+def fetch_all_unique_countries(csv_file):
+    """Fetch all unique country values from the CSV file."""
+    df = pd.read_csv(csv_file)
+    unique_countries = df['country'].dropna().unique()
+    return unique_countries
+
+def resolve_all_countries(unique_countries):
+    """Resolve all unique country values to their corresponding DBpedia URIs and labels."""
+    resolved_countries = {}
+    for country in unique_countries:
+        resolved_countries[country] = resolve_country_uri(country)
+    return resolved_countries
 
 def csv_to_rdf(csv_file, rdf_file):
     """
@@ -24,7 +146,6 @@ def csv_to_rdf(csv_file, rdf_file):
     RDFS = Namespace("http://www.w3.org/2000/01/rdf-schema#")
     PROV = Namespace("http://www.w3.org/ns/prov#")
 
-
     # Create a new RDF graph
     g = Graph()
     g.bind("dbr", DBR)
@@ -35,6 +156,10 @@ def csv_to_rdf(csv_file, rdf_file):
     skipped_count = 0  # Count rows skipped
     movie_count = 0  # Count unique movies added to the graph
 
+    # Fetch and resolve all unique country values
+    unique_countries = fetch_all_unique_countries(csv_file)
+    resolved_countries_dict = resolve_all_countries(unique_countries)
+    
     with open(csv_file, 'r', encoding='utf-8') as f:
         print(f"Reading CSV file: {csv_file}...")
         reader = csv.DictReader(f)
@@ -66,8 +191,7 @@ def csv_to_rdf(csv_file, rdf_file):
                 'movie': RDFS.label,
                 'runtime': DBO.runtime,
                 'budget': DBO.budget,
-                'boxOffice': DBO.boxOffice,
-                'country': DBO.country,
+                'boxOffice': DBO.boxOffice,                
                 'language': DBO.language,
                 'IMDbID': DBO.imdbID,
                 'plot': DBO.abstract,
@@ -95,11 +219,26 @@ def csv_to_rdf(csv_file, rdf_file):
                 'wasDerivedFrom': PROV.wasDerivedFrom,
                 'series': DBO.series,
             }
+
             # Handle literal date attributes
             release_date = row.get('releaseDate')
             if release_date is not None and release_date != '' and release_date != 'N/A':
                 release_year = release_date.split("-")[0]  # Extract the year
                 g.add((movie_uri, DBO.releaseYear, Literal(release_year, datatype=XSD.gYear)))
+
+            # Handle country attribute
+            country = row.get('country')
+            if country is not None and country != '' and country != 'N/A':
+                resolved_countries = resolved_countries_dict.get(country, [])
+                if resolved_countries:
+                    for country_uri, country_label in resolved_countries:
+                        g.add((movie_uri, DBO.country, URIRef(country_uri)))
+                        g.add((URIRef(country_uri), RDF.type, DBO.Country))
+
+                        if country_label is not None:                    
+                            g.add((URIRef(country_uri), RDFS.label, Literal(country_label, lang="en")))
+                else:
+                    g.add((movie_uri, DBO.country, Literal(country, lang="en")))
 
             # Handle literal string attributes
             for attr, predicate in str_attributes.items():
@@ -155,7 +294,6 @@ def csv_to_rdf(csv_file, rdf_file):
     print(f"Total rows processed: {processed_count}")
     print(f"Total rows skipped: {skipped_count}")
     print(f"Total unique movies added: {movie_count}")
-
 
 # File paths Datasets\CSVs\actors_URIs.csv
 folder_path = "DB/Datasets"
