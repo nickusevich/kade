@@ -274,6 +274,25 @@ async def get_production_companies_by_name(name: Optional[str] = Query(None, ali
 
     return results
 
+@app.get('/countries')
+@cache(expire=300)
+async def get_countries_by_name(name: Optional[str] = Query(None, alias="country"), redis_client: cache = Depends(get_redis_cache)):
+    try:
+        write_log(f"Getting countries with name {name}", "info")
+        var_name = f"country_{name}"
+        if (cached_answer := redis_client.get(var_name)) is not None:
+            write_log(f"Found country_ query in cache")
+            return pickle.loads(cached_answer)
+
+        results = await movieDatabase.fetch_countries_by_name(name)
+        redis_client.set(var_name, pickle.dumps(results))
+        write_log(f"Written country_ query into cache")
+    except Exception as e:
+        print(f"Error executing query: {e}")
+        raise HTTPException(status_code=500, detail=f"The following error occurred during the operation: {str(e)}")
+
+    return results
+
 @app.get('/clear_cache')
 async def clear_cache(redis_client: cache = Depends(get_redis_cache)):
     try:

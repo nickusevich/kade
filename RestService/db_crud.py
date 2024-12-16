@@ -249,7 +249,7 @@ class MovieDatabase:
         Returns:
             list: A list of dictionaries containing country URIs and labels.
         """
-        return await self.fetch_objects_by_title("productionCompany", name)
+        return await self.fetch_objects_by_title("Country", name)
 
     async def fetch_movies_by_properties(self, title: str = None, genre:str = None, actor: str = None, director: str = None, distributor: str = None, writer: str = None, producer: str = None, composer: str = None, cinematographer: str = None, production_company: str = None):
         """
