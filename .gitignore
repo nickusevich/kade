@@ -3,4 +3,7 @@
 *.pyc
 .rdb
 *.rdb
-RestService/RedisCache/dump.rdb
+RestService\RedisCache\dump.rdb
+RestService/RedisCache/*
+RestService/RedisCache/
+

@@ -1,5 +1,19 @@
 from dash import Dash, html, dcc, Input, Output, State, exceptions
 import requests
+import os
+
+def is_running_in_docker():
+    """Check if the code is running inside a Docker container."""
+    path = '/proc/1/cgroup'
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            return 'docker' in f.read()
+    return False
+
+REST_SERVICE_URL = "http://localhost"
+if is_running_in_docker():
+    REST_SERVICE_URL = "http://host.docker.internal"
+REST_SERVICE_URL += ":80/"
 
 # Initializing the application
 app = Dash(__name__)
@@ -14,9 +28,9 @@ def get_options_from_api(endpoint):
         return []
 
 # Fetch initial options for dropdowns
-movies_options = get_options_from_api('http://localhost:80/movies')
-director_options = get_options_from_api('http://localhost:80/directors')
-actor_options = get_options_from_api('http://localhost:80/actors')
+movies_options = get_options_from_api(f'{REST_SERVICE_URL}movies')
+director_options = get_options_from_api(f'{REST_SERVICE_URL}directors')
+actor_options = get_options_from_api(f'{REST_SERVICE_URL}actors')
 
 app.layout = html.Div([
     # Sidebar styling
@@ -114,7 +128,7 @@ app.layout = html.Div([
 def update_movie_options(search_value):
     if not search_value:
         raise exceptions.PreventUpdate
-    endpoint = f'http://localhost:80/movies?movieLabel={search_value}'
+    endpoint = f'{REST_SERVICE_URL}movies?movieLabel={search_value}'
     return get_options_from_api(endpoint)
 
 @app.callback(
@@ -143,4 +157,4 @@ def display_output(n_clicks, film_title, rating_range, actors):
     return html.Pre(output)
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(host='0.0.0.0', port=8050, debug=True)
