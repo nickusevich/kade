@@ -181,3 +181,24 @@ GROUP BY ?productionCompany
 HAVING (COUNT(?movie) >= 5)
 ORDER BY DESC(?movieCount)
 ```
+
+11. movies based on input
+
+SELECT DISTINCT ?movie ?genre ?actor ?director
+WHERE {
+  
+    OPTIONAL {
+      ?inputMovie :movie ?inputTitle;
+                  :genres ?inputGenre;
+                  :actors ?inputActor;
+                  :directors ?inputDirector.
+    }
+  ?film :title ?title.
+  OPTIONAL {?film :genres ?genre.}
+  OPTIONAL {?film :actors ?actor.}
+  OPTIONAL {?film :directors ?director.}
+
+  FILTER(
+    ?genre = ?inputGenre || ?actor = ?inputActor || ?director = ?inputDirector|| ?title !=""
+  )
+}
