@@ -2,7 +2,7 @@
 1. CD to main folder of procjet
 2. Run the following command:
 ```
-docker build -t rest-serice -f ".\RestService\Dockerfile".
+docker build -t rest-service -f ".\RestService\Dockerfile".
 ```
 
 ## How to build Docker contianer for rest api:
