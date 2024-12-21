@@ -4,9 +4,17 @@ import dash
 from dash.exceptions import PreventUpdate
 from urllib.parse import urlencode, parse_qs
 import os
+from RestService import MovieDatabase
+
+
 
 # Initialize the app
 app = Dash(__name__, suppress_callback_exceptions=True)
+
+movie_db = MovieDatabase()
+
+
+
 
 # Function to fetch dropdown options from REST API
 def get_options_from_api(endpoint):
@@ -190,12 +198,11 @@ def update_results(stored_data):
         raise PreventUpdate
     
     # print(stored_data)
-    # Here you would typically make an API call with the stored parameters
     # For now, just display the search parameters
     results_content = []
     
     for key, value in stored_data.items():
-        if value is not None:  # Only display non-None values
+        if value is not None or value != "":  # Only display non-None values
             formatted_key = key.replace('_', ' ').title()
             formatted_value = str(value)
             results_content.append(
@@ -204,7 +211,7 @@ def update_results(stored_data):
                     html.Span(formatted_value)
                 ], className="result-item")
             )
-    
+    print(results_content)
     return html.Div([
         html.H2("Search Parameters"),
         html.Div(results_content, className="results-container")
