@@ -1,10 +1,10 @@
 from dash import Dash, html, dcc, Input, Output, State, exceptions
 import requests
 
-# Initializing the application
+# Initialize the app
 app = Dash(__name__)
 
-# Function to get options from REST API
+# Function to fetch dropdown options from REST API
 def get_options_from_api(endpoint):
     response = requests.get(endpoint)
     if response.status_code == 200:
@@ -13,31 +13,45 @@ def get_options_from_api(endpoint):
     else:
         return []
 
-# Fetch initial options for dropdowns
+# Fetch initial options
 movies_options = get_options_from_api('http://localhost:80/movies')
 director_options = get_options_from_api('http://localhost:80/directors')
 actor_options = get_options_from_api('http://localhost:80/actors')
+genre_options = get_options_from_api('http://localhost:80/genres')
+print(genre_options)
 
 app.layout = html.Div([
-    # Sidebar styling
     html.Div([
-        html.H2("Find Your Next Movie 😊", className="sidebar-title"),
+        html.H1("Movie Finder 🎥", className="main-title"),
 
-        # Film title selection
         html.Div([
-            html.Label("Select Film Title:"),
+            html.Label("Select Film Title:", className="label"),
             dcc.Dropdown(
                 id="film-title",
                 options=movies_options,
                 multi=True,
                 placeholder="Start typing to search for a title",
                 className="dropdown"
-            )
-        ], className="input-group"),
-
-        # Rating Range slider
-        html.Div([
-            html.Label("Rating Range:"),
+            ),
+            html.Label("Select Genres:", className="label"),
+            dcc.Dropdown(
+                id="genres",
+                options=genre_options,
+                multi=True,
+                placeholder="Select genres",
+                className="dropdown"
+            ),
+            html.Label("Year Range:", className="label"),
+            dcc.RangeSlider(
+                id="year-range",
+                min=1990,
+                max=2023,
+                step=1,
+                value=[1990, 2023],
+                marks={i: str(i) for i in range(1990, 2024, 3)}
+                
+            ),
+            html.Label("Rating Range:", className="label"),
             dcc.RangeSlider(
                 id="rating-range",
                 min=0,
@@ -45,102 +59,79 @@ app.layout = html.Div([
                 step=1,
                 value=[0, 10],
                 marks={i: str(i) for i in range(0, 11)}
-            )
-        ], className="input-group"),
-
-        # Director selection
-        html.Div([
-            html.Label("Select Director:"),
+            ),
+            html.Label("Number of Similar Movies:", className="label"),
+            dcc.Input(
+                id="similar-movies",
+                type="number",
+                min=1,
+                max=50,
+                step=1,
+                value=10,
+                className="input"
+            ),
+            html.Label("Select Director:", className="label"),
             dcc.Dropdown(
                 id="director",
                 options=director_options,
-                value="Select a director",
+                placeholder="Select a director",
                 className="dropdown"
-            )
-        ], className="input-group"),
-
-        # Country selection
-        html.Div([
-            html.Label("Select Country:"),
-            dcc.Dropdown(
-                id="country",
-                options=[
-                    {"label": "USA", "value": "USA"},
-                    {"label": "UK", "value": "UK"},
-                    {"label": "France", "value": "France"}
-                ],
-                value="Select a country",
-                className="dropdown"
-            )
-        ], className="input-group"),
-
-        # Actors selection
-        html.Div([
-            html.Label("Select Actors:"),
+            ),
+            html.Label("Select Actors:", className="label"),
             dcc.Dropdown(
                 id="actors",
                 options=actor_options,
                 multi=True,
-                value=[]
-            )
-        ], className="input-group"),
-
-        # New Description field
-        html.Div([
-            html.Label("Write a Short Description of the Plot:"),
+                placeholder="Select actors",
+                className="dropdown"
+            ),
+            html.Label("Short Description of the Plot:", className="label"),
             dcc.Textarea(
                 id="plot-description",
                 placeholder="Enter a brief description of the plot...",
                 style={"width": "100%", "height": "100px"},
                 value=""
             )
-        ], className="input-group"),
+        ], className="form-container"),
 
-        # Search button
         html.Button("Search", id="search-btn", className="button", n_clicks=0)
-    ], className="sidebar"),
+    ], className="center-container"),
 
-    # Main content for output
-    html.Div([
-        html.Div(id="output", className="results-container")
-    ], className="content")
+    html.Div(id="output", className="results-container")
 ])
 
-@app.callback(
-    Output("film-title", "options"),
-    Input("film-title", "search_value"),
-    prevent_initial_call=True
-)
-def update_movie_options(search_value):
-    if not search_value:
-        raise exceptions.PreventUpdate
-    endpoint = f'http://localhost:80/movies?movieLabel={search_value}'
-    return get_options_from_api(endpoint)
-
-@app.callback(
-    Output("search-btn", "disabled"),
-    [Input("film-title", "value"), Input("rating-range", "value")]
-)
-def enable_button(film_title, rating_range):
-    # Enable the button only when all fields have valid values
-    return film_title == "Select a title" or not rating_range
 
 @app.callback(
     Output("output", "children"),
     Input("search-btn", "n_clicks"),
     State("film-title", "value"),
     State("rating-range", "value"),
-    State("actors", "value"),  # Getting the selected actors
+    State("year-range", "value"),
+    State("genres", "value"),
+    State("similar-movies", "value"),
+    State("actors", "value"),
+    State("director", "value"),
+    State("plot-description", "value"),
     prevent_initial_call=True
 )
-def display_output(n_clicks, film_title, rating_range, actors):
-    output = f"""
-    You selected:
-    - Film Title: {film_title}
-    - Rating Range: {rating_range}
-    - Actors: {', '.join(actors)}  # Displaying the selected actors
-    """
-    return html.Pre(output)
+def search_movies(n_clicks, film_title, rating_range, year_range, genres, similar_movies, actors, director, plot_description):
+    # Prepare the search parameters
+    params = {
+        "film_title": film_title,
+        "rating_range": rating_range,
+        "year_range": year_range,
+        "genres": genres,
+        "similar_movies": similar_movies,
+        "actors": actors,
+        "director": director,
+        "plot_description": plot_description
+    }
+    # Make a call to your REST API
+    response = requests.post("http://localhost:80/search", json=params)
+    if response.status_code == 200:
+        return html.Pre(str(response.json()))
+    else:
+        return html.Pre("Error fetching data. Please try again.")
 
 if __name__ == '__main__':
     app.run_server(debug=True)

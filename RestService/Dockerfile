@@ -2,6 +2,10 @@ FROM python:3.12
 
 WORKDIR /source
 
+# Copy only requirements.txt first to cache dependencies layer
+COPY requirements.txt /source/requirements.txt
+
+# Copy the rest of the application files
 COPY . /source
 
 RUN pip install --upgrade pip

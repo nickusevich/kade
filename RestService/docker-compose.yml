@@ -1,7 +1,10 @@
 version: '3.8'
+
 services:
   rest-service:
-    build: .
+    build:
+      context: .  # "." refers to the current directory (RestService)
+      dockerfile: Dockerfile
     ports:
       - "80:80"
     environment:

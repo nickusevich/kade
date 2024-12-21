@@ -1,121 +1,136 @@
-/* Apply dark grey background to the whole body */
+/* Base styles */
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #121212; /* Very dark background for the entire page */
-    color: #e0e0e0; /* Light grey text for readability */
-}
-
-/* Sidebar styles - slightly lighter grey for contrast */
-.sidebar {
-    width: 30%;
-    background-color: #2C2C2C; /* Dark grey sidebar */
-    padding: 20px;
-    position: fixed;
-    height: 100%;
-    overflow: auto;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5); /* Stronger shadow for depth */
-    border-right: 2px solid #444; /* Subtle border for definition */
-}
-
-/* Sidebar title */
-.sidebar-title {
-    font-size: 1.5em;
-    color: #f1f1f1; /* Bright blue title */
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-/* Group for all inputs and controls */
-.input-group {
-    margin-bottom: 20px;
-}
-
-/* Label styles */
-.input-group label {
-    display: block;
-    font-size: 14px;
-    margin-bottom: 5px;
+    background-color: #121212;
     color: #e0e0e0;
+    font-family: 'Arial', sans-serif;
 }
 
-/* Dropdown styles */
-.dropdown {
-    width: 100%;
-    background-color: #444; /* Dark background for dropdown */
-    color: #666666; /* Light text color */
-    border: 1px solid #555; /* Subtle border for input fields */
-    border-radius: 5px;
-    padding: 8px;
-    font-size: 14px;
+/* Container styles */
+.center-container {
+    max-width: 700px;
+    margin: auto;
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #1d1d1d, #0e0e0e);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
 }
 
-
-/* Adjust button width and alignment */
-.button {
-    width: 100%;
-    padding: 12px;
-    background-color: #888888; /* Blue button */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 20px;
+/* Form layout fixes */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-/* Button hover effect */
-.button:hover {
-    background-color: #5c5c5c; /* Darker blue for hover */
+/* Label styling */
+.label {
+    font-size: 1.2em;
+    color: #FFFFFF;
+    margin: 15px 0 10px 0;
+    display: block;
+    text-align: left;
 }
 
-/* Styling for the main content area */
-.content {
-    margin-left: 25%; /* Make room for the sidebar */
-    padding: 20px;
-    background-color: #121212; /* Dark background for content */
+/* Slider container specific styling */
+.form-container > div:has(.rc-slider) {
+    margin: 30px 0;
+    padding: 0 10px;
 }
 
-/* Results container styling */
-.results-container {
-    margin-top: 20px;
+/* Slider styling */
+.rc-slider {
+    margin: 10px 0 30px 0;
 }
-
-
-/* Adjust textareas */
-.dcc-textarea {
-    width: 100%;
-    background-color: #444; /* Same dark background for the textarea */
-    color: #e0e0e0; /* Light text color */
-    border: 1px solid #555; /* Subtle border for input fields */
-    border-radius: 5px;
-    padding: 8px;
-    font-size: 14px;
-}
-
-/* Style for the textarea placeholder */
-.dcc-textarea::placeholder {
-    color: #888; /* Lighter grey placeholder */
-}
-
-
 
 .rc-slider-track {
-    background-color: rgb(180, 180, 180);
+    background: linear-gradient(90deg, #FFD700, #FFC107);
+    height: 4px;
 }
-  
-.rc-slider-dot-active {  
-    border-color: rgb(235, 235, 235);
-    border: solid 2px rgb(235, 235, 235);
-}
-  
-.rc-slider-handle {
-    background-color: rgb(40, 40, 40);
-    border-color: rgb(120, 120, 120);
-}
-  
-.rc-slider-handle:hover {
-    border-color: rgb(40, 40, 40);
-}
-  
 
+.rc-slider-rail {
+    background-color: #333333;
+    height: 4px;
+}
+
+/* Marks and text styling */
+.rc-slider-mark {
+    top: 20px;
+}
+
+.rc-slider-mark-text {
+    color: #FFD700;
+    font-size: 14px;
+    font-weight: 500;
+    top: 10px;
+}
+
+.rc-slider-mark-text-active {
+    color: #FFD700;
+}
+
+/* Handle styling */
+.rc-slider-handle {
+    width: 20px;
+    height: 20px;
+    margin-top: -8px;
+    background: #FFD700;
+    border: 2px solid #1d1d1d;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.rc-slider-handle:hover {
+    transform: scale(1.15);
+    background: #FFC107;
+}
+
+/* Enhanced Search Button Styling */
+.button {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    background: linear-gradient(135deg, #FFD700, #FFC107);
+    color: #000000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 30px 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.button:hover {
+    background: linear-gradient(135deg, #FFC107, #FFD700);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+}
+
+.button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+}
+
+/* Input field styling */
+.input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #2b2b2b;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+}
+
+/* Dropdown styling */
+.dropdown {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* Add bottom margin to year and rating sliders */
+#year-range, #rating-range {
+    margin-bottom: 40px;
+}
