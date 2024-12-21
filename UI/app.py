@@ -176,6 +176,7 @@ def update_results(stored_data):
     if not stored_data:
         raise PreventUpdate
     
+    # print(stored_data)
     # Here you would typically make an API call with the stored parameters
     # For now, just display the search parameters
     results_content = []
