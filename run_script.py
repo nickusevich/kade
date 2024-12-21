@@ -74,6 +74,10 @@ def setup_environment(ttl_file_path):
 
     # Check if the GraphDB container already exists
     if not container_exists("graphdb"):
+        # Create Data folder in DB folder if it does not already exist
+        data_folder_path = os.path.join(kade_dir, "DB", "Data")
+        os.makedirs(data_folder_path, exist_ok=True)
+        success(f"Data folder created at {data_folder_path} (if it did not already exist).")
         # Create the GraphDB container
         print("Creating the GraphDB container...")
         subprocess.run(["docker-compose", "-f", "./DB/graphdb.yaml", "up", "-d"])
@@ -123,10 +127,17 @@ def setup_environment(ttl_file_path):
         print(f"Failed to import file: {response.status_code}, {response.text} in GraphDB.")
 
     # Create the Rest Service container
+     # Get all the container names to monitor their status
+    print("Waiting for the DB to be up before moving on...")
+    container_names = ["graphdb"]
+    wait_for_containers(container_names)
     print("Creating the Rest Service container...")
     subprocess.run(["docker-compose", "-f", "./RestService/rest_service.yml", "up", "-d", "--build"])
 
     # Create the UI container
+    print("Waiting for the DB and rest service to be up before moving on...")
+    container_names = ["graphdb", "restservice"]
+    wait_for_containers(container_names)
     print("Creating the UI container...")
     subprocess.run(["docker-compose", "-f", "./UI/ui.yml", "up", "-d", "--build"])
 
