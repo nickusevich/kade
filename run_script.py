@@ -138,6 +138,9 @@ def setup_environment(ttl_file_path):
     print("Waiting for the DB and rest service to be up before moving on...")
     container_names = ["graphdb", "restservice"]
     wait_for_containers(container_names)
+    PING_REST_SERVICE = "http://localhost:80/ping"
+    if not wait_for_service(PING_REST_SERVICE):
+        return
     print("Creating the UI container...")
     subprocess.run(["docker-compose", "-f", "./UI/ui.yml", "up", "-d", "--build"])
 
