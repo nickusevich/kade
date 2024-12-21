@@ -93,6 +93,7 @@ class MovieDatabase:
         ?object rdfs:label ?label .
         FILTER ({name_filter})
         }}
+        ORDER BY ASC(?label)
         LIMIT {self.limit}
         """
 

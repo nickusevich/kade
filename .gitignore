@@ -3,4 +3,12 @@
 *.pyc
 .rdb
 *.rdb
-RestService/RedisCache/dump.rdb
+# RestService\RedisCache\dump.rdb
+# RestService/RedisCache/*
+# RestService/RedisCache/
+
+DB/Data/*
+DB/Data/
+.vscode/*
+.vscode/
+# RestService/RedisCache/dump.rdb

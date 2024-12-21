@@ -3,6 +3,7 @@ import requests
 import dash
 from dash.exceptions import PreventUpdate
 from urllib.parse import urlencode, parse_qs
+import os
 
 # Initialize the app
 app = Dash(__name__, suppress_callback_exceptions=True)
@@ -16,11 +17,23 @@ def get_options_from_api(endpoint):
     else:
         return []
 
+def is_running_in_docker():
+    """Check if the code is running inside a Docker container."""
+    path = '/proc/1/cgroup'
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            return 'docker' in f.read()
+    return False
+
+REST_SERVICE_URI = "http://localhost:80"
+if is_running_in_docker():
+    REST_SERVICE_URI = "http://host.docker.internal:80"
+
 # Fetch initial options
-movies_options = get_options_from_api('http://localhost:80/movies')
-director_options = get_options_from_api('http://localhost:80/directors')
-actor_options = get_options_from_api('http://localhost:80/actors')
-genre_options = get_options_from_api('http://localhost:80/genres')
+movies_options = get_options_from_api(f'{REST_SERVICE_URI}/movies')
+director_options = get_options_from_api(f'{REST_SERVICE_URI}//directors')
+actor_options = get_options_from_api(f'{REST_SERVICE_URI}/actors')
+genre_options = get_options_from_api(f'{REST_SERVICE_URI}/genres')
 
 # Define the layout for the home page
 home_layout = html.Div([
@@ -198,4 +211,4 @@ def update_results(stored_data):
     ])
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0')

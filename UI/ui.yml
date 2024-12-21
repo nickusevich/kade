@@ -1,0 +1,13 @@
+services:
+  dash-ui:
+    build: .
+    ports:
+      - "8050:8050"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.4'
+        reservations:
+          memory: 128M
+          cpus: '0.2'

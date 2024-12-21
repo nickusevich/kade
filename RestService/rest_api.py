@@ -1,7 +1,7 @@
 """
 File: rest_api.py
 Date: Oct 3, 2024
-Description: rest api service for movie app
+Description: rest api service for movie app (Knowledge and Data Engineer)
 """
 
 from fastapi import FastAPI, HTTPException, Query, Depends
@@ -15,13 +15,9 @@ from redis.asyncio import Redis  # Async Redis client
 from contextlib import asynccontextmanager
 import logging
 from SPARQLWrapper import SPARQLWrapper, JSON
-
 from db_crud import MovieDatabase
 
-graphdb_endpoint = "http://localhost:7200/repositories/MoviesRepo"
-sparql = SPARQLWrapper(graphdb_endpoint)
 movieDatabase = MovieDatabase()
-
 
 DO_LOGS = True
 if DO_LOGS:
@@ -48,14 +44,8 @@ FastAPICache.init(RedisBackend(redis_client), prefix="fastapi-cache")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Lifespan context manager invoked.", flush=True)
-    if not db_crud.is_connected():
-        print("Connecting to the database.", flush=True)
-        await db_crud.connect()
-    yield
-    if db_crud.is_connected():
-        await db_crud.disconnect()
 
-app = FastAPI(lifespan=lifespan, title="cec-assignment FastAPI Service")
+app = FastAPI(lifespan=lifespan, title="Knowledge and Data Engineer assignment FastAPI Service")
 
 @app.get("/")
 async def root():
