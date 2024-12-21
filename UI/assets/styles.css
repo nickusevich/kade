@@ -5,9 +5,7 @@ body {
     font-family: 'Arial', sans-serif;
 }
 
-
-
-/* Container styles */
+/* Container styles for centered home page content */
 .center-container {
     max-width: 700px;
     margin: auto;
@@ -34,58 +32,6 @@ body {
     text-align: left;
 }
 
-/* Slider container specific styling */
-.form-container > div:has(.rc-slider) {
-    margin: 30px 0;
-    padding: 0 10px;
-}
-
-/* Slider styling */
-.rc-slider {
-    margin: 10px 0 30px 0;
-}
-
-.rc-slider-track {
-    background: linear-gradient(90deg, #FFD700, #FFC107);
-    height: 4px;
-}
-
-.rc-slider-rail {
-    background-color: #333333;
-    height: 4px;
-}
-
-/* Marks and text styling */
-.rc-slider-mark {
-    top: 20px;
-}
-
-.rc-slider-mark-text {
-    color: #FFD700;
-    font-size: 14px;
-    font-weight: 500;
-    top: 10px;
-}
-
-.rc-slider-mark-text-active {
-    color: #FFD700;
-}
-
-/* Handle styling */
-.rc-slider-handle {
-    width: 20px;
-    height: 20px;
-    margin-top: -8px;
-    background: #FFD700;
-    border: 2px solid #1d1d1d;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-}
-
-.rc-slider-handle:hover {
-    transform: scale(1.15);
-    background: #FFC107;
-}
-
 /* Enhanced Search Button Styling */
 .button {
     width: 100%;
@@ -104,35 +50,56 @@ body {
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
 }
 
-.button:hover {
-    background: linear-gradient(135deg, #FFC107, #FFD700);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
-}
-
-.button:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
-}
-
-/* Input field styling */
-.input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #555;
-    border-radius: 5px;
-    background-color: #2b2b2b;
-    color: #e0e0e0;
-    margin-bottom: 20px;
-}
-
-/* Dropdown styling */
-.dropdown {
+/* Input and Dropdown styling */
+.input, .dropdown {
     width: 100%;
     margin-bottom: 20px;
 }
 
-/* Add bottom margin to year and rating sliders */
-#year-range, #rating-range {
-    margin-bottom: 40px;
+/* Slider styling */
+.rc-slider {
+    margin: 10px 0 30px 0;
+}
+
+.rc-slider-track {
+    background: linear-gradient(90deg, #FFD700, #FFC107);
+    height: 4px;
+}
+
+.rc-slider-rail {
+    background-color: #333333;
+    height: 4px;
+}
+
+/* Slider marks and handle styling */
+.rc-slider-mark-text {
+    color: #FFD700;
+}
+
+.rc-slider-handle {
+    width: 20px;
+    height: 20px;
+    background: #FFD700;
+}
+
+/* Results Page (Adjusting for minimal styling) */
+#results-display {
+    padding: 20px;
+    background-color: #1d1d1d;
+    border-radius: 8px;
+    margin-top: 30px;
+}
+
+/* Back to Search Link */
+.back-link {
+    color: #FFC107;
+    font-size: 1.2em;
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
 }

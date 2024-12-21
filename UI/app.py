@@ -22,86 +22,89 @@ director_options = get_options_from_api('http://localhost:80/directors')
 actor_options = get_options_from_api('http://localhost:80/actors')
 genre_options = get_options_from_api('http://localhost:80/genres')
 
-# Define the layout for the first page (Home Page)
+# Define the layout for the home page
 home_layout = html.Div([
-    html.H1("Movie Finder 🎥", className="main-title"),
     html.Div([
-        html.Label("Select Film Title:", className="label"),
-        dcc.Dropdown(
-            id="film-title",
-            options=movies_options,
-            multi=True,
-            placeholder="Start typing to search for a title",
-            className="dropdown"
-        ),
-        html.Label("Select Genres:", className="label"),
-        dcc.Dropdown(
-            id="genres",
-            options=genre_options,
-            multi=True,
-            placeholder="Select genres",
-            className="dropdown"
-        ),
-        html.Label("Year Range:", className="label"),
-        dcc.RangeSlider(
-            id="year-range",
-            min=1990,
-            max=2023,
-            step=1,
-            value=[1990, 2023],
-            marks={i: str(i) for i in range(1990, 2024, 3)}
-        ),
-        html.Label("Rating Range:", className="label"),
-        dcc.RangeSlider(
-            id="rating-range",
-            min=0,
-            max=10,
-            step=1,
-            value=[0, 10],
-            marks={i: str(i) for i in range(0, 11)}
-        ),
-        html.Label("Number of Similar Movies:", className="label"),
-        dcc.Input(
-            id="similar-movies",
-            type="number",
-            min=1,
-            max=50,
-            step=1,
-            value=10,
-            className="input"
-        ),
-        html.Label("Select Director:", className="label"),
-        dcc.Dropdown(
-            id="director",
-            options=director_options,
-            placeholder="Select a director",
-            className="dropdown"
-        ),
-        html.Label("Select Actors:", className="label"),
-        dcc.Dropdown(
-            id="actors",
-            options=actor_options,
-            multi=True,
-            placeholder="Select actors",
-            className="dropdown"
-        ),
-        html.Label("Short Description of the Plot:", className="label"),
-        dcc.Textarea(
-            id="plot-description",
-            placeholder="Enter a brief description of the plot...",
-            style={"width": "100%", "height": "100px"},
-            value=""
-        ),
-        html.Button("Search", id="search-btn", className="button", n_clicks=0)
-    ], className="form-container")
+        html.H1("Movie Finder 🎥", className="main-title"),
+        html.Div([
+            html.Label("Select Film Title:", className="label"),
+            dcc.Dropdown(
+                id="film-title",
+                options=movies_options,
+                multi=True,
+                placeholder="Start typing to search for a title",
+                className="dropdown"
+            ),
+            html.Label("Select Genres:", className="label"),
+            dcc.Dropdown(
+                id="genres",
+                options=genre_options,
+                multi=True,
+                placeholder="Select genres",
+                className="dropdown"
+            ),
+            html.Label("Year Range:", className="label"),
+            dcc.RangeSlider(
+                id="year-range",
+                min=1990,
+                max=2023,
+                step=1,
+                value=[1990, 2023],
+                marks={i: str(i) for i in range(1990, 2024, 3)}
+            ),
+            html.Label("Rating Range:", className="label"),
+            dcc.RangeSlider(
+                id="rating-range",
+                min=0,
+                max=10,
+                step=1,
+                value=[0, 10],
+                marks={i: str(i) for i in range(0, 11)}
+            ),
+            html.Label("Number of Similar Movies:", className="label"),
+            dcc.Input(
+                id="similar-movies",
+                type="number",
+                min=1,
+                max=50,
+                step=1,
+                value=10,
+                className="input"
+            ),
+            html.Label("Select Director:", className="label"),
+            dcc.Dropdown(
+                id="director",
+                options=director_options,
+                placeholder="Select a director",
+                className="dropdown"
+            ),
+            html.Label("Select Actors:", className="label"),
+            dcc.Dropdown(
+                id="actors",
+                options=actor_options,
+                multi=True,
+                placeholder="Select actors",
+                className="dropdown"
+            ),
+            html.Label("Short Description of the Plot:", className="label"),
+            dcc.Textarea(
+                id="plot-description",
+                placeholder="Enter a brief description of the plot...",
+                style={"width": "100%", "height": "100px"},
+                value=""
+            ),
+            html.Button("Search", id="search-btn", className="button", n_clicks=0)
+        ], className="form-container")
+    ], className="center-container")  # Apply the centering class here
 ])
 
-# Define the layout for the results page
+# Layout for the results page
 results_layout = html.Div([
     html.H1("Results Page", className="main-title"),
     html.Div(id="results-display"),
     dcc.Link('Back to Search', href='/', className="back-link")
 ])
+
 
 # Define the layout for the app (main entry point)
 app.layout = html.Div([
@@ -124,9 +127,9 @@ app.layout = html.Div([
 def display_page(pathname):
     if pathname == '/results':
         return results_layout
-    return home_layout 
+    return home_layout #
 
-# callback for the search button to store parameters and redirect
+# Callback for the search button to store parameters and redirect
 @app.callback(
     [Output('search-store', 'data'),
      Output('url', 'pathname')],
