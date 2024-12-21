@@ -1,0 +1,17 @@
+services:
+  graphdb:
+    image: ontotext/graphdb:10.8.1 # Replace with the desired GraphDB version
+    container_name: graphdb-instance
+    ports:
+      - "7200:7200" # GraphDB web interface
+    volumes:
+      - graphdb-data:/opt/graphdb/home # Persistent volume for GraphDB data
+      - ./Datasets/TTLs:/opt/graphdb/import # Bind mount for import directory (corrected path)
+
+volumes:
+  graphdb-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./Data
