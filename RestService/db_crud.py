@@ -345,6 +345,87 @@ class MovieDatabase:
             raise
 
         return return_data
+    
+
+    async def fetch_movies_by_properties_dev(self, **kwargs):
+        """
+        Fetch movies by various properties from the SPARQL endpoint.
+
+        Returns:
+            list: A list of dictionaries containing movie URIs and labels.
+        """
+        return_data = []
+
+        # Extract relevant key/values from the submitted fields
+        title = kwargs.get('title', None)
+        genres = kwargs.get('genres', None)
+        actors = kwargs.get('actors', None)
+        director = kwargs.get('director', None)
+
+        # if title:
+        #     print(f"It works!!!!{title[0]}")
+
+        # Check if connected to the database
+        if not self.is_connected():
+            logging.info("Not connected to the database. Attempting to reconnect.")
+            self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
+            if not self.is_connected():
+                logging.error("Failed to reconnect to the database.")
+                raise Exception("Failed to reconnect to the database.")
+
+        # Construct the SPARQL query
+        query = """
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT DISTINCT ?movie ?movieLabel
+        WHERE {
+          ?movie a dbo:Film .
+          ?movie rdfs:label ?movieLabel .
+        """
+
+        # Add filters based on provided properties
+        filters = []
+        if title:
+            filters.append(f'FILTER (CONTAINS(LCASE(STR(?movieLabel)), "{title[0].lower()}"))')
+        if genres:
+            filters.append(f'?movie dbo:genre ?genre . ?genre rdfs:label ?genreLabel . FILTER (CONTAINS(LCASE(STR(?genreLabel)), "{genres.lower()}")) . ')
+        if actors:
+            query += f'?movie dbo:starring ?actor . ?actor rdfs:label ?actorLabel . FILTER (CONTAINS(LCASE(STR(?actorLabel)), "{actors.lower()}")) . '
+        if director:
+            query += f'?movie dbo:director ?director . ?director rdfs:label ?directorLabel . FILTER (CONTAINS(LCASE(STR(?directorLabel)), "{director.lower()}")) . '
+
+
+        query += " ".join(filters)
+        query += """
+        FILTER (LANG(?movieLabel) = "en")
+        }"""
+        query += f"""
+        LIMIT {self.limit}
+        """
+
+        self.sparql.setQuery(query)
+        self.sparql.setReturnFormat(JSON)
+
+        # Execute the query and process results
+        try:
+            logging.info(f"Executing SPARQL query: {query}")
+            results = self.sparql.query().convert()
+            if "results" in results and "bindings" in results["results"]:
+                return_data = [
+                    {
+                        "object_uri": result["movie"]["value"],
+                        "label": result["movieLabel"]["value"]
+                    }
+                    for result in results["results"]["bindings"]
+                ]
+            else:
+                logging.warning("No results found in SPARQL query response.")
+        except Exception as e:
+            logging.error(f"fetch_movies_by_properties - Failed: {e}")
+            raise
+
+        return return_data
 
 
 async def main():

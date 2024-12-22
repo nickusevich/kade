@@ -5,6 +5,8 @@ from dash.exceptions import PreventUpdate
 from urllib.parse import urlencode, parse_qs
 import os
 from RestService import MovieDatabase
+import json
+import asyncio
 
 
 
@@ -140,15 +142,15 @@ app.layout = html.Div([
 
 
 #________________
-# callback to update the page content based on the URL
+# Callback to update the page content based on the URL
 @app.callback(
-    Output('page-content', 'children'), #output is the page content itself
-    [Input('url', 'pathname')] # input as url, so below we have function, and based on URL it returns the layout
+    Output('page-content', 'children'), # output is the page content itself
+    [Input('url', 'pathname')] # Input as url, so below we have function, and based on URL it returns the layout
 )
 def display_page(pathname):
     if pathname == '/results':
         return results_layout
-    return home_layout #
+    return home_layout 
 
 # Callback for the search button to store parameters and redirect
 @app.callback(
@@ -167,6 +169,7 @@ def display_page(pathname):
 )
 def store_search_parameters(n_clicks, film_title, rating_range, year_range, 
                           genres, similar_movies, actors, director, plot_description):
+        
     if n_clicks == 0:
         raise PreventUpdate
 
@@ -175,14 +178,14 @@ def store_search_parameters(n_clicks, film_title, rating_range, year_range,
         raise PreventUpdate  # Prevent the page from redirecting if no parameters are selected
 
     search_params = {
-        'film_title': film_title,
-        'rating_range': rating_range,
-        'year_range': year_range,
+        'title': film_title,
+        # 'rating_range': rating_range,
+        # 'year_range': year_range,
         'genres': genres,
-        'similar_movies': similar_movies,
+        # 'similar_movies': similar_movies,
         'actors': actors,
         'director': director,
-        'plot_description': plot_description
+        # 'plot_description': plot_description
     }
     
     return search_params, '/results'
@@ -194,27 +197,30 @@ def store_search_parameters(n_clicks, film_title, rating_range, year_range,
     [Input('search-store', 'data')]
 )
 def update_results(stored_data):
+    #________________________ !way to run async functions inside synchronous ones
+    async def fetch_movies():
+        return await movie_db.fetch_movies_by_properties_dev(**stored_data)
+    #________________________
+
     if not stored_data:
         raise PreventUpdate
     
-    # print(stored_data)
-    # For now, just display the search parameters
-    results_content = []
-    
-    for key, value in stored_data.items():
-        if value is not None or value != "":  # Only display non-None values
-            formatted_key = key.replace('_', ' ').title()
-            formatted_value = str(value)
-            results_content.append(
-                html.Div([
-                    html.Strong(f"{formatted_key}: "),
-                    html.Span(formatted_value)
-                ], className="result-item")
-            )
-    print(results_content)
+    extracted_movies = asyncio.run(fetch_movies()) 
+
+
+    # JSON 
+    formatted_json = json.dumps(extracted_movies, indent=4)
+
+    # Showing results in JSON (extracted films)
     return html.Div([
-        html.H2("Search Parameters"),
-        html.Div(results_content, className="results-container")
+        html.H2("Extracted JSON"),
+        html.Pre(formatted_json, className="json-output", style={
+            "backgroundColor": "#000000",
+            "padding": "10px",
+            "borderRadius": "5px",
+            "whiteSpace": "pre-wrap",
+            "wordBreak": "break-word",
+        })
     ])
 
 if __name__ == '__main__':
