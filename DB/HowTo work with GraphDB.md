@@ -204,3 +204,56 @@ WHERE {
     (?director = ?inputDirector || !BOUND(?inputDirector)) && (?title !=inputTitle)
   )
 }
+
+12. Similarity
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX dbr: <http://dbpedia.org/resource/>
+
+SELECT ?movie 
+#       (COUNT(DISTINCT ?sharedGenre) +
+        (COUNT(?sharedYear) +
+        COUNT(?sharedActor) +
+        COUNT(?sharedDirector) AS ?similarityScore)
+WHERE {
+  # Define the target movie
+  BIND(dbr:%27Til_We_Meet_Again AS ?targetMovie)
+
+  # Retrieve the properties of the target movie
+#  OPTIONAL { ?targetMovie dbo:genre ?targetGenre. }
+  OPTIONAL { ?targetMovie dbo:releaseYear ?targetYear. }
+  OPTIONAL { ?targetMovie dbo:starring ?targetActor. }
+  OPTIONAL { ?targetMovie dbo:director ?targetDirector. }
+
+  # Find other movies (filter out the target movie itself)
+  ?movie a dbo:Film . 
+  FILTER(?movie != ?targetMovie)
+#
+  
+  # Match shared genres
+#  OPTIONAL {
+#    ?movie dbo:genre ?sharedGenre.
+#    FILTER(?sharedGenre = ?targetGenre)
+#  }
+
+  # Match shared release year
+  OPTIONAL {
+    ?movie dbo:releaseYear ?sharedYear.
+    FILTER(?sharedYear = ?targetYear)
+  }
+
+  # Match shared actors
+  OPTIONAL {
+    ?movie dbo:starring ?sharedActor.
+
+  }
+    FILTER(?sharedActor = ?targetActor)
+  # Match shared directors
+  OPTIONAL {
+    ?movie dbo:director ?sharedDirector.
+
+  }
+    FILTER(?sharedDirector = ?targetDirector)
+}
+GROUP BY ?movie
+ORDER BY DESC(?similarityScore)
+LIMIT 10
