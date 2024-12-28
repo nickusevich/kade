@@ -417,7 +417,7 @@ def csv_to_rdf(csv_file, rdf_file):
                 if resolved_genres:
                     for genre in resolved_genres:
                         genre_uri = URIRef(clean_uri(f"{DBR}{genre.replace(' ', '_')}"))
-                        g.add((movie_uri, DBO.genre, URIRef(genre_uri)))
+                        g.add((movie_uri, DBO.genre, genre_uri))
                 else:
                     g.add((movie_uri, DBO.genre, Literal(genres, lang="en")))
 
