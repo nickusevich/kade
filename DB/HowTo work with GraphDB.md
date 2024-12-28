@@ -257,3 +257,51 @@ WHERE {
 GROUP BY ?movie
 ORDER BY DESC(?similarityScore)
 LIMIT 10
+
+13. Subclass creation they are implemented 2 ways--
+    1. create all the subclasses of class Person
+ 
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+INSERT DATA {
+
+  dbo:actor rdfs:subClassOf dbo:Person .
+  dbo:director rdfs:subClassOf dbo:Person .
+  dbo:distributor rdfs:subClassOf dbo:Person .
+  dbo:producer rdfs:subClassOf dbo:Person .
+  dbo:writer rdfs:subClassOf dbo:Person .
+  dbo:cinematographer rdfs:subClassOf dbo:Person .
+  dbo:composer rdfs:subClassOf dbo:Person .
+  
+       
+
+  # Optionally, define Person as a class if not already defined
+  dbo:Person a rdfs:Class .
+}
+   2. create subclass person of human and then for person we do equivalentclass for each one with union from owl
+      1. first query
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+INSERT DATA {
+  dbo:Person rdfs:subClassOf dbo:Human .
+}
+
+    2. second query   
+
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:	<http://www.w3.org/2002/07/owl#>
+
+INSERT DATA {
+    dbo:person owl:equivalentClass [
+            owl:unionOf (
+            dbo:actor 
+            dbo:director 
+            dbo:distributor 
+            dbo:producer 
+            dbo:writer 
+            dbo:cinematographer 
+            dbo:composer)].
+}
