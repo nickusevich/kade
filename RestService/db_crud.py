@@ -252,21 +252,21 @@ class MovieDatabase:
         """
         return await self.fetch_objects_by_title("Country", name)
 
-    async def fetch_movies_by_properties(self, title: str = None, genre:str = None, actor: str = None, director: str = None, distributor: str = None, writer: str = None, producer: str = None, composer: str = None, cinematographer: str = None, production_company: str = None):
+    async def fetch_movies_by_properties(self, title: list = None, genre: list = None, actor: list = None, director: list = None, distributor: list = None, writer: list = None, producer: list = None, composer: list = None, cinematographer: list = None, production_company: list = None):
         """
         Fetch movies by various properties from the SPARQL endpoint.
 
         Args:
-            title (str, optional): The title to search for. Defaults to None.
-            genre (str, optional): The genre to search for. Defaults to None.
-            actor (str, optional): The actor to search for. Defaults to None.
-            director (str, optional): The director to search for. Defaults to None.
-            distributor (str, optional): The distributor to search for. Defaults to None.
-            writer (str, optional): The writer to search for. Defaults to None.
-            producer (str, optional): The producer to search for. Defaults to None.
-            composer (str, optional): The composer to search for. Defaults to None.
-            cinematographer (str, optional): The cinematographer to search for. Defaults to None.
-            production_company (str, optional): The production company to search for. Defaults to None.
+            title (list, optional): The titles to search for. Defaults to None.
+            genre (list, optional): The genres to search for. Defaults to None.
+            actor (list, optional): The actors to search for. Defaults to None.
+            director (list, optional): The directors to search for. Defaults to None.
+            distributor (list, optional): The distributors to search for. Defaults to None.
+            writer (list, optional): The writers to search for. Defaults to None.
+            producer (list, optional): The producers to search for. Defaults to None.
+            composer (list, optional): The composers to search for. Defaults to None.
+            cinematographer (list, optional): The cinematographers to search for. Defaults to None.
+            production_company (list, optional): The production companies to search for. Defaults to None.
 
         Returns:
             list: A list of dictionaries containing movie URIs and labels.
@@ -286,43 +286,45 @@ class MovieDatabase:
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT DISTINCT ?movie ?movieLabel
+        SELECT DISTINCT ?movie ?title
         WHERE {
-          ?movie a dbo:Film .
-          ?movie rdfs:label ?movieLabel .
+        ?movie a dbo:Film .
+        ?movie rdfs:label ?title .
         """
 
         # Add filters based on provided properties
         filters = []
-        if title:
-            filters.append(f'FILTER (CONTAINS(LCASE(STR(?movieLabel)), "{title.lower()}"))')
-        if genre:
-            filters.append(f'?movie dbo:genre ?genre . ?genre rdfs:label ?genreLabel . FILTER (CONTAINS(LCASE(STR(?genreLabel)), "{genre.lower()}")) . ')
-        if actor:
-            query += f'?movie dbo:starring ?actor . ?actor rdfs:label ?actorLabel . FILTER (CONTAINS(LCASE(STR(?actorLabel)), "{actor.lower()}")) . '
-        if director:
-            query += f'?movie dbo:director ?director . ?director rdfs:label ?directorLabel . FILTER (CONTAINS(LCASE(STR(?directorLabel)), "{director.lower()}")) . '
-        if distributor:
-            query += f'?movie dbo:distributor ?distributor . ?distributor rdfs:label ?distributorLabel . FILTER (CONTAINS(LCASE(STR(?distributorLabel)), "{distributor.lower()}")) . '
-        if writer:
-            query += f'?movie dbo:writer ?writer . ?writer rdfs:label ?writerLabel . FILTER (CONTAINS(LCASE(STR(?writerLabel)), "{writer.lower()}")) . '
-        if producer:
-            query += f'?movie dbo:producer ?producer . ?producer rdfs:label ?producerLabel . FILTER (CONTAINS(LCASE(STR(?producerLabel)), "{producer.lower()}")) . '
-        if composer:
-            query += f'?movie dbo:musicComposer ?composer . ?composer rdfs:label ?composerLabel . FILTER (CONTAINS(LCASE(STR(?composerLabel)), "{composer.lower()}")) . '
-        if cinematographer:
-            query += f'?movie dbo:cinematography ?cinematographer . ?cinematographer rdfs:label ?cinematographerLabel . FILTER (CONTAINS(LCASE(STR(?cinematographerLabel)), "{cinematographer.lower()}")) . '
-        if production_company:
-            query += f'?movie dbo:productionCompany ?productionCompany . ?productionCompany rdfs:label ?productionCompanyLabel . FILTER (CONTAINS(LCASE(STR(?productionCompanyLabel)), "{production_company.lower()}")) . '
+
+        def add_filters(param_name, param_values, sparql_property, use_or=False):
+            if param_values:
+                if use_or:
+                    conditions = [f'CONTAINS(LCASE(STR(?{param_name})), "{value.lower()}")' for value in param_values]
+                    filter_condition = " || ".join(conditions)
+                    filters.append(f'FILTER ({filter_condition})')
+                else:
+                    for value in param_values:
+                        filters.append(f'?movie {sparql_property} ?{param_name} . ?{param_name} rdfs:label ?{param_name}Label . FILTER (CONTAINS(LCASE(STR(?{param_name}Label)), "{value.lower()}")) .')
+
+        add_filters('title', title, 'rdfs:label', use_or=True)
+        add_filters('genre', genre, 'dbo:genre')
+        add_filters('actor', actor, 'dbo:starring')
+        add_filters('director', director, 'dbo:director')
+        add_filters('distributor', distributor, 'dbo:distributor')
+        add_filters('writer', writer, 'dbo:writer')
+        add_filters('producer', producer, 'dbo:producer')
+        add_filters('composer', composer, 'dbo:musicComposer')
+        add_filters('cinematographer', cinematographer, 'dbo:cinematography')
+        add_filters('production_company', production_company, 'dbo:productionCompany')
 
         query += " ".join(filters)
         query += """
-        FILTER (LANG(?movieLabel) = "en")
+        FILTER (LANG(?title) = "en")
         }"""
         query += f"""
         LIMIT {self.limit}
         """
 
+        logging.info(f"SPARQL query: {query}")
         self.sparql.setQuery(query)
         self.sparql.setReturnFormat(JSON)
 
@@ -334,7 +336,7 @@ class MovieDatabase:
                 return_data = [
                     {
                         "object_uri": result["movie"]["value"],
-                        "label": result["movieLabel"]["value"]
+                        "label": result["title"]["value"]
                     }
                     for result in results["results"]["bindings"]
                 ]

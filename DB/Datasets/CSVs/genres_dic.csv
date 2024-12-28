@@ -1,0 +1,403 @@
+Genre,Values
+Syfy,['Science Fiction']
+Drama film,['Drama']
+Documentary; TV special,"['Documentary', 'TV special']"
+Docudrama,['Documentary Drama']
+Action film,['Action']
+Alternate history; Science fiction,"['Alternate history', 'Science fiction']"
+Animation; Comedy; Mystery fiction,"['Animation', 'Comedy', 'Mystery fiction']"
+Comedy drama,['Comedy drama']
+Sitcom,['Sitcom']
+Situation comedy,['Situation comedy']
+Telenovela,['Telenovela']
+Crime drama,['Crime drama']
+Talk show,['Talk show']
+Musical film,['Musical']
+Nature documentary,['Nature documentary']
+Dramatic programming,['Dramatic programming']
+Drama,['Drama']
+Action fiction; Television comedy,"['Action fiction', 'Television comedy']"
+Anthology; Comedy; Slapstick,"['Anthology', 'Comedy', 'Slapstick']"
+Variety show,['Variety show']
+Musical theatre,['Musical theatre']
+Documentary,['Documentary']
+Drama (film and television),['Drama ( and television)']
+Mockumentary,['Mockumentary']
+Crime drama; Psychological thriller; Serial drama,"['Crime drama', 'Psychological thriller', 'Serial drama']"
+Science fiction,['Science fiction']
+Fantasy; Science fiction,"['Fantasy', 'Science fiction']"
+Digital collectible card game,['Digital collectible card game']
+War film,['War']
+Comedy horror,['Comedy horror']
+Biographical film,['Biographical']
+Dramatic programming; Romance film,"['Dramatic programming', 'Romance']"
+Alternate history; Historical drama,"['Alternate history', 'Historical drama']"
+Biography film; Drama film,"['Biography', 'Drama']"
+Animated series,['Animated series']
+Thriller film,['Thriller']
+Documentary film,['Documentary']
+Fantasy comedy,['Fantasy comedy']
+Action fiction; Drama (film and television); Thriller (genre),"['Action fiction', 'Drama ( and television)', 'Thriller']"
+Sketch comedy,['Sketch comedy']
+Western (genre),['Western']
+Historical drama,['Historical drama']
+True crime,['True crime']
+Romance film; Telenovela,"['Romance', 'Telenovela']"
+Comedy,['Comedy']
+Medical drama; Serial (radio and television),"['Medical drama', 'Serial (radio and television)']"
+Legal drama,['Legal drama']
+Television special,['Television special']
+Adventure (genre); Comedy-drama; Urban fantasy,"['Adventure', 'Comedy-drama', 'Urban fantasy']"
+Superhero film,['Superhero']
+Action film; Science fiction; Superhero film,"['Action', 'Science fiction', 'Superhero']"
+Comedy; News; Satire,"['Comedy', 'News', 'Satire']"
+Action-adventure game,['Action-adventure game']
+Sketch comedy; Variety show,"['Sketch comedy', 'Variety show']"
+Biographical film; Drama (film and television),"['Biographical', 'Drama ( and television)']"
+Comedy (drama),['Comedy (drama)']
+Comedy film,['Comedy']
+Horror film; Slasher film,"['Horror', 'Slasher']"
+Comedy drama; Crime film,"['Comedy drama', 'Crime']"
+Family film; Television special,"['Family', 'Television special']"
+Action film; Adventure film; Drama (film and television); Science fiction; Superhero fiction,"['Action', 'Adventure', 'Drama ( and television)', 'Science fiction', 'Superhero fiction']"
+Drama (film and television); Romance film; Science fiction film,"['Drama ( and television)', 'Romance', 'Science fiction']"
+Sports,['Sports']
+Film score,['score']
+Reality television,['Reality television']
+Entertainment; Parody; Reality television; Talent show,"['Entertainment', 'Parody', 'Reality television', 'Talent show']"
+Platform game,['Platform game']
+Professional wrestling,['Professional wrestling']
+Horror fiction; Science fiction; Young adult fiction,"['Horror fiction', 'Science fiction', 'Young adult fiction']"
+Romantic comedy,['Romantic comedy']
+Action film; Adventure film; Drama (film and television); Superhero fiction,"['Action', 'Adventure', 'Drama ( and television)', 'Superhero fiction']"
+Action fiction; Adventure fiction; Drama (film and television); Superhero fiction,"['Action fiction', 'Adventure fiction', 'Drama ( and television)', 'Superhero fiction']"
+Action film; Adventure fiction; Drama (film and television); Superhero fiction,"['Action', 'Adventure fiction', 'Drama ( and television)', 'Superhero fiction']"
+Action fiction; Adventure; Fantasy; Science fiction; Superhero fiction; Tokusatsu,"['Action fiction', 'Adventure', 'Fantasy', 'Science fiction', 'Superhero fiction', 'Tokusatsu']"
+Disaster film,['Disaster']
+Superhero fiction; Tokusatsu,"['Superhero fiction', 'Tokusatsu']"
+Fantasy film,['Fantasy']
+Action (fiction); Adventure fiction; Comedy; Crime fiction; Drama; Science fiction,"['Action (fiction)', 'Adventure fiction', 'Comedy', 'Crime fiction', 'Drama', 'Science fiction']"
+Action-adventure game; Stealth game,"['Action-adventure game', 'Stealth game']"
+Horror film,['Horror']
+Alternative metal; Funk metal; Progressive rock,"['Alternative metal', 'Funk metal', 'Progressive rock']"
+Game show,['Game show']
+Legal drama; Mystery fiction; Police procedural,"['Legal drama', 'Mystery fiction', 'Police procedural']"
+Comedy drama; Fantasy film; Supernatural fiction,"['Comedy drama', 'Fantasy', 'Supernatural fiction']"
+First-person shooter,['First-person shooter']
+Drama; Thriller (genre),"['Drama', 'Thriller']"
+Soap opera,['Soap opera']
+Crime film,['Crime']
+Martial arts film,['Martial arts']
+Action fiction; Adventure; Children's Television Series; Science-Fiction; Time Travel,"['Action fiction', 'Adventure', ""Children's Television Series"", 'Science-Fiction', 'Time Travel']"
+Science fiction film,['Science fiction']
+Action fiction; Adventure; Fantasy; Superhero fiction; Tokusatsu,"['Action fiction', 'Adventure', 'Fantasy', 'Superhero fiction', 'Tokusatsu']"
+Video journalism,['Video journalism']
+Horror fiction; Mockumentary,"['Horror fiction', 'Mockumentary']"
+Biographical drama; Political drama; Political thriller,"['Biographical drama', 'Political drama', 'Political thriller']"
+Anthology series; Comedy; Slapstick,"['Anthology series', 'Comedy', 'Slapstick']"
+Interactive movie,['Interactive movie']
+Animation; Drama; Family,"['Animation', 'Drama', 'Family']"
+Situational comedy,['Situational comedy']
+Sketch show,['Sketch show']
+Thriller (genre),['Thriller']
+Fantasy; Science fiction; Wuxia,"['Fantasy', 'Science fiction', 'Wuxia']"
+Drama (film and television); War film,"['Drama ( and television)', 'War']"
+Drama (Film and television),['Drama ( and television)']
+Animation; Comedy film,"['Animation', 'Comedy']"
+Fantasy,['Fantasy']
+Role-playing video game,['Role-playing video game']
+Crime film; Drama (film and television); Thriller film,"['Crime', 'Drama ( and television)', 'Thriller']"
+Absurdist fiction; Medical drama; Paranormal television; Psychological drama; Supernatural horror,"['Absurdist fiction', 'Medical drama', 'Paranormal television', 'Psychological drama', 'Supernatural horror']"
+Action film; Historical fiction; Martial arts film,"['Action', 'Historical fiction', 'Martial arts']"
+Comedy; Costume drama,"['Comedy', 'Costume drama']"
+Satire; Sketch comedy,"['Satire', 'Sketch comedy']"
+Suspense film; Telenovela; Thriller (genre),"['Suspense', 'Telenovela', 'Thriller']"
+Sitcom; Slapstick,"['Sitcom', 'Slapstick']"
+Comedy; Documentary,"['Comedy', 'Documentary']"
+Documentary film; Drama,"['Documentary', 'Drama']"
+Mystery film,['Mystery']
+Crime thriller; Romantic drama,"['Crime thriller', 'Romantic drama']"
+Comedy film; Fantasy film,"['Comedy', 'Fantasy']"
+Action film; Crime drama,"['Action', 'Crime drama']"
+Public affairs (broadcasting),['Public affairs (broadcasting)']
+Action fiction; Horror fiction,"['Action fiction', 'Horror fiction']"
+Cringe comedy; Situation comedy,"['Cringe comedy', 'Situation comedy']"
+Action fiction; Superhero fiction,"['Action fiction', 'Superhero fiction']"
+Crime drama; Mystery fiction,"['Crime drama', 'Mystery fiction']"
+Drama; Time travel,"['Drama', 'Time travel']"
+Drama (film and television); Horror fiction; Mystery fiction; Supernatural fiction; Thriller (genre),"['Drama ( and television)', 'Horror fiction', 'Mystery fiction', 'Supernatural fiction', 'Thriller']"
+Melodrama; Romance film,"['Melodrama', 'Romance']"
+Action (genre); Comedy; Science fantasy; Superhero fiction,"['Action', 'Comedy', 'Science fantasy', 'Superhero fiction']"
+Family drama; Soap Opera; Sports drama,"['Family drama', 'Soap Opera', 'Sports drama']"
+Animation; Comedy; Fantasy,"['Animation', 'Comedy', 'Fantasy']"
+Crime drama; Science fiction,"['Crime drama', 'Science fiction']"
+Crime thriller,['Crime thriller']
+Collectible card game; Digital collectible card game,"['Collectible card game', 'Digital collectible card game']"
+Dramatic programming; Financial thriller,"['Dramatic programming', 'Financial thriller']"
+Children's film; Comedy film; Fantasy film,"[""Children's"", 'Comedy', 'Fantasy']"
+Education,['Education']
+Drama (film and television); Police procedural,"['Drama ( and television)', 'Police procedural']"
+Police procedural,['Police procedural']
+Children's television series; Fantasy fiction,"[""Children's television series"", 'Fantasy fiction']"
+Historical drama; Martial arts film,"['Historical drama', 'Martial arts']"
+Drama; Science fantasy; Suspense; Teen drama,"['Drama', 'Science fantasy', 'Suspense', 'Teen drama']"
+Adventure game; Racing video game,"['Adventure game', 'Racing video game']"
+Science fiction; Television comedy,"['Science fiction', 'Television comedy']"
+Teen drama,['Teen drama']
+Action film; Disaster film; Thriller (genre),"['Action', 'Disaster', 'Thriller']"
+Crime film; Thriller (genre),"['Crime', 'Thriller']"
+Mecha; Science fiction,"['Mecha', 'Science fiction']"
+Action (genre); Adventure (genre); Science fantasy; Superhero fiction,"['Action', 'Adventure', 'Science fantasy', 'Superhero fiction']"
+Superhero fiction; Thriller (genre); Tokusatsu,"['Superhero fiction', 'Thriller', 'Tokusatsu']"
+Documentary; Longitudinal study,"['Documentary', 'Longitudinal study']"
+Medical drama,['Medical drama']
+Racing video game,['Racing video game']
+Drama (genre),['Drama']
+Biography; Dramatic programming,"['Biography', 'Dramatic programming']"
+Action (genre); Science fiction; Superhero fiction,"['Action', 'Science fiction', 'Superhero fiction']"
+Fantasy fiction; Superhero fiction; Tokusatsu,"['Fantasy fiction', 'Superhero fiction', 'Tokusatsu']"
+Comedy drama; Musical film; Romance film; War film,"['Comedy drama', 'Musical', 'Romance', 'War']"
+Romantic drama; Science fiction; Telenovela,"['Romantic drama', 'Science fiction', 'Telenovela']"
+Chat show,['Chat show']
+Action fiction; Horror fiction; Science fiction; Superhero fiction; Supernatural fiction; Tokusatsu,"['Action fiction', 'Horror fiction', 'Science fiction', 'Superhero fiction', 'Supernatural fiction', 'Tokusatsu']"
+Adventure; Comedy,"['Adventure', 'Comedy']"
+Action-adventure game; First-person shooter,"['Action-adventure game', 'First-person shooter']"
+Black comedy; Crime comedy; Mockumentary; Sitcom,"['Black comedy', 'Crime comedy', 'Mockumentary', 'Sitcom']"
+Comedy film; Romance film; Teen film,"['Comedy', 'Romance', 'Teen']"
+Crime film; Drama film; Mystery film,"['Crime', 'Drama', 'Mystery']"
+Children's television series,"[""Children's television series""]"
+Period drama,['Period drama']
+Crime; Drama; Political thriller,"['Crime', 'Drama', 'Political thriller']"
+Action fiction; Drama (film and television); Mystery fiction,"['Action fiction', 'Drama ( and television)', 'Mystery fiction']"
+Drama (film and television); Romance film,"['Drama ( and television)', 'Romance']"
+Television documentary,['Television documentary']
+Biography; Drama,"['Biography', 'Drama']"
+Costume drama; Historical fiction; Soap opera; Wuxia,"['Costume drama', 'Historical fiction', 'Soap opera', 'Wuxia']"
+Drama (film and television); Teen drama; Television comedy,"['Drama ( and television)', 'Teen drama', 'Television comedy']"
+Action (fiction); Adventure film; Mystery film; Period drama; Science fantasy,"['Action (fiction)', 'Adventure', 'Mystery', 'Period drama', 'Science fantasy']"
+Children,['Children']
+Fantasy; Horror fiction; Kaiju; Kyodai Hero; Science fiction; Superhero fiction; Tokusatsu,"['Fantasy', 'Horror fiction', 'Kaiju', 'Kyodai Hero', 'Science fiction', 'Superhero fiction', 'Tokusatsu']"
+Drama (film and television); Fantasy,"['Drama ( and television)', 'Fantasy']"
+Improvisational comedy,['Improvisational comedy']
+Preschool,['Preschool']
+Comedy drama; Legal drama,"['Comedy drama', 'Legal drama']"
+Situation Comedy,['Situation Comedy']
+Surreal humor,['Surreal humor']
+Drama; Science fiction,"['Drama', 'Science fiction']"
+Action-adventure game; Survival horror,"['Action-adventure game', 'Survival horror']"
+Entertainment,['Entertainment']
+Adventure fiction; Fantasy fiction; Literary adaptation,"['Adventure fiction', 'Fantasy fiction', 'Literary adaptation']"
+Documentary; Reality TV,"['Documentary', 'Reality-TV']"
+Comedy; Reality television; Variety show,"['Comedy', 'Reality television', 'Variety show']"
+Action film; Adventure; Kaiju; Superhero fiction; Tokusatsu,"['Action', 'Adventure', 'Kaiju', 'Superhero fiction', 'Tokusatsu']"
+Docufiction; Drama,"['Docufiction', 'Drama']"
+Costume drama,['Costume drama']
+Black comedy; Insult comedy; Rant; Review; Sketch comedy; Surreal humor; Toilet humour,"['Black comedy', 'Insult comedy', 'Rant', 'Review', 'Sketch comedy', 'Surreal humor', 'Toilet humour']"
+Historical drama; Serial (radio and television); Western (genre),"['Historical drama', 'Serial (radio and television)', 'Western']"
+Crime fiction,['Crime fiction']
+Family drama; Romance film,"['Family drama', 'Romance']"
+Biopic,['Biopic']
+Black comedy; Cringe comedy; Political satire,"['Black comedy', 'Cringe comedy', 'Political satire']"
+Christmas film,['Christmas']
+Action (fiction); Dramatic programming,"['Action (fiction)', 'Dramatic programming']"
+Adventure game,['Adventure game']
+Crime drama; Police procedural,"['Crime drama', 'Police procedural']"
+Action fiction; Adventure fiction; Kaiju; Kyodai Hero; Science fiction; Superhero fiction; Tokusatsu,"['Action fiction', 'Adventure fiction', 'Kaiju', 'Kyodai Hero', 'Science fiction', 'Superhero fiction', 'Tokusatsu']"
+Children's; Comedy; Slapstick,"[""Children's"", 'Comedy', 'Slapstick']"
+Serial drama,['Serial drama']
+Improvisational theatre,['Improvisational theatre']
+LGBT,['LGBT']
+Japanese television drama,['Japanese television drama']
+Action film; Fantasy film; Musical film; Superhero fiction; Supernatural; Tokusatsu,"['Action', 'Fantasy', 'Musical', 'Superhero fiction', 'Supernatural', 'Tokusatsu']"
+Interactive television,['Interactive television']
+Family drama; Slice of life; Telenovela,"['Family drama', 'Slice of life', 'Telenovela']"
+Costume drama; Detective fiction; Fantasy,"['Costume drama', 'Detective fiction', 'Fantasy']"
+Action fiction; Adventure fiction; Science fantasy; Superhero fiction,"['Action fiction', 'Adventure fiction', 'Science fantasy', 'Superhero fiction']"
+Music,['Music']
+Adventure; Drama; Fantasy; Sci-Fi; Superhero fiction; Tokusatsu,"['Adventure', 'Drama', 'Fantasy', 'Science Fiction', 'Superhero fiction', 'Tokusatsu']"
+Comedy; Drama,"['Comedy', 'Drama']"
+Adventure; Drama; Folklore,"['Adventure', 'Drama', 'Folklore']"
+Docudrama; Documentary film,"['Documentary Drama', 'Documentary']"
+Public affairs programming,['Public affairs programming']
+Drama film; Mystery (fiction); Thriller (genre),"['Drama', 'Mystery (fiction)', 'Thriller']"
+Drama film; Period drama; Romance film; War film,"['Drama', 'Period drama', 'Romance', 'War']"
+Animation; Educational television; Puppet show; Sketch comedy,"['Animation', 'Educational television', 'Puppet show', 'Sketch comedy']"
+Drama film; Mystery film; Romance film,"['Drama', 'Mystery', 'Romance']"
+Collectible card game,['Collectible card game']
+Documentary television series,['Documentary television series']
+Card game,['Card game']
+Drama (film and television); Music; Romance film,"['Drama ( and television)', 'Music', 'Romance']"
+Drama; Romance film,"['Drama', 'Romance']"
+Black comedy; Situation comedy,"['Black comedy', 'Situation comedy']"
+Comedy film; Romance film,"['Comedy', 'Romance']"
+Tower defense,['Tower defense']
+Drama; Telenovela,"['Drama', 'Telenovela']"
+Cyberpunk; Isekai; Kaiju; Kyodai Hero; Science fiction; Superhero fiction; Tokusatsu,"['Cyberpunk', 'Isekai', 'Kaiju', 'Kyodai Hero', 'Science fiction', 'Superhero fiction', 'Tokusatsu']"
+Comedy; Sitcom,"['Comedy', 'Sitcom']"
+Reality television; Sports,"['Reality television', 'Sports']"
+Comedy; Telenovela,"['Comedy', 'Telenovela']"
+Comedy; Talk show,"['Comedy', 'Talk show']"
+Adventure film; Drama film,"['Adventure', 'Drama']"
+Horror fiction,['Horror fiction']
+Documentary film; Television news magazine,"['Documentary', 'Television news magazine']"
+Action fiction; Comedy-drama; Horror fiction; Satire,"['Action fiction', 'Comedy-drama', 'Horror fiction', 'Satire']"
+Comedy; Reality show; Variety show,"['Comedy', 'Reality show', 'Variety show']"
+Action fiction; Adventure fiction; Mystery fiction; Science fiction; Superhero fiction,"['Action fiction', 'Adventure fiction', 'Mystery fiction', 'Science fiction', 'Superhero fiction']"
+Apocalyptic and post-apocalyptic fiction,['Apocalyptic and post-apocalyptic fiction']
+Documentary film; History; Science; Space exploration,"['Documentary', 'History', 'Science', 'Space exploration']"
+Animated cartoon; Sitcom,"['Animated cartoon', 'Sitcom']"
+Horror fiction; Suspense,"['Horror fiction', 'Suspense']"
+Comedy drama; Fantasy,"['Comedy drama', 'Fantasy']"
+Current affairs (news format),['Current affairs (news format)']
+Horror comedy,['Horror comedy']
+Documentary; History,"['Documentary', 'History']"
+Black comedy; Mystery fiction; Psychological horror; Psychological thriller; Sitcom,"['Black comedy', 'Mystery fiction', 'Psychological horror', 'Psychological thriller', 'Sitcom']"
+Action-adventure; Cyberpunk; Dystopian fiction; Post-apocalyptic; Science fiction,"['Action-adventure', 'Cyberpunk', 'Dystopian fiction', 'Post-apocalyptic', 'Science fiction']"
+Drama; Erotica; Family,"['Drama', 'Erotica', 'Family']"
+Science fiction; Sitcom,"['Science fiction', 'Sitcom']"
+Drama (film and television); Romantic comedy,"['Drama ( and television)', 'Romantic comedy']"
+Comedy drama; Crime film; Paranormal,"['Comedy drama', 'Crime', 'Paranormal']"
+Crime fiction; Drama; Thriller film,"['Crime fiction', 'Drama', 'Thriller']"
+Satire; Television comedy,"['Satire', 'Television comedy']"
+Action (genre); Comedy drama; Fantasy; Horror fiction; Supernatural,"['Action', 'Comedy drama', 'Fantasy', 'Horror fiction', 'Supernatural']"
+Crime thriller; Drama (film and television),"['Crime thriller', 'Drama ( and television)']"
+News program,['News program']
+Comedy; Live-action,"['Comedy', 'Live-action']"
+Broadcasting of sports events; Reality television,"['Broadcasting of sports events', 'Reality television']"
+Documentary; Reality television,"['Documentary', 'Reality television']"
+Tragedy,['Tragedy']
+Drama (film and television); Thriller film,"['Drama ( and television)', 'Thriller']"
+Crime; Drama; Mystery fiction,"['Crime', 'Drama', 'Mystery fiction']"
+Morning show; News,"['Morning show', 'News']"
+Sport,['Sport']
+Children's television series; Comedy; Musical fiction,"[""Children's television series"", 'Comedy', 'Musical fiction']"
+Action film; Comedy; Detective fiction; Superhero fiction; Supernatural fiction; Tokusatsu,"['Action', 'Comedy', 'Detective fiction', 'Superhero fiction', 'Supernatural fiction', 'Tokusatsu']"
+History of science,['History of science']
+Mystery fiction; Police procedural,"['Mystery fiction', 'Police procedural']"
+Historical drama film,['Historical drama']
+Comedy; Mockumentary,"['Comedy', 'Mockumentary']"
+Drama film; Erotica; Family; Romance film,"['Drama', 'Erotica', 'Family', 'Romance']"
+Drama; Fantasy film; Mystery film; Teen,"['Drama', 'Fantasy', 'Mystery', 'Teen']"
+Melodrama,['Melodrama']
+Horror fiction; Sitcom,"['Horror fiction', 'Sitcom']"
+Mystery fiction,['Mystery fiction']
+Science,['Science']
+Biographical film; Comedy film; Drama film,"['Biographical', 'Comedy', 'Drama']"
+Comedy; Fantasy; Steampunk,"['Comedy', 'Fantasy', 'Steampunk']"
+Beat 'em up; Hack and slash; Survival horror,"[""Beat 'em up"", 'Hack and slash', 'Survival horror']"
+Contemporary history,['Contemporary history']
+Drama; Romantic comedy,"['Drama', 'Romantic comedy']"
+Comedy-drama,['Comedy-drama']
+Historical fiction,['Historical fiction']
+Drama (film and television); Period drama,"['Drama ( and television)', 'Period drama']"
+Action genre; Drama (film and television); Fantasy,"['Action genre', 'Drama ( and television)', 'Fantasy']"
+Crime; Documentary,"['Crime', 'Documentary']"
+Action film; Romance film; Thriller (genre),"['Action', 'Romance', 'Thriller']"
+Turn-based strategy,['Turn-based strategy']
+Historical; Jidaigeki,"['Historical', 'Jidaigeki']"
+Broadcasting of sports events,['Broadcasting of sports events']
+Domestic violence; Mental health,"['Domestic violence', 'Mental health']"
+Improvisational; Mockumentary,"['Improvisational', 'Mockumentary']"
+Serial (radio and television),['Serial (radio and television)']
+Romantic drama,['Romantic drama']
+Comedy drama; Family film; Science fiction; Teen film,"['Comedy drama', 'Family', 'Science fiction', 'Teen']"
+Chat show; Clip show,"['Chat show', 'Clip show']"
+Parody; Satire,"['Parody', 'Satire']"
+Comedy; Fantasy; Parody,"['Comedy', 'Fantasy', 'Parody']"
+Chinese New Year,['Chinese New Year']
+Action film; Comedy drama,"['Action', 'Comedy drama']"
+Action film; Drama,"['Action', 'Drama']"
+Documentary film; Reality television,"['Documentary', 'Reality television']"
+Historical fiction; Romance film; Time-travel,"['Historical fiction', 'Romance', 'Time-travel']"
+List of reality television programs,['Reality-TV']
+Adventure game; Survival horror,"['Adventure game', 'Survival horror']"
+Comedy; Drama; Fantasy; Romance film,"['Comedy', 'Drama', 'Fantasy', 'Romance']"
+Infotainment,['Infotainment']
+Drama; Miniseries,"['Drama', 'Miniseries']"
+Wuxia,['Wuxia']
+Romance film; Teen film,"['Romance', 'Teen']"
+Documentary television,['Documentary television']
+Comedy; Drama; Teen,"['Comedy', 'Drama', 'Teen']"
+Period drama; Telenovela,"['Period drama', 'Telenovela']"
+Travel documentary,['Travel documentary']
+Action fiction; Adventure; Cyberpunk; Drama; Science fiction; Superhero fiction; Tokusatsu,"['Action fiction', 'Adventure', 'Cyberpunk', 'Drama', 'Science fiction', 'Superhero fiction', 'Tokusatsu']"
+Musical film; Teen film,"['Musical', 'Teen']"
+Action (fiction); Dramatic programming; Police procedural,"['Action (fiction)', 'Dramatic programming', 'Police procedural']"
+Futures studies,['Futures studies']
+Drama; Horror film,"['Drama', 'Horror']"
+Drama; Social,"['Drama', 'Social']"
+Family film; Melodrama; Revenge,"['Family', 'Melodrama', 'Revenge']"
+Children's; Comedy,"[""Children's"", 'Comedy']"
+Black comedy; Comedy series; Parody; Satire,"['Black comedy', 'Comedy series', 'Parody', 'Satire']"
+Comedy-drama; Fantasy,"['Comedy-drama', 'Fantasy']"
+Dramatic programming; Romantic comedy,"['Dramatic programming', 'Romantic comedy']"
+Adventure; Drama; Romance film; Telenovela,"['Adventure', 'Drama', 'Romance', 'Telenovela']"
+Action role-playing game; Fighting game,"['Action role-playing game', 'Fighting game']"
+Action (fiction); Political thriller; Serial (radio and television); Suspense,"['Action (fiction)', 'Political thriller', 'Serial (radio and television)', 'Suspense']"
+Strategy video game,['Strategy video game']
+Animated series; Comedy; Slapstick,"['Animated series', 'Comedy', 'Slapstick']"
+Comedy; Dramatic programming,"['Comedy', 'Dramatic programming']"
+Action fiction; Adventure fiction; Kaiju; Kyodai Hero; Sci-Fi; Superhero fiction; Tokusatsu,"['Action fiction', 'Adventure fiction', 'Kaiju', 'Kyodai Hero', 'Science Fiction', 'Superhero fiction', 'Tokusatsu']"
+Action-adventure,['Action-adventure']
+Adventure fiction; Comedy; Slapstick,"['Adventure fiction', 'Comedy', 'Slapstick']"
+Factual television,['Factual television']
+Romantic comedy; Telenovela,"['Romantic comedy', 'Telenovela']"
+Kaiju; Science fiction; Tokusatsu,"['Kaiju', 'Science fiction', 'Tokusatsu']"
+Biography; Docudrama,"['Biography', 'Documentary Drama']"
+Drama; Soap opera,"['Drama', 'Soap opera']"
+Electronic music; Industrial hip hop; Trance music,"['Electronic music', 'Industrial hip hop', 'Trance music']"
+Reality Television,['Reality Television']
+Comedy film; Romance film; Science fiction film; Teen film,"['Comedy', 'Romance', 'Science fiction', 'Teen']"
+Drama; Psychological thriller,"['Drama', 'Psychological thriller']"
+Drama film; Family film; Romance film,"['Drama', 'Family', 'Romance']"
+Historical drama; Medical drama,"['Historical drama', 'Medical drama']"
+Biopic; Docudrama; Mystery fiction; Slasher film,"['Biopic', 'Documentary Drama', 'Mystery fiction', 'Slasher']"
+Action (fiction); Dramatic programming; Mystery fiction; Romantic film,"['Action (fiction)', 'Dramatic programming', 'Mystery fiction', 'Romantic']"
+Dramedy,"['Drama', 'Comedy']"
+Comedy; Fantasy,"['Comedy', 'Fantasy']"
+Adventure; Historical Drama,"['Adventure', 'Historical Drama']"
+Action film; Martial arts film,"['Action', 'Martial arts']"
+Action film; Comedy drama; Police drama; Slapstick; Superhero fiction; Tokusatsu,"['Action', 'Comedy drama', 'Police drama', 'Slapstick', 'Superhero fiction', 'Tokusatsu']"
+Reality show,['Reality show']
+Historical period drama; Political film; Romance film,"['Historical period drama', 'Political', 'Romance']"
+Chat show; Sketch comedy,"['Chat show', 'Sketch comedy']"
+Fantasy; Romance film; Telenovela,"['Fantasy', 'Romance', 'Telenovela']"
+Docudrama; Horror film,"['Documentary Drama', 'Horror']"
+Television comedy,['Television comedy']
+Adventure (genre); Comedy (genre); Teen film,"['Adventure', 'Comedy', 'Teen']"
+Biblical epic,['Biblical epic']
+Comedy film; Drama film; Fantasy film; Teen drama; Telenovela,"['Comedy', 'Drama', 'Fantasy', 'Teen drama', 'Telenovela']"
+Drama; Telenovela; Thriller (genre),"['Drama', 'Telenovela', 'Thriller']"
+Dark comedy; Drama,"['Dark comedy', 'Drama']"
+Adventure film; Fantasy film; Musical film; Teen film,"['Adventure', 'Fantasy', 'Musical', 'Teen']"
+Political drama,['Political drama']
+Action (fiction); Adventure film; Mystery fiction; Supernatural,"['Action (fiction)', 'Adventure', 'Mystery fiction', 'Supernatural']"
+Action film; Dramatic programming; Martial arts,"['Action', 'Dramatic programming', 'Martial arts']"
+Biblical; Historical Drama,"['Biblical', 'Historical Drama']"
+Action (fiction); Comedy film; Science fiction,"['Action (fiction)', 'Comedy', 'Science fiction']"
+Drama film; Telenovela,"['Drama', 'Telenovela']"
+Adventure fiction,['Adventure fiction']
+Biopic; Drama (genre),"['Biopic', 'Drama']"
+Musical film; Teen sitcom,"['Musical', 'Teen sitcom']"
+Comedy horror; Fantasy; Superhero fiction; Supernatural fiction; Tokusatsu,"['Comedy horror', 'Fantasy', 'Superhero fiction', 'Supernatural fiction', 'Tokusatsu']"
+Black comedy; Comedy horror; Satire (film and television); Slasher film; Surreal humour,"['Black comedy', 'Comedy horror', 'Satire', 'Slasher', 'Surreal humour']"
+Drama (film and television); Science fiction on television,"['Drama ( and television)', 'Science fiction on television']"
+Family drama; Romantic drama; Serial drama,"['Family drama', 'Romantic drama', 'Serial drama']"
+Live television; Musical film; Romantic comedy,"['Live television', 'Musical', 'Romantic comedy']"
+Action film; Comedy film,"['Action', 'Comedy']"
+Lunar New Year,['Lunar New Year']
+Family Drama; Romance film,"['Family Drama', 'Romance']"
+Action fiction; Comedy; Fantasy; Superhero fiction; Tokusatsu,"['Action fiction', 'Comedy', 'Fantasy', 'Superhero fiction', 'Tokusatsu']"
+Kaiju; Kyodai Hero; Science fiction; Superhero fiction; Tokusatsu,"['Kaiju', 'Kyodai Hero', 'Science fiction', 'Superhero fiction', 'Tokusatsu']"
+Family drama; Romantic drama,"['Family drama', 'Romantic drama']"
+Action film; Comedy drama; Cyberpunk; Medical drama; Science fiction; Superhero fiction; Tokusatsu,"['Action', 'Comedy drama', 'Cyberpunk', 'Medical drama', 'Science fiction', 'Superhero fiction', 'Tokusatsu']"
+Mockumentary; Sitcom; Surreal comedy,"['Mockumentary', 'Sitcom', 'Surreal comedy']"
+Fantasy film; Musical film; Teen film,"['Fantasy', 'Musical', 'Teen']"
+Drama; Historical fiction,"['Drama', 'Historical fiction']"
+Legal drama; Political drama,"['Legal drama', 'Political drama']"
+Drama; Social problem film,"['Drama', 'Social problem']"
+Country pop,['Country pop']
+Drama; Fantasy; Psychological; Thriller (genre),"['Drama', 'Fantasy', 'Psychological', 'Thriller']"
+Idle game; Point-and-click adventure,"['Idle game', 'Point-and-click adventure']"
+Point-and-click adventure game,['Point-and-click adventure game']
+Electronic dance music; Eurodance; Eurohouse,"['Electronic dance music', 'Eurodance', 'Eurohouse']"

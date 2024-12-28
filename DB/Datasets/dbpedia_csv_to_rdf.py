@@ -5,6 +5,16 @@ import urllib.parse
 import requests
 import re
 import pandas as pd
+import time
+
+
+# Define namespaces
+DBR = Namespace("http://dbpedia.org/resource/")
+DBO = Namespace("http://dbpedia.org/ontology/")
+DCT = Namespace("http://purl.org/dc/terms/")
+RDF = Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+RDFS = Namespace("http://www.w3.org/2000/01/rdf-schema#")
+PROV = Namespace("http://www.w3.org/ns/prov#")
 
 # Function to sanitize URIs
 def clean_uri(uri):
@@ -29,10 +39,10 @@ def clean_country_value(country_value):
     country_value = re.sub(r'United States04', 'United States', country_value) # Fix typo
     country_value = re.sub(r'Phoenix Arizona', 'United States', country_value) # Fix typo
     country_value = re.sub(r'^\bUSA\b$', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'^\bU.S.\b$', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'^\bU.S.A.\b$', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'^\bU\.S\.\b$', 'United States', country_value) # Fix typo
+    country_value = re.sub(r'^\bU\.S\.A\.\b$', 'United States', country_value) # Fix typo
     country_value = re.sub(r'^\bUK\b$', 'United Kingdom', country_value) # Fix typo
-    country_value = re.sub(r'^\bU.K.\b$', 'United Kingdom', country_value) # Fix typo
+    country_value = re.sub(r'^\bU\.K\.\b$', 'United Kingdom', country_value) # Fix typo
     country_value = re.sub(r'Great Britain', 'United Kingdom', country_value) # Fix typo
     country_value = re.sub(r'British Hong Kong', 'United Kingdom , China', country_value)  # Only replace if it is the only word
     country_value = re.sub(r'British India', 'United Kingdom , India', country_value)  # Only replace if it is the only word
@@ -137,6 +147,7 @@ def resolve_country_uri(country_literal_or_uri):
             response = requests.get(DBPEDIA_SPARQL_ENDPOINT, headers=headers, params={"query": query})
             response.raise_for_status()
             results = response.json().get("results", {}).get("bindings", [])
+            time.sleep(1) # Delay to avoid overloading the DBpedia endpoint
 
             if results:
                 # Fetch the first match
@@ -151,19 +162,143 @@ def resolve_country_uri(country_literal_or_uri):
 
     return resolved_countries
 
-def fetch_all_unique_countries(csv_file):
-    """Fetch all unique country values from the CSV file."""
-    df = pd.read_csv(csv_file)
-    unique_countries = df['country'].dropna().unique()
-    return unique_countries
-
 def resolve_all_countries(unique_countries):
     """Resolve all unique country values to their corresponding DBpedia URIs and labels."""
     resolved_countries = {}
     for country in unique_countries:
         resolved_countries[country] = resolve_country_uri(country)
+
+    # Export the resolved_countries dictionary to a CSV file
+    output_csv_path = "DB/Datasets/CSVs/countries_dic.csv"
+    with open(output_csv_path, mode='w', newline='', encoding='utf-8') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(["Country", "Values"])  # Write the header
+        for country, resolved_uri in resolved_countries.items():
+            writer.writerow([country, resolved_uri])
     return resolved_countries
 
+def clean_genre_value(genre_value):
+    """Clean genre values to remove trailing slashes, excess spaces, and incorrect formatting."""
+    genre_value = re.sub(r'/$', '', genre_value)  # Remove trailing slashes
+    genre_value = re.sub(r"film", '', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"\(genre\)", '', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Syfy", 'Science Fiction', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Sci-Fi", 'Science Fiction', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Docudrama", 'Documentary Drama', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Dramedy", 'Drama, Comedy', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Satire \( and television\)", 'Satire', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"List of reality television programs", 'Reality-TV', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Reality TV", 'Reality-TV', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = genre_value.strip()  # Remove extra spaces
+    return genre_value
+
+def resolve_genre(genre_literal):
+    """Resolve a genre literal."""
+    genres = [clean_genre_value(c.strip()) for c in re.split(r'[;,&\n/]', clean_genre_value(str(genre_literal)))] 
+    return genres
+    # return [Literal(genre) for genre in genres]
+
+def resolve_all_genres(unique_genres):
+    """ Function to resolve genre literals to DBpedia URIs and labels """
+    resolved_genres = {}
+    for genre in unique_genres:
+        resolved_genres[genre] = resolve_genre(genre)
+
+    
+    # Export the resolved_genres dictionary to a CSV file
+    output_csv_path = "DB/Datasets/CSVs/genres_dic.csv"
+    with open(output_csv_path, mode='w', newline='', encoding='utf-8') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(["Genre", "Values"])  # Write the header
+        for genre, resolved_uri in resolved_genres.items():
+            writer.writerow([genre, resolved_uri])
+
+    return resolved_genres
+
+
+def preprocess_genres(g, resolved_genres_dict):
+    # Define the super genres and their sub-genres
+    super_genres = {
+        "Comedy": ["Romantic Comedy", "Dark Comedy", "Slapstick", "Satire", "Sitcom", "Mockumentary", "Surreal humour",
+                "Black Comedy", "Parody", "Comedy of manners", "Comedy Thriller", "Comedy-drama", "Comedy horror",
+                "Toilet humour",
+                "Comedy of errors", "Comedy of humours", "Comedy of intrigue", "Comedy of situation"],
+        "Drama": ["Romance", "Historical Drama", "Crime Drama", "Legal Drama", "Melodrama", "Thriller", "Erotica",
+                "Psychological thriller", "Political Drama", "Family Drama", "Teen Drama", "Biographical", "Biopic",
+                "Political", "Psychological", "Romantic", "LGBT",
+                "Anthology", "Soap opera", "Telenovela", "Serial (radio and television)", "Suspense", "Mystery",
+                "Crime thriller", "Political thriller", "Detective fiction", "Historical fiction", "Tragedy"],
+        "Action": ["Martial Arts", "Superhero", "Spy", "Adventure", "Adventure fiction", "Disaster", "War", "Western",
+                    "Adventure", "Crime", "Crime fiction", "Crime thriller", "Police procedural", "Military", "Heist", "Survival"],
+        "Animation": ["Anime", "Stop Motion", "Computer Animation", "Clay Animation", "Animated series", "Animated cartoon"],
+        "Horror": ["Slasher", "Supernatural Horror", "Psychological Horror", "Monster", "Gothic Horror", "Body Horror",
+                "Zombie", "Vampire", "Werewolf", "Occult", "Paranormal", "Haunted House"],
+        "Science Fiction": ["Superhero fiction", "Supernatural", "Fantasy", "Cyberpunk", "Space Opera", "Time Travel",
+                            "Time-travel",
+                            "Dystopian", "Alternate History", "Science fantasy", "Apocalyptic and post-apocalyptic fiction",
+                            "Steampunk", "Speculative fiction", "Alien invasion", "Space exploration", "Utopian"],
+        "Documentary": ["Biography", "Biographical Documentary", "Nature Documentary", "Travel Documentary", "Music Documentary",
+                        "History",
+                        "Political Documentary", "Social Documentary", "Science Documentary", "History Documentary",
+                        "First-person shooter", "History", "Science", "Mental health", "Biblical", "Infotainment",
+                        "Sports Documentary", "War Documentary", "True Crime", "Docufiction", "Mockumentary", "Docudrama"],
+        "Musical": ["Musical theatre", "Musical film", "Music", "Opera", "Rock opera", "Concert film", "Dance film"],
+        "Fantasy": ["Urban fantasy", "Dark fantasy", "High fantasy", "Sword and sorcery", "Fairy tale", "Mythopoeia",
+                    "Time-travel", "Dystopian fiction",
+                    "Magical realism", "Paranormal", "Folklore", "Wuxia", "Supernatural fiction", "Epic fantasy"],
+        "Romance": ["Romantic Comedy", "Romantic Drama", "Chick flick", "Romantic thriller", "Romantic fantasy"],
+        "Sports": ["Sports film", "Sports drama", "Sports comedy", "Sports documentary", "Martial arts", "Professional wrestling"],
+        "Crime": ["Crime Drama", "Crime Thriller", "Police Procedural", "Heist", "Gangster", "Detective fiction", "Noir",
+                "Mystery fiction", "Legal drama", "Courtroom drama"],
+        "War": ["War film", "Anti-war film", "Military", "Historical war", "War drama", "War documentary"],
+        "Music": ["Music", "Musical film", "Concert film", "Music documentary", "Music video", "Music biopic", "Funk metal", "Progressive rock",
+                    "Industrial hip hop", "Improvisational", "Eurodance", "Eurohouse",
+                "Rockumentary", "Music of Bollywood", "Music of Bollywood", "Music of Bollywood", "Music of Bollywood", "Music of Bollywood", "Concert film"],
+        "Western": ["Spaghetti Western", "Revisionist Western", "Contemporary Western", "Acid Western", "Space Western"],
+        "Reality-TV": ["Reality television", "Reality show", "Chat show", "Reality Television", "Adventure game",
+                     "Reality competition", "Reality game show", "Reality legal show", "Reality medical show", "Game show"],
+        "Other": []  # This will be used for genres not listed above
+    }
+
+    for super_genre in super_genres:
+        super_genre_uri = URIRef(clean_uri(f"{DBR}{super_genre.replace(' ', '_')}"))
+        g.add((super_genre_uri, RDF.type, DBO.Genre))
+        g.add((super_genre_uri, RDFS.label, Literal(super_genre)))
+
+        for sub_genre in super_genres[super_genre]:
+            sub_genre_uri = URIRef(clean_uri(f"{DBR}{sub_genre.replace(' ', '_')}"))
+            g.add((sub_genre_uri, RDF.type, DBO.Genre))
+            g.add((sub_genre_uri, RDFS.subClassOf, super_genre_uri))
+            g.add((sub_genre_uri, RDFS.label, Literal(sub_genre)))
+
+    for genre in resolved_genres_dict:
+        resolved_genres = resolved_genres_dict.get(genre, [])
+        for genre_literal in resolved_genres:
+                # Determine the super genres
+                super_genres_for_genre = set()
+                for super_genre, sub_genres in super_genres.items():
+                    if genre_literal in sub_genres or re.search(super_genre, genre_literal, re.IGNORECASE) \
+                        or re.search(genre_literal, super_genre, re.IGNORECASE):
+                            super_genres_for_genre.add(super_genre)
+
+                # If no super genre is found, classify as "Other"
+                if not super_genres_for_genre:
+                    print(f"No super genre found for '{genre_literal}', classifying as 'Other'")
+                    super_genres_for_genre.add("Other")
+
+
+                # Add the super genre triples
+                for super_genre in super_genres_for_genre:
+                    super_genre_uri = URIRef(clean_uri(f"{DBR}{super_genre.replace(' ', '_')}"))
+
+                    # If the genre is not already a super genre, add the sub-genre relationship
+                    if genre_literal not in super_genres:
+                        genre_uri = URIRef(clean_uri(f"{DBR}{genre_literal.replace(' ', '_')}"))
+                        g.add((genre_uri, RDF.type, DBO.Genre))
+                        g.add((genre_uri, RDFS.label, Literal(genre_literal)))
+                        g.add((genre_uri, RDFS.subClassOf, super_genre_uri))
+        
+    return g
 def csv_to_rdf(csv_file, rdf_file):
     """
     Convert a CSV file to RDF (Turtle format).
@@ -172,13 +307,6 @@ def csv_to_rdf(csv_file, rdf_file):
         csv_file (str): Path to the input CSV file.
         rdf_file (str): Path to save the output Turtle file.
     """
-    # Define namespaces
-    DBR = Namespace("http://dbpedia.org/resource/")
-    DBO = Namespace("http://dbpedia.org/ontology/")
-    DCT = Namespace("http://purl.org/dc/terms/")
-    RDF = Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-    RDFS = Namespace("http://www.w3.org/2000/01/rdf-schema#")
-    PROV = Namespace("http://www.w3.org/ns/prov#")
 
     # Create a new RDF graph
     g = Graph()
@@ -190,9 +318,17 @@ def csv_to_rdf(csv_file, rdf_file):
     skipped_count = 0  # Count rows skipped
     movie_count = 0  # Count unique movies added to the graph
 
-    # Fetch and resolve all unique country values
-    unique_countries = fetch_all_unique_countries(csv_file)
+    df = pd.read_csv(csv_file, encoding='utf-8')
+    print("Resolving unique countries...")
+    unique_countries = df['country'].dropna().unique()
     resolved_countries_dict = resolve_all_countries(unique_countries)
+    # resolved_countries_dict = dict()
+
+    # Fetch and resolve all unique genre values
+    print("Resolving unique genres...")
+    unique_genres = df['genres'].dropna().unique()
+    resolved_genres_dict = resolve_all_genres(unique_genres)
+    g = preprocess_genres(g, resolved_genres_dict)
     
     with open(csv_file, 'r', encoding='utf-8') as f:
         print(f"Reading CSV file: {csv_file}...")
@@ -241,7 +377,7 @@ def csv_to_rdf(csv_file, rdf_file):
             }
 
             object_attributes = {
-                'genres' :(DBO.genre, DBO.Genre, RDF.Property),
+                # 'genres' :(DBO.genre, DBO.Genre, RDF.Property),
                 'actors': (DBO.starring, DBO.Actor, DBO.Person),
                 'directors': (DBO.director, DBO.Director, DBO.Person),
                 'distributors': (DBO.distributor, DBO.Distributor, DBO.Person),
@@ -273,6 +409,17 @@ def csv_to_rdf(csv_file, rdf_file):
                             g.add((URIRef(country_uri), RDFS.label, Literal(country_label, lang="en")))
                 else:
                     g.add((movie_uri, DBO.country, Literal(country, lang="en")))
+
+            # Handle genre attribute
+            genres = row.get('genres')
+            if genres is not None and genres != '' and genres != 'N/A':
+                resolved_genres = resolved_genres_dict.get(genres, [])
+                if resolved_genres:
+                    for genre in resolved_genres:
+                        genre_uri = URIRef(clean_uri(f"{DBR}{genre.replace(' ', '_')}"))
+                        g.add((movie_uri, DBO.genre, URIRef(genre_uri)))
+                else:
+                    g.add((movie_uri, DBO.genre, Literal(genres, lang="en")))
 
             # Handle literal string attributes
             for attr, predicate in str_attributes.items():

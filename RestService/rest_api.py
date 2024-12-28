@@ -5,7 +5,7 @@ Description: rest api service for movie app (Knowledge and Data Engineer)
 """
 
 from fastapi import FastAPI, HTTPException, Query, Depends
-from typing import Optional
+from typing import Optional, List
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
@@ -53,16 +53,16 @@ async def root():
 
 @app.get('/movies')
 @cache(expire=300)
-async def get_movies_titles(title: Optional[str] = Query(None, alias="movieLabel"),
-                            genre: Optional[str] = Query(None, alias="genre"),
-                            actor: Optional[str] = Query(None, alias="actor"),
-                            director: Optional[str] = Query(None, alias="director"),
-                            distributor: Optional[str] = Query(None, alias="distributor"),
-                            writer: Optional[str] = Query(None, alias="writer"),
-                            producer: Optional[str] = Query(None, alias="producer"),
-                            composer: Optional[str] = Query(None, alias="composer"),
-                            cinematographer: Optional[str] = Query(None, alias="cinematographer"),
-                            production_company: Optional[str] = Query(None, alias="productionCompany"),
+async def get_movies_titles(title: Optional[List[str]] = Query(None, alias="movieLabel"),
+                            genre: Optional[List[str]] = Query(None, alias="genre"),
+                            actor: Optional[List[str]] = Query(None, alias="actor"),
+                            director: Optional[List[str]] = Query(None, alias="director"),
+                            distributor: Optional[List[str]] = Query(None, alias="distributor"),
+                            writer: Optional[List[str]] = Query(None, alias="writer"),
+                            producer: Optional[List[str]] = Query(None, alias="producer"),
+                            composer: Optional[List[str]] = Query(None, alias="composer"),
+                            cinematographer: Optional[List[str]] = Query(None, alias="cinematographer"),
+                            production_company: Optional[List[str]] = Query(None, alias="productionCompany"),
                             redis_client: cache = Depends(get_redis_cache)):
     try:
         write_log(f"Getting movies with provided filters", "info")
@@ -79,12 +79,24 @@ async def get_movies_titles(title: Optional[str] = Query(None, alias="movieLabel
             "production_company": production_company
         }
         filtered_params = {k: v for k, v in params.items() if v}
-        var_name = "movie_" + "_".join(f"{k}_{v}" for k, v in filtered_params.items())
+        
+        # Generate a cache key based on the filtered parameters
+        var_name = "movie_" + "_".join(f"{k}_{'_'.join(v)}" for k, v in filtered_params.items())
         if (cached_answer := redis_client.get(var_name)) is not None:
             write_log(f"Found movie query in cache")
             return pickle.loads(cached_answer)
 
-        results = await movieDatabase.fetch_movies_by_properties(**filtered_params)
+        # Adjust the query logic to handle lists of values
+        # query_conditions = []
+        # for key, values in filtered_params.items():
+        #     if isinstance(values, list):
+        #         query_conditions.append(f"{key} IN ({', '.join(map(repr, values))})")
+        #     else:
+        #         query_conditions.append(f"{key} = {repr(values)}")
+
+        # query_string = " AND ".join(query_conditions)
+        results = await movieDatabase.fetch_movies_by_properties(**params)
+        
         redis_client.set(var_name, pickle.dumps(results))
         write_log(f"Written movie query into cache")
     except Exception as e:

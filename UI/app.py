@@ -4,7 +4,7 @@ import dash
 from dash.exceptions import PreventUpdate
 from urllib.parse import urlencode, parse_qs
 import os
-from RestService import MovieDatabase
+# from RestService import MovieDatabase
 import json
 import asyncio
 
@@ -13,7 +13,7 @@ import asyncio
 # Initialize the app
 app = Dash(__name__, suppress_callback_exceptions=True)
 
-movie_db = MovieDatabase()
+# movie_db = MovieDatabase()
 
 
 
@@ -198,15 +198,26 @@ def store_search_parameters(n_clicks, film_title, rating_range, year_range,
 )
 def update_results(stored_data):
     #________________________ !way to run async functions inside synchronous ones
-    async def fetch_movies():
-        return await movie_db.fetch_movies_by_properties_dev(**stored_data)
+    # async def fetch_movies():
+    #     return await movie_db.fetch_movies_by_properties_dev(**stored_data)
     #________________________
+    # extracted_movies = asyncio.run(fetch_movies()) 
 
     if not stored_data:
         raise PreventUpdate
-    
-    extracted_movies = asyncio.run(fetch_movies()) 
 
+    # Make the GET request to the FastAPI service
+    url = REST_SERVICE_URI + "/movies"
+    response = requests.get(url, params=stored_data)
+
+    # Check if the request was successful
+    extracted_movies = []
+    if response.status_code == 200:
+        # Print the response JSON
+        extracted_movies = response.json()
+    else:
+        # Print the error message
+        print(f"Failed to get movies: {response.status_code}, {response.text}")
 
     # JSON 
     formatted_json = json.dumps(extracted_movies, indent=4)
@@ -225,3 +236,4 @@ def update_results(stored_data):
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0')
+    # app.run_server(debug=True)

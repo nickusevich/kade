@@ -1,0 +1,403 @@
+Genre,Resolved URI
+Syfy,[rdflib.term.Literal('Syfy')]
+Drama film,[rdflib.term.Literal('Drama')]
+Documentary; TV special,"[rdflib.term.Literal('Documentary'), rdflib.term.Literal('TV special')]"
+Docudrama,[rdflib.term.Literal('Docudrama')]
+Action film,[rdflib.term.Literal('Action')]
+Alternate history; Science fiction,"[rdflib.term.Literal('Alternate history'), rdflib.term.Literal('Science fiction')]"
+Animation; Comedy; Mystery fiction,"[rdflib.term.Literal('Animation'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Mystery fiction')]"
+Comedy drama,[rdflib.term.Literal('Comedy drama')]
+Sitcom,[rdflib.term.Literal('Sitcom')]
+Situation comedy,[rdflib.term.Literal('Situation comedy')]
+Telenovela,[rdflib.term.Literal('Telenovela')]
+Crime drama,[rdflib.term.Literal('Crime drama')]
+Talk show,[rdflib.term.Literal('Talk show')]
+Musical film,[rdflib.term.Literal('Musical')]
+Nature documentary,[rdflib.term.Literal('Nature documentary')]
+Dramatic programming,[rdflib.term.Literal('Dramatic programming')]
+Drama,[rdflib.term.Literal('Drama')]
+Action fiction; Television comedy,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Television comedy')]"
+Anthology; Comedy; Slapstick,"[rdflib.term.Literal('Anthology'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Slapstick')]"
+Variety show,[rdflib.term.Literal('Variety show')]
+Musical theatre,[rdflib.term.Literal('Musical theatre')]
+Documentary,[rdflib.term.Literal('Documentary')]
+Drama (film and television),[rdflib.term.Literal('Drama ( and television)')]
+Mockumentary,[rdflib.term.Literal('Mockumentary')]
+Crime drama; Psychological thriller; Serial drama,"[rdflib.term.Literal('Crime drama'), rdflib.term.Literal('Psychological thriller'), rdflib.term.Literal('Serial drama')]"
+Science fiction,[rdflib.term.Literal('Science fiction')]
+Fantasy; Science fiction,"[rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Science fiction')]"
+Digital collectible card game,[rdflib.term.Literal('Digital collectible card game')]
+War film,[rdflib.term.Literal('War')]
+Comedy horror,[rdflib.term.Literal('Comedy horror')]
+Biographical film,[rdflib.term.Literal('Biographical')]
+Dramatic programming; Romance film,"[rdflib.term.Literal('Dramatic programming'), rdflib.term.Literal('Romance')]"
+Alternate history; Historical drama,"[rdflib.term.Literal('Alternate history'), rdflib.term.Literal('Historical drama')]"
+Biography film; Drama film,"[rdflib.term.Literal('Biography'), rdflib.term.Literal('Drama')]"
+Animated series,[rdflib.term.Literal('Animated series')]
+Thriller film,[rdflib.term.Literal('Thriller')]
+Documentary film,[rdflib.term.Literal('Documentary')]
+Fantasy comedy,[rdflib.term.Literal('Fantasy comedy')]
+Action fiction; Drama (film and television); Thriller (genre),"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Thriller (genre)')]"
+Sketch comedy,[rdflib.term.Literal('Sketch comedy')]
+Western (genre),[rdflib.term.Literal('Western (genre)')]
+Historical drama,[rdflib.term.Literal('Historical drama')]
+True crime,[rdflib.term.Literal('True crime')]
+Romance film; Telenovela,"[rdflib.term.Literal('Romance'), rdflib.term.Literal('Telenovela')]"
+Comedy,[rdflib.term.Literal('Comedy')]
+Medical drama; Serial (radio and television),"[rdflib.term.Literal('Medical drama'), rdflib.term.Literal('Serial (radio and television)')]"
+Legal drama,[rdflib.term.Literal('Legal drama')]
+Television special,[rdflib.term.Literal('Television special')]
+Adventure (genre); Comedy-drama; Urban fantasy,"[rdflib.term.Literal('Adventure (genre)'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('drama'), rdflib.term.Literal('Urban fantasy')]"
+Superhero film,[rdflib.term.Literal('Superhero')]
+Action film; Science fiction; Superhero film,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero')]"
+Comedy; News; Satire,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('News'), rdflib.term.Literal('Satire')]"
+Action-adventure game,"[rdflib.term.Literal('Action'), rdflib.term.Literal('adventure game')]"
+Sketch comedy; Variety show,"[rdflib.term.Literal('Sketch comedy'), rdflib.term.Literal('Variety show')]"
+Biographical film; Drama (film and television),"[rdflib.term.Literal('Biographical'), rdflib.term.Literal('Drama ( and television)')]"
+Comedy (drama),[rdflib.term.Literal('Comedy (drama)')]
+Comedy film,[rdflib.term.Literal('Comedy')]
+Horror film; Slasher film,"[rdflib.term.Literal('Horror'), rdflib.term.Literal('Slasher')]"
+Comedy drama; Crime film,"[rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Crime')]"
+Family film; Television special,"[rdflib.term.Literal('Family'), rdflib.term.Literal('Television special')]"
+Action film; Adventure film; Drama (film and television); Science fiction; Superhero fiction,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Adventure'), rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction')]"
+Drama (film and television); Romance film; Science fiction film,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Romance'), rdflib.term.Literal('Science fiction')]"
+Sports,[rdflib.term.Literal('Sports')]
+Film score,[rdflib.term.Literal('score')]
+Reality television,[rdflib.term.Literal('Reality television')]
+Entertainment; Parody; Reality television; Talent show,"[rdflib.term.Literal('Entertainment'), rdflib.term.Literal('Parody'), rdflib.term.Literal('Reality television'), rdflib.term.Literal('Talent show')]"
+Platform game,[rdflib.term.Literal('Platform game')]
+Professional wrestling,[rdflib.term.Literal('Professional wrestling')]
+Horror fiction; Science fiction; Young adult fiction,"[rdflib.term.Literal('Horror fiction'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Young adult fiction')]"
+Romantic comedy,[rdflib.term.Literal('Romantic comedy')]
+Action film; Adventure film; Drama (film and television); Superhero fiction,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Adventure'), rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Superhero fiction')]"
+Action fiction; Adventure fiction; Drama (film and television); Superhero fiction,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Adventure fiction'), rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Superhero fiction')]"
+Action film; Adventure fiction; Drama (film and television); Superhero fiction,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Adventure fiction'), rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Superhero fiction')]"
+Action fiction; Adventure; Fantasy; Science fiction; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Adventure'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Disaster film,[rdflib.term.Literal('Disaster')]
+Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Fantasy film,[rdflib.term.Literal('Fantasy')]
+Action (fiction); Adventure fiction; Comedy; Crime fiction; Drama; Science fiction,"[rdflib.term.Literal('Action (fiction)'), rdflib.term.Literal('Adventure fiction'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Crime fiction'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Science fiction')]"
+Action-adventure game; Stealth game,"[rdflib.term.Literal('Action'), rdflib.term.Literal('adventure game'), rdflib.term.Literal('Stealth game')]"
+Horror film,[rdflib.term.Literal('Horror')]
+Alternative metal; Funk metal; Progressive rock,"[rdflib.term.Literal('Alternative metal'), rdflib.term.Literal('Funk metal'), rdflib.term.Literal('Progressive rock')]"
+Game show,[rdflib.term.Literal('Game show')]
+Legal drama; Mystery fiction; Police procedural,"[rdflib.term.Literal('Legal drama'), rdflib.term.Literal('Mystery fiction'), rdflib.term.Literal('Police procedural')]"
+Comedy drama; Fantasy film; Supernatural fiction,"[rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Supernatural fiction')]"
+First-person shooter,"[rdflib.term.Literal('First'), rdflib.term.Literal('person shooter')]"
+Drama; Thriller (genre),"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Thriller (genre)')]"
+Soap opera,[rdflib.term.Literal('Soap opera')]
+Crime film,[rdflib.term.Literal('Crime')]
+Martial arts film,[rdflib.term.Literal('Martial arts')]
+Action fiction; Adventure; Children's Television Series; Science-Fiction; Time Travel,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Adventure'), rdflib.term.Literal(""Children's Television Series""), rdflib.term.Literal('Science'), rdflib.term.Literal('Fiction'), rdflib.term.Literal('Time Travel')]"
+Science fiction film,[rdflib.term.Literal('Science fiction')]
+Action fiction; Adventure; Fantasy; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Adventure'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Video journalism,[rdflib.term.Literal('Video journalism')]
+Horror fiction; Mockumentary,"[rdflib.term.Literal('Horror fiction'), rdflib.term.Literal('Mockumentary')]"
+Biographical drama; Political drama; Political thriller,"[rdflib.term.Literal('Biographical drama'), rdflib.term.Literal('Political drama'), rdflib.term.Literal('Political thriller')]"
+Anthology series; Comedy; Slapstick,"[rdflib.term.Literal('Anthology series'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Slapstick')]"
+Interactive movie,[rdflib.term.Literal('Interactive movie')]
+Animation; Drama; Family,"[rdflib.term.Literal('Animation'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Family')]"
+Situational comedy,[rdflib.term.Literal('Situational comedy')]
+Sketch show,[rdflib.term.Literal('Sketch show')]
+Thriller (genre),[rdflib.term.Literal('Thriller (genre)')]
+Fantasy; Science fiction; Wuxia,"[rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Wuxia')]"
+Drama (film and television); War film,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('War')]"
+Drama (Film and television),[rdflib.term.Literal('Drama ( and television)')]
+Animation; Comedy film,"[rdflib.term.Literal('Animation'), rdflib.term.Literal('Comedy')]"
+Fantasy,[rdflib.term.Literal('Fantasy')]
+Role-playing video game,"[rdflib.term.Literal('Role'), rdflib.term.Literal('playing video game')]"
+Crime film; Drama (film and television); Thriller film,"[rdflib.term.Literal('Crime'), rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Thriller')]"
+Absurdist fiction; Medical drama; Paranormal television; Psychological drama; Supernatural horror,"[rdflib.term.Literal('Absurdist fiction'), rdflib.term.Literal('Medical drama'), rdflib.term.Literal('Paranormal television'), rdflib.term.Literal('Psychological drama'), rdflib.term.Literal('Supernatural horror')]"
+Action film; Historical fiction; Martial arts film,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Historical fiction'), rdflib.term.Literal('Martial arts')]"
+Comedy; Costume drama,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Costume drama')]"
+Satire; Sketch comedy,"[rdflib.term.Literal('Satire'), rdflib.term.Literal('Sketch comedy')]"
+Suspense film; Telenovela; Thriller (genre),"[rdflib.term.Literal('Suspense'), rdflib.term.Literal('Telenovela'), rdflib.term.Literal('Thriller (genre)')]"
+Sitcom; Slapstick,"[rdflib.term.Literal('Sitcom'), rdflib.term.Literal('Slapstick')]"
+Comedy; Documentary,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Documentary')]"
+Documentary film; Drama,"[rdflib.term.Literal('Documentary'), rdflib.term.Literal('Drama')]"
+Mystery film,[rdflib.term.Literal('Mystery')]
+Crime thriller; Romantic drama,"[rdflib.term.Literal('Crime thriller'), rdflib.term.Literal('Romantic drama')]"
+Comedy film; Fantasy film,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Fantasy')]"
+Action film; Crime drama,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Crime drama')]"
+Public affairs (broadcasting),[rdflib.term.Literal('Public affairs (broadcasting)')]
+Action fiction; Horror fiction,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Horror fiction')]"
+Cringe comedy; Situation comedy,"[rdflib.term.Literal('Cringe comedy'), rdflib.term.Literal('Situation comedy')]"
+Action fiction; Superhero fiction,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Superhero fiction')]"
+Crime drama; Mystery fiction,"[rdflib.term.Literal('Crime drama'), rdflib.term.Literal('Mystery fiction')]"
+Drama; Time travel,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Time travel')]"
+Drama (film and television); Horror fiction; Mystery fiction; Supernatural fiction; Thriller (genre),"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Horror fiction'), rdflib.term.Literal('Mystery fiction'), rdflib.term.Literal('Supernatural fiction'), rdflib.term.Literal('Thriller (genre)')]"
+Melodrama; Romance film,"[rdflib.term.Literal('Melodrama'), rdflib.term.Literal('Romance')]"
+Action (genre); Comedy; Science fantasy; Superhero fiction,"[rdflib.term.Literal('Action (genre)'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Science fantasy'), rdflib.term.Literal('Superhero fiction')]"
+Family drama; Soap Opera; Sports drama,"[rdflib.term.Literal('Family drama'), rdflib.term.Literal('Soap Opera'), rdflib.term.Literal('Sports drama')]"
+Animation; Comedy; Fantasy,"[rdflib.term.Literal('Animation'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Fantasy')]"
+Crime drama; Science fiction,"[rdflib.term.Literal('Crime drama'), rdflib.term.Literal('Science fiction')]"
+Crime thriller,[rdflib.term.Literal('Crime thriller')]
+Collectible card game; Digital collectible card game,"[rdflib.term.Literal('Collectible card game'), rdflib.term.Literal('Digital collectible card game')]"
+Dramatic programming; Financial thriller,"[rdflib.term.Literal('Dramatic programming'), rdflib.term.Literal('Financial thriller')]"
+Children's film; Comedy film; Fantasy film,"[rdflib.term.Literal(""Children's""), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Fantasy')]"
+Education,[rdflib.term.Literal('Education')]
+Drama (film and television); Police procedural,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Police procedural')]"
+Police procedural,[rdflib.term.Literal('Police procedural')]
+Children's television series; Fantasy fiction,"[rdflib.term.Literal(""Children's television series""), rdflib.term.Literal('Fantasy fiction')]"
+Historical drama; Martial arts film,"[rdflib.term.Literal('Historical drama'), rdflib.term.Literal('Martial arts')]"
+Drama; Science fantasy; Suspense; Teen drama,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Science fantasy'), rdflib.term.Literal('Suspense'), rdflib.term.Literal('Teen drama')]"
+Adventure game; Racing video game,"[rdflib.term.Literal('Adventure game'), rdflib.term.Literal('Racing video game')]"
+Science fiction; Television comedy,"[rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Television comedy')]"
+Teen drama,[rdflib.term.Literal('Teen drama')]
+Action film; Disaster film; Thriller (genre),"[rdflib.term.Literal('Action'), rdflib.term.Literal('Disaster'), rdflib.term.Literal('Thriller (genre)')]"
+Crime film; Thriller (genre),"[rdflib.term.Literal('Crime'), rdflib.term.Literal('Thriller (genre)')]"
+Mecha; Science fiction,"[rdflib.term.Literal('Mecha'), rdflib.term.Literal('Science fiction')]"
+Action (genre); Adventure (genre); Science fantasy; Superhero fiction,"[rdflib.term.Literal('Action (genre)'), rdflib.term.Literal('Adventure (genre)'), rdflib.term.Literal('Science fantasy'), rdflib.term.Literal('Superhero fiction')]"
+Superhero fiction; Thriller (genre); Tokusatsu,"[rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Thriller (genre)'), rdflib.term.Literal('Tokusatsu')]"
+Documentary; Longitudinal study,"[rdflib.term.Literal('Documentary'), rdflib.term.Literal('Longitudinal study')]"
+Medical drama,[rdflib.term.Literal('Medical drama')]
+Racing video game,[rdflib.term.Literal('Racing video game')]
+Drama (genre),[rdflib.term.Literal('Drama (genre)')]
+Biography; Dramatic programming,"[rdflib.term.Literal('Biography'), rdflib.term.Literal('Dramatic programming')]"
+Action (genre); Science fiction; Superhero fiction,"[rdflib.term.Literal('Action (genre)'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction')]"
+Fantasy fiction; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Fantasy fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Comedy drama; Musical film; Romance film; War film,"[rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Musical'), rdflib.term.Literal('Romance'), rdflib.term.Literal('War')]"
+Romantic drama; Science fiction; Telenovela,"[rdflib.term.Literal('Romantic drama'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Telenovela')]"
+Chat show,[rdflib.term.Literal('Chat show')]
+Action fiction; Horror fiction; Science fiction; Superhero fiction; Supernatural fiction; Tokusatsu,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Horror fiction'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Supernatural fiction'), rdflib.term.Literal('Tokusatsu')]"
+Adventure; Comedy,"[rdflib.term.Literal('Adventure'), rdflib.term.Literal('Comedy')]"
+Action-adventure game; First-person shooter,"[rdflib.term.Literal('Action'), rdflib.term.Literal('adventure game'), rdflib.term.Literal('First'), rdflib.term.Literal('person shooter')]"
+Black comedy; Crime comedy; Mockumentary; Sitcom,"[rdflib.term.Literal('Black comedy'), rdflib.term.Literal('Crime comedy'), rdflib.term.Literal('Mockumentary'), rdflib.term.Literal('Sitcom')]"
+Comedy film; Romance film; Teen film,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Romance'), rdflib.term.Literal('Teen')]"
+Crime film; Drama film; Mystery film,"[rdflib.term.Literal('Crime'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Mystery')]"
+Children's television series,"[rdflib.term.Literal(""Children's television series"")]"
+Period drama,[rdflib.term.Literal('Period drama')]
+Crime; Drama; Political thriller,"[rdflib.term.Literal('Crime'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Political thriller')]"
+Action fiction; Drama (film and television); Mystery fiction,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Mystery fiction')]"
+Drama (film and television); Romance film,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Romance')]"
+Television documentary,[rdflib.term.Literal('Television documentary')]
+Biography; Drama,"[rdflib.term.Literal('Biography'), rdflib.term.Literal('Drama')]"
+Costume drama; Historical fiction; Soap opera; Wuxia,"[rdflib.term.Literal('Costume drama'), rdflib.term.Literal('Historical fiction'), rdflib.term.Literal('Soap opera'), rdflib.term.Literal('Wuxia')]"
+Drama (film and television); Teen drama; Television comedy,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Teen drama'), rdflib.term.Literal('Television comedy')]"
+Action (fiction); Adventure film; Mystery film; Period drama; Science fantasy,"[rdflib.term.Literal('Action (fiction)'), rdflib.term.Literal('Adventure'), rdflib.term.Literal('Mystery'), rdflib.term.Literal('Period drama'), rdflib.term.Literal('Science fantasy')]"
+Children,[rdflib.term.Literal('Children')]
+Fantasy; Horror fiction; Kaiju; Kyodai Hero; Science fiction; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Horror fiction'), rdflib.term.Literal('Kaiju'), rdflib.term.Literal('Kyodai Hero'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Drama (film and television); Fantasy,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Fantasy')]"
+Improvisational comedy,[rdflib.term.Literal('Improvisational comedy')]
+Preschool,[rdflib.term.Literal('Preschool')]
+Comedy drama; Legal drama,"[rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Legal drama')]"
+Situation Comedy,[rdflib.term.Literal('Situation Comedy')]
+Surreal humor,[rdflib.term.Literal('Surreal humor')]
+Drama; Science fiction,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Science fiction')]"
+Action-adventure game; Survival horror,"[rdflib.term.Literal('Action'), rdflib.term.Literal('adventure game'), rdflib.term.Literal('Survival horror')]"
+Entertainment,[rdflib.term.Literal('Entertainment')]
+Adventure fiction; Fantasy fiction; Literary adaptation,"[rdflib.term.Literal('Adventure fiction'), rdflib.term.Literal('Fantasy fiction'), rdflib.term.Literal('Literary adaptation')]"
+Documentary; Reality TV,"[rdflib.term.Literal('Documentary'), rdflib.term.Literal('Reality TV')]"
+Comedy; Reality television; Variety show,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Reality television'), rdflib.term.Literal('Variety show')]"
+Action film; Adventure; Kaiju; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Adventure'), rdflib.term.Literal('Kaiju'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Docufiction; Drama,"[rdflib.term.Literal('Docufiction'), rdflib.term.Literal('Drama')]"
+Costume drama,[rdflib.term.Literal('Costume drama')]
+Black comedy; Insult comedy; Rant; Review; Sketch comedy; Surreal humor; Toilet humour,"[rdflib.term.Literal('Black comedy'), rdflib.term.Literal('Insult comedy'), rdflib.term.Literal('Rant'), rdflib.term.Literal('Review'), rdflib.term.Literal('Sketch comedy'), rdflib.term.Literal('Surreal humor'), rdflib.term.Literal('Toilet humour')]"
+Historical drama; Serial (radio and television); Western (genre),"[rdflib.term.Literal('Historical drama'), rdflib.term.Literal('Serial (radio and television)'), rdflib.term.Literal('Western (genre)')]"
+Crime fiction,[rdflib.term.Literal('Crime fiction')]
+Family drama; Romance film,"[rdflib.term.Literal('Family drama'), rdflib.term.Literal('Romance')]"
+Biopic,[rdflib.term.Literal('Biopic')]
+Black comedy; Cringe comedy; Political satire,"[rdflib.term.Literal('Black comedy'), rdflib.term.Literal('Cringe comedy'), rdflib.term.Literal('Political satire')]"
+Christmas film,[rdflib.term.Literal('Christmas')]
+Action (fiction); Dramatic programming,"[rdflib.term.Literal('Action (fiction)'), rdflib.term.Literal('Dramatic programming')]"
+Adventure game,[rdflib.term.Literal('Adventure game')]
+Crime drama; Police procedural,"[rdflib.term.Literal('Crime drama'), rdflib.term.Literal('Police procedural')]"
+Action fiction; Adventure fiction; Kaiju; Kyodai Hero; Science fiction; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Adventure fiction'), rdflib.term.Literal('Kaiju'), rdflib.term.Literal('Kyodai Hero'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Children's; Comedy; Slapstick,"[rdflib.term.Literal(""Children's""), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Slapstick')]"
+Serial drama,[rdflib.term.Literal('Serial drama')]
+Improvisational theatre,[rdflib.term.Literal('Improvisational theatre')]
+LGBT,[rdflib.term.Literal('LGBT')]
+Japanese television drama,[rdflib.term.Literal('Japanese television drama')]
+Action film; Fantasy film; Musical film; Superhero fiction; Supernatural; Tokusatsu,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Musical'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Supernatural'), rdflib.term.Literal('Tokusatsu')]"
+Interactive television,[rdflib.term.Literal('Interactive television')]
+Family drama; Slice of life; Telenovela,"[rdflib.term.Literal('Family drama'), rdflib.term.Literal('Slice of life'), rdflib.term.Literal('Telenovela')]"
+Costume drama; Detective fiction; Fantasy,"[rdflib.term.Literal('Costume drama'), rdflib.term.Literal('Detective fiction'), rdflib.term.Literal('Fantasy')]"
+Action fiction; Adventure fiction; Science fantasy; Superhero fiction,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Adventure fiction'), rdflib.term.Literal('Science fantasy'), rdflib.term.Literal('Superhero fiction')]"
+Music,[rdflib.term.Literal('Music')]
+Adventure; Drama; Fantasy; Sci-Fi; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Adventure'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Sci'), rdflib.term.Literal('Fi'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Comedy; Drama,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Drama')]"
+Adventure; Drama; Folklore,"[rdflib.term.Literal('Adventure'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Folklore')]"
+Docudrama; Documentary film,"[rdflib.term.Literal('Docudrama'), rdflib.term.Literal('Documentary')]"
+Public affairs programming,[rdflib.term.Literal('Public affairs programming')]
+Drama film; Mystery (fiction); Thriller (genre),"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Mystery (fiction)'), rdflib.term.Literal('Thriller (genre)')]"
+Drama film; Period drama; Romance film; War film,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Period drama'), rdflib.term.Literal('Romance'), rdflib.term.Literal('War')]"
+Animation; Educational television; Puppet show; Sketch comedy,"[rdflib.term.Literal('Animation'), rdflib.term.Literal('Educational television'), rdflib.term.Literal('Puppet show'), rdflib.term.Literal('Sketch comedy')]"
+Drama film; Mystery film; Romance film,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Mystery'), rdflib.term.Literal('Romance')]"
+Collectible card game,[rdflib.term.Literal('Collectible card game')]
+Documentary television series,[rdflib.term.Literal('Documentary television series')]
+Card game,[rdflib.term.Literal('Card game')]
+Drama (film and television); Music; Romance film,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Music'), rdflib.term.Literal('Romance')]"
+Drama; Romance film,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Romance')]"
+Black comedy; Situation comedy,"[rdflib.term.Literal('Black comedy'), rdflib.term.Literal('Situation comedy')]"
+Comedy film; Romance film,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Romance')]"
+Tower defense,[rdflib.term.Literal('Tower defense')]
+Drama; Telenovela,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Telenovela')]"
+Cyberpunk; Isekai; Kaiju; Kyodai Hero; Science fiction; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Cyberpunk'), rdflib.term.Literal('Isekai'), rdflib.term.Literal('Kaiju'), rdflib.term.Literal('Kyodai Hero'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Comedy; Sitcom,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Sitcom')]"
+Reality television; Sports,"[rdflib.term.Literal('Reality television'), rdflib.term.Literal('Sports')]"
+Comedy; Telenovela,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Telenovela')]"
+Comedy; Talk show,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Talk show')]"
+Adventure film; Drama film,"[rdflib.term.Literal('Adventure'), rdflib.term.Literal('Drama')]"
+Horror fiction,[rdflib.term.Literal('Horror fiction')]
+Documentary film; Television news magazine,"[rdflib.term.Literal('Documentary'), rdflib.term.Literal('Television news magazine')]"
+Action fiction; Comedy-drama; Horror fiction; Satire,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('drama'), rdflib.term.Literal('Horror fiction'), rdflib.term.Literal('Satire')]"
+Comedy; Reality show; Variety show,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Reality show'), rdflib.term.Literal('Variety show')]"
+Action fiction; Adventure fiction; Mystery fiction; Science fiction; Superhero fiction,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Adventure fiction'), rdflib.term.Literal('Mystery fiction'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction')]"
+Apocalyptic and post-apocalyptic fiction,"[rdflib.term.Literal('Apocalyptic and post'), rdflib.term.Literal('apocalyptic fiction')]"
+Documentary film; History; Science; Space exploration,"[rdflib.term.Literal('Documentary'), rdflib.term.Literal('History'), rdflib.term.Literal('Science'), rdflib.term.Literal('Space exploration')]"
+Animated cartoon; Sitcom,"[rdflib.term.Literal('Animated cartoon'), rdflib.term.Literal('Sitcom')]"
+Horror fiction; Suspense,"[rdflib.term.Literal('Horror fiction'), rdflib.term.Literal('Suspense')]"
+Comedy drama; Fantasy,"[rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Fantasy')]"
+Current affairs (news format),[rdflib.term.Literal('Current affairs (news format)')]
+Horror comedy,[rdflib.term.Literal('Horror comedy')]
+Documentary; History,"[rdflib.term.Literal('Documentary'), rdflib.term.Literal('History')]"
+Black comedy; Mystery fiction; Psychological horror; Psychological thriller; Sitcom,"[rdflib.term.Literal('Black comedy'), rdflib.term.Literal('Mystery fiction'), rdflib.term.Literal('Psychological horror'), rdflib.term.Literal('Psychological thriller'), rdflib.term.Literal('Sitcom')]"
+Action-adventure; Cyberpunk; Dystopian fiction; Post-apocalyptic; Science fiction,"[rdflib.term.Literal('Action'), rdflib.term.Literal('adventure'), rdflib.term.Literal('Cyberpunk'), rdflib.term.Literal('Dystopian fiction'), rdflib.term.Literal('Post'), rdflib.term.Literal('apocalyptic'), rdflib.term.Literal('Science fiction')]"
+Drama; Erotica; Family,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Erotica'), rdflib.term.Literal('Family')]"
+Science fiction; Sitcom,"[rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Sitcom')]"
+Drama (film and television); Romantic comedy,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Romantic comedy')]"
+Comedy drama; Crime film; Paranormal,"[rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Crime'), rdflib.term.Literal('Paranormal')]"
+Crime fiction; Drama; Thriller film,"[rdflib.term.Literal('Crime fiction'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Thriller')]"
+Satire; Television comedy,"[rdflib.term.Literal('Satire'), rdflib.term.Literal('Television comedy')]"
+Action (genre); Comedy drama; Fantasy; Horror fiction; Supernatural,"[rdflib.term.Literal('Action (genre)'), rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Horror fiction'), rdflib.term.Literal('Supernatural')]"
+Crime thriller; Drama (film and television),"[rdflib.term.Literal('Crime thriller'), rdflib.term.Literal('Drama ( and television)')]"
+News program,[rdflib.term.Literal('News program')]
+Comedy; Live-action,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Live'), rdflib.term.Literal('action')]"
+Broadcasting of sports events; Reality television,"[rdflib.term.Literal('Broadcasting of sports events'), rdflib.term.Literal('Reality television')]"
+Documentary; Reality television,"[rdflib.term.Literal('Documentary'), rdflib.term.Literal('Reality television')]"
+Tragedy,[rdflib.term.Literal('Tragedy')]
+Drama (film and television); Thriller film,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Thriller')]"
+Crime; Drama; Mystery fiction,"[rdflib.term.Literal('Crime'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Mystery fiction')]"
+Morning show; News,"[rdflib.term.Literal('Morning show'), rdflib.term.Literal('News')]"
+Sport,[rdflib.term.Literal('Sport')]
+Children's television series; Comedy; Musical fiction,"[rdflib.term.Literal(""Children's television series""), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Musical fiction')]"
+Action film; Comedy; Detective fiction; Superhero fiction; Supernatural fiction; Tokusatsu,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Detective fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Supernatural fiction'), rdflib.term.Literal('Tokusatsu')]"
+History of science,[rdflib.term.Literal('History of science')]
+Mystery fiction; Police procedural,"[rdflib.term.Literal('Mystery fiction'), rdflib.term.Literal('Police procedural')]"
+Historical drama film,[rdflib.term.Literal('Historical drama')]
+Comedy; Mockumentary,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Mockumentary')]"
+Drama film; Erotica; Family; Romance film,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Erotica'), rdflib.term.Literal('Family'), rdflib.term.Literal('Romance')]"
+Drama; Fantasy film; Mystery film; Teen,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Mystery'), rdflib.term.Literal('Teen')]"
+Melodrama,[rdflib.term.Literal('Melodrama')]
+Horror fiction; Sitcom,"[rdflib.term.Literal('Horror fiction'), rdflib.term.Literal('Sitcom')]"
+Mystery fiction,[rdflib.term.Literal('Mystery fiction')]
+Science,[rdflib.term.Literal('Science')]
+Biographical film; Comedy film; Drama film,"[rdflib.term.Literal('Biographical'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Drama')]"
+Comedy; Fantasy; Steampunk,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Steampunk')]"
+Beat 'em up; Hack and slash; Survival horror,"[rdflib.term.Literal(""Beat 'em up""), rdflib.term.Literal('Hack and slash'), rdflib.term.Literal('Survival horror')]"
+Contemporary history,[rdflib.term.Literal('Contemporary history')]
+Drama; Romantic comedy,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Romantic comedy')]"
+Comedy-drama,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('drama')]"
+Historical fiction,[rdflib.term.Literal('Historical fiction')]
+Drama (film and television); Period drama,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Period drama')]"
+Action genre; Drama (film and television); Fantasy,"[rdflib.term.Literal('Action genre'), rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Fantasy')]"
+Crime; Documentary,"[rdflib.term.Literal('Crime'), rdflib.term.Literal('Documentary')]"
+Action film; Romance film; Thriller (genre),"[rdflib.term.Literal('Action'), rdflib.term.Literal('Romance'), rdflib.term.Literal('Thriller (genre)')]"
+Turn-based strategy,"[rdflib.term.Literal('Turn'), rdflib.term.Literal('based strategy')]"
+Historical; Jidaigeki,"[rdflib.term.Literal('Historical'), rdflib.term.Literal('Jidaigeki')]"
+Broadcasting of sports events,[rdflib.term.Literal('Broadcasting of sports events')]
+Domestic violence; Mental health,"[rdflib.term.Literal('Domestic violence'), rdflib.term.Literal('Mental health')]"
+Improvisational; Mockumentary,"[rdflib.term.Literal('Improvisational'), rdflib.term.Literal('Mockumentary')]"
+Serial (radio and television),[rdflib.term.Literal('Serial (radio and television)')]
+Romantic drama,[rdflib.term.Literal('Romantic drama')]
+Comedy drama; Family film; Science fiction; Teen film,"[rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Family'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Teen')]"
+Chat show; Clip show,"[rdflib.term.Literal('Chat show'), rdflib.term.Literal('Clip show')]"
+Parody; Satire,"[rdflib.term.Literal('Parody'), rdflib.term.Literal('Satire')]"
+Comedy; Fantasy; Parody,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Parody')]"
+Chinese New Year,[rdflib.term.Literal('Chinese New Year')]
+Action film; Comedy drama,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Comedy drama')]"
+Action film; Drama,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Drama')]"
+Documentary film; Reality television,"[rdflib.term.Literal('Documentary'), rdflib.term.Literal('Reality television')]"
+Historical fiction; Romance film; Time-travel,"[rdflib.term.Literal('Historical fiction'), rdflib.term.Literal('Romance'), rdflib.term.Literal('Time'), rdflib.term.Literal('travel')]"
+List of reality television programs,[rdflib.term.Literal('List of reality television programs')]
+Adventure game; Survival horror,"[rdflib.term.Literal('Adventure game'), rdflib.term.Literal('Survival horror')]"
+Comedy; Drama; Fantasy; Romance film,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Romance')]"
+Infotainment,[rdflib.term.Literal('Infotainment')]
+Drama; Miniseries,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Miniseries')]"
+Wuxia,[rdflib.term.Literal('Wuxia')]
+Romance film; Teen film,"[rdflib.term.Literal('Romance'), rdflib.term.Literal('Teen')]"
+Documentary television,[rdflib.term.Literal('Documentary television')]
+Comedy; Drama; Teen,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Teen')]"
+Period drama; Telenovela,"[rdflib.term.Literal('Period drama'), rdflib.term.Literal('Telenovela')]"
+Travel documentary,[rdflib.term.Literal('Travel documentary')]
+Action fiction; Adventure; Cyberpunk; Drama; Science fiction; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Adventure'), rdflib.term.Literal('Cyberpunk'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Musical film; Teen film,"[rdflib.term.Literal('Musical'), rdflib.term.Literal('Teen')]"
+Action (fiction); Dramatic programming; Police procedural,"[rdflib.term.Literal('Action (fiction)'), rdflib.term.Literal('Dramatic programming'), rdflib.term.Literal('Police procedural')]"
+Futures studies,[rdflib.term.Literal('Futures studies')]
+Drama; Horror film,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Horror')]"
+Drama; Social,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Social')]"
+Family film; Melodrama; Revenge,"[rdflib.term.Literal('Family'), rdflib.term.Literal('Melodrama'), rdflib.term.Literal('Revenge')]"
+Children's; Comedy,"[rdflib.term.Literal(""Children's""), rdflib.term.Literal('Comedy')]"
+Black comedy; Comedy series; Parody; Satire,"[rdflib.term.Literal('Black comedy'), rdflib.term.Literal('Comedy series'), rdflib.term.Literal('Parody'), rdflib.term.Literal('Satire')]"
+Comedy-drama; Fantasy,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('drama'), rdflib.term.Literal('Fantasy')]"
+Dramatic programming; Romantic comedy,"[rdflib.term.Literal('Dramatic programming'), rdflib.term.Literal('Romantic comedy')]"
+Adventure; Drama; Romance film; Telenovela,"[rdflib.term.Literal('Adventure'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Romance'), rdflib.term.Literal('Telenovela')]"
+Action role-playing game; Fighting game,"[rdflib.term.Literal('Action role'), rdflib.term.Literal('playing game'), rdflib.term.Literal('Fighting game')]"
+Action (fiction); Political thriller; Serial (radio and television); Suspense,"[rdflib.term.Literal('Action (fiction)'), rdflib.term.Literal('Political thriller'), rdflib.term.Literal('Serial (radio and television)'), rdflib.term.Literal('Suspense')]"
+Strategy video game,[rdflib.term.Literal('Strategy video game')]
+Animated series; Comedy; Slapstick,"[rdflib.term.Literal('Animated series'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Slapstick')]"
+Comedy; Dramatic programming,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Dramatic programming')]"
+Action fiction; Adventure fiction; Kaiju; Kyodai Hero; Sci-Fi; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Adventure fiction'), rdflib.term.Literal('Kaiju'), rdflib.term.Literal('Kyodai Hero'), rdflib.term.Literal('Sci'), rdflib.term.Literal('Fi'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Action-adventure,"[rdflib.term.Literal('Action'), rdflib.term.Literal('adventure')]"
+Adventure fiction; Comedy; Slapstick,"[rdflib.term.Literal('Adventure fiction'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Slapstick')]"
+Factual television,[rdflib.term.Literal('Factual television')]
+Romantic comedy; Telenovela,"[rdflib.term.Literal('Romantic comedy'), rdflib.term.Literal('Telenovela')]"
+Kaiju; Science fiction; Tokusatsu,"[rdflib.term.Literal('Kaiju'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Tokusatsu')]"
+Biography; Docudrama,"[rdflib.term.Literal('Biography'), rdflib.term.Literal('Docudrama')]"
+Drama; Soap opera,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Soap opera')]"
+Electronic music; Industrial hip hop; Trance music,"[rdflib.term.Literal('Electronic music'), rdflib.term.Literal('Industrial hip hop'), rdflib.term.Literal('Trance music')]"
+Reality Television,[rdflib.term.Literal('Reality Television')]
+Comedy film; Romance film; Science fiction film; Teen film,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Romance'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Teen')]"
+Drama; Psychological thriller,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Psychological thriller')]"
+Drama film; Family film; Romance film,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Family'), rdflib.term.Literal('Romance')]"
+Historical drama; Medical drama,"[rdflib.term.Literal('Historical drama'), rdflib.term.Literal('Medical drama')]"
+Biopic; Docudrama; Mystery fiction; Slasher film,"[rdflib.term.Literal('Biopic'), rdflib.term.Literal('Docudrama'), rdflib.term.Literal('Mystery fiction'), rdflib.term.Literal('Slasher')]"
+Action (fiction); Dramatic programming; Mystery fiction; Romantic film,"[rdflib.term.Literal('Action (fiction)'), rdflib.term.Literal('Dramatic programming'), rdflib.term.Literal('Mystery fiction'), rdflib.term.Literal('Romantic')]"
+Dramedy,[rdflib.term.Literal('Dramedy')]
+Comedy; Fantasy,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Fantasy')]"
+Adventure; Historical Drama,"[rdflib.term.Literal('Adventure'), rdflib.term.Literal('Historical Drama')]"
+Action film; Martial arts film,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Martial arts')]"
+Action film; Comedy drama; Police drama; Slapstick; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Police drama'), rdflib.term.Literal('Slapstick'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Reality show,[rdflib.term.Literal('Reality show')]
+Historical period drama; Political film; Romance film,"[rdflib.term.Literal('Historical period drama'), rdflib.term.Literal('Political'), rdflib.term.Literal('Romance')]"
+Chat show; Sketch comedy,"[rdflib.term.Literal('Chat show'), rdflib.term.Literal('Sketch comedy')]"
+Fantasy; Romance film; Telenovela,"[rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Romance'), rdflib.term.Literal('Telenovela')]"
+Docudrama; Horror film,"[rdflib.term.Literal('Docudrama'), rdflib.term.Literal('Horror')]"
+Television comedy,[rdflib.term.Literal('Television comedy')]
+Adventure (genre); Comedy (genre); Teen film,"[rdflib.term.Literal('Adventure (genre)'), rdflib.term.Literal('Comedy (genre)'), rdflib.term.Literal('Teen')]"
+Biblical epic,[rdflib.term.Literal('Biblical epic')]
+Comedy film; Drama film; Fantasy film; Teen drama; Telenovela,"[rdflib.term.Literal('Comedy'), rdflib.term.Literal('Drama'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Teen drama'), rdflib.term.Literal('Telenovela')]"
+Drama; Telenovela; Thriller (genre),"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Telenovela'), rdflib.term.Literal('Thriller (genre)')]"
+Dark comedy; Drama,"[rdflib.term.Literal('Dark comedy'), rdflib.term.Literal('Drama')]"
+Adventure film; Fantasy film; Musical film; Teen film,"[rdflib.term.Literal('Adventure'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Musical'), rdflib.term.Literal('Teen')]"
+Political drama,[rdflib.term.Literal('Political drama')]
+Action (fiction); Adventure film; Mystery fiction; Supernatural,"[rdflib.term.Literal('Action (fiction)'), rdflib.term.Literal('Adventure'), rdflib.term.Literal('Mystery fiction'), rdflib.term.Literal('Supernatural')]"
+Action film; Dramatic programming; Martial arts,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Dramatic programming'), rdflib.term.Literal('Martial arts')]"
+Biblical; Historical Drama,"[rdflib.term.Literal('Biblical'), rdflib.term.Literal('Historical Drama')]"
+Action (fiction); Comedy film; Science fiction,"[rdflib.term.Literal('Action (fiction)'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Science fiction')]"
+Drama film; Telenovela,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Telenovela')]"
+Adventure fiction,[rdflib.term.Literal('Adventure fiction')]
+Biopic; Drama (genre),"[rdflib.term.Literal('Biopic'), rdflib.term.Literal('Drama (genre)')]"
+Musical film; Teen sitcom,"[rdflib.term.Literal('Musical'), rdflib.term.Literal('Teen sitcom')]"
+Comedy horror; Fantasy; Superhero fiction; Supernatural fiction; Tokusatsu,"[rdflib.term.Literal('Comedy horror'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Supernatural fiction'), rdflib.term.Literal('Tokusatsu')]"
+Black comedy; Comedy horror; Satire (film and television); Slasher film; Surreal humour,"[rdflib.term.Literal('Black comedy'), rdflib.term.Literal('Comedy horror'), rdflib.term.Literal('Satire ( and television)'), rdflib.term.Literal('Slasher'), rdflib.term.Literal('Surreal humour')]"
+Drama (film and television); Science fiction on television,"[rdflib.term.Literal('Drama ( and television)'), rdflib.term.Literal('Science fiction on television')]"
+Family drama; Romantic drama; Serial drama,"[rdflib.term.Literal('Family drama'), rdflib.term.Literal('Romantic drama'), rdflib.term.Literal('Serial drama')]"
+Live television; Musical film; Romantic comedy,"[rdflib.term.Literal('Live television'), rdflib.term.Literal('Musical'), rdflib.term.Literal('Romantic comedy')]"
+Action film; Comedy film,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Comedy')]"
+Lunar New Year,[rdflib.term.Literal('Lunar New Year')]
+Family Drama; Romance film,"[rdflib.term.Literal('Family Drama'), rdflib.term.Literal('Romance')]"
+Action fiction; Comedy; Fantasy; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Action fiction'), rdflib.term.Literal('Comedy'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Kaiju; Kyodai Hero; Science fiction; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Kaiju'), rdflib.term.Literal('Kyodai Hero'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Family drama; Romantic drama,"[rdflib.term.Literal('Family drama'), rdflib.term.Literal('Romantic drama')]"
+Action film; Comedy drama; Cyberpunk; Medical drama; Science fiction; Superhero fiction; Tokusatsu,"[rdflib.term.Literal('Action'), rdflib.term.Literal('Comedy drama'), rdflib.term.Literal('Cyberpunk'), rdflib.term.Literal('Medical drama'), rdflib.term.Literal('Science fiction'), rdflib.term.Literal('Superhero fiction'), rdflib.term.Literal('Tokusatsu')]"
+Mockumentary; Sitcom; Surreal comedy,"[rdflib.term.Literal('Mockumentary'), rdflib.term.Literal('Sitcom'), rdflib.term.Literal('Surreal comedy')]"
+Fantasy film; Musical film; Teen film,"[rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Musical'), rdflib.term.Literal('Teen')]"
+Drama; Historical fiction,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Historical fiction')]"
+Legal drama; Political drama,"[rdflib.term.Literal('Legal drama'), rdflib.term.Literal('Political drama')]"
+Drama; Social problem film,"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Social problem')]"
+Country pop,[rdflib.term.Literal('Country pop')]
+Drama; Fantasy; Psychological; Thriller (genre),"[rdflib.term.Literal('Drama'), rdflib.term.Literal('Fantasy'), rdflib.term.Literal('Psychological'), rdflib.term.Literal('Thriller (genre)')]"
+Idle game; Point-and-click adventure,"[rdflib.term.Literal('Idle game'), rdflib.term.Literal('Point'), rdflib.term.Literal('and'), rdflib.term.Literal('click adventure')]"
+Point-and-click adventure game,"[rdflib.term.Literal('Point'), rdflib.term.Literal('and'), rdflib.term.Literal('click adventure game')]"
+Electronic dance music; Eurodance; Eurohouse,"[rdflib.term.Literal('Electronic dance music'), rdflib.term.Literal('Eurodance'), rdflib.term.Literal('Eurohouse')]"
