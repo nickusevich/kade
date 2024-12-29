@@ -6,6 +6,8 @@ import requests
 import re
 import pandas as pd
 import time
+import os
+import pickle
 
 
 # Define namespaces
@@ -165,16 +167,24 @@ def resolve_country_uri(country_literal_or_uri):
 def resolve_all_countries(unique_countries):
     """Resolve all unique country values to their corresponding DBpedia URIs and labels."""
     resolved_countries = {}
+    output_pickle_path = "DB/Datasets/CSVs/countries_dic.pkl"
+
+    # Check if the pickle file exists
+    if os.path.exists(output_pickle_path):
+        with open(output_pickle_path, mode='rb') as pickle_file:
+            resolved_countries = pickle.load(pickle_file)
+        return resolved_countries
+    else:
+        print(f"File {output_pickle_path} does not exist. Resolving countries...")
+
+    # Resolve countries if the pickle file doesn't exist
     for country in unique_countries:
         resolved_countries[country] = resolve_country_uri(country)
 
-    # Export the resolved_countries dictionary to a CSV file
-    output_csv_path = "DB/Datasets/CSVs/countries_dic.csv"
-    with open(output_csv_path, mode='w', newline='', encoding='utf-8') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(["Country", "Values"])  # Write the header
-        for country, resolved_uri in resolved_countries.items():
-            writer.writerow([country, resolved_uri])
+    # Export the resolved_countries dictionary to a pickle file
+    with open(output_pickle_path, mode='wb') as pickle_file:
+        pickle.dump(resolved_countries, pickle_file)
+
     return resolved_countries
 
 def clean_genre_value(genre_value):
@@ -184,12 +194,19 @@ def clean_genre_value(genre_value):
     genre_value = re.sub(r"\(genre\)", '', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Syfy", 'Science Fiction', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Sci-Fi", 'Science Fiction', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Docufiction", 'Documentary, Fiction,', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Docudrama", 'Documentary Drama', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Dramedy", 'Drama, Comedy', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Satire \( and television\)", 'Satire', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Comedy \(drama\)", 'Comedy, Drama', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Action \(fiction\)", 'Action, Fiction', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"List of reality television programs", 'Reality-TV', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Reality TV", 'Reality-TV', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Reality TV", 'Reality-TV', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Crime thriller", 'Crime Thriller', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+
     genre_value = genre_value.strip()  # Remove extra spaces
+    genre_value = genre_value.capitalize()  # Capitalize the first letter
     return genre_value
 
 def resolve_genre(genre_literal):
@@ -201,19 +218,26 @@ def resolve_genre(genre_literal):
 def resolve_all_genres(unique_genres):
     """ Function to resolve genre literals to DBpedia URIs and labels """
     resolved_genres = {}
+    output_pickle_path = "DB/Datasets/CSVs/genres_dic.pkl"
+
+    # Check if the pickle file exists
+    if os.path.exists(output_pickle_path):
+        with open(output_pickle_path, mode='rb') as pickle_file:
+            resolved_genres = pickle.load(pickle_file)
+        return resolved_genres
+    else:
+        print(f"File {output_pickle_path} does not exist. Resolving genres...")
+
+    # Resolve genres if the pickle file doesn't exist
     for genre in unique_genres:
         resolved_genres[genre] = resolve_genre(genre)
 
-    
-    # Export the resolved_genres dictionary to a CSV file
-    output_csv_path = "DB/Datasets/CSVs/genres_dic.csv"
-    with open(output_csv_path, mode='w', newline='', encoding='utf-8') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(["Genre", "Values"])  # Write the header
-        for genre, resolved_uri in resolved_genres.items():
-            writer.writerow([genre, resolved_uri])
+    # Export the resolved_genres dictionary to a pickle file
+    with open(output_pickle_path, mode='wb') as pickle_file:
+        pickle.dump(resolved_genres, pickle_file)
 
     return resolved_genres
+
 
 
 def preprocess_genres(g, resolved_genres_dict):
@@ -263,13 +287,13 @@ def preprocess_genres(g, resolved_genres_dict):
     for super_genre in super_genres:
         super_genre_uri = URIRef(clean_uri(f"{DBR}{super_genre.replace(' ', '_')}"))
         g.add((super_genre_uri, RDF.type, DBO.Genre))
-        g.add((super_genre_uri, RDFS.label, Literal(super_genre)))
+        g.add((super_genre_uri, RDFS.label, Literal(super_genre, lang="en")))
 
         for sub_genre in super_genres[super_genre]:
             sub_genre_uri = URIRef(clean_uri(f"{DBR}{sub_genre.replace(' ', '_')}"))
             g.add((sub_genre_uri, RDF.type, DBO.Genre))
             g.add((sub_genre_uri, RDFS.subClassOf, super_genre_uri))
-            g.add((sub_genre_uri, RDFS.label, Literal(sub_genre)))
+            g.add((sub_genre_uri, RDFS.label, Literal(sub_genre, lang="en")))
 
     for genre in resolved_genres_dict:
         resolved_genres = resolved_genres_dict.get(genre, [])
@@ -295,7 +319,7 @@ def preprocess_genres(g, resolved_genres_dict):
                     if genre_literal not in super_genres:
                         genre_uri = URIRef(clean_uri(f"{DBR}{genre_literal.replace(' ', '_')}"))
                         g.add((genre_uri, RDF.type, DBO.Genre))
-                        g.add((genre_uri, RDFS.label, Literal(genre_literal)))
+                        g.add((genre_uri, RDFS.label, Literal(genre_literal, lang="en")))
                         g.add((genre_uri, RDFS.subClassOf, super_genre_uri))
         
     return g
