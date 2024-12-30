@@ -30,56 +30,56 @@ def clean_country_value(country_value):
         return country_value
     country_value = re.sub(r'/$', '', country_value)  # Remove trailing slashes
     country_value = re.sub(r'ref\|.*', '', country_value)  # Remove references
-    country_value = re.sub(r'Umited States', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'United Satates', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'United States United States', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'United Statyes', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'Pennsylvania', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'^\bAmerican\b$', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'Pittsburgh', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'United Statesi', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'United States04', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'Phoenix Arizona', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'^\bUSA\b$', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'^\bU\.S\.\b$', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'^\bU\.S\.A\.\b$', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'^\bUK\b$', 'United Kingdom', country_value) # Fix typo
-    country_value = re.sub(r'^\bU\.K\.\b$', 'United Kingdom', country_value) # Fix typo
-    country_value = re.sub(r'Great Britain', 'United Kingdom', country_value) # Fix typo
-    country_value = re.sub(r'British Hong Kong', 'United Kingdom , China', country_value)  # Only replace if it is the only word
-    country_value = re.sub(r'British India', 'United Kingdom , India', country_value)  # Only replace if it is the only word
-    country_value = re.sub(r'British Raj', 'United Kingdom , India', country_value)  # Only replace if it is the only word
+    country_value = re.sub(r'Umited States', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'United Satates', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'United States United States', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'United Statyes', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Pennsylvania', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bAmerican\b$', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Pittsburgh', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'United Statesi', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'United States04', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Phoenix Arizona', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bUSA\b$', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bU\.S\.\b$', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bU\.S\.A\.\b$', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bUK\b$', 'United Kingdom', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bU\.K\.\b$', 'United Kingdom', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Great Britain', 'United Kingdom', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'British Hong Kong', 'United Kingdom , China', country_value, flags=re.IGNORECASE)  # Only replace if it is the only word
+    country_value = re.sub(r'British India', 'United Kingdom , India', country_value, flags=re.IGNORECASE)  # Only replace if it is the only word
+    country_value = re.sub(r'British Raj', 'United Kingdom , India', country_value, flags=re.IGNORECASE)  # Only replace if it is the only word
     country_value = re.sub(r'Made on location in England and Scotland', 'United Kingdom', country_value) # Fix typo
-    country_value = re.sub(r'^\bBritain\b$', 'United Kingdom', country_value) # Fix typo
-    country_value = re.sub(r'English', 'United States', country_value) # Fix typo
-    country_value = re.sub(r'East Germany', 'Germany', country_value) # Fix typo
-    country_value = re.sub(r'West Germany', 'Germany', country_value) # Fix typo
-    country_value = re.sub(r'Nazi Germany', 'Germany', country_value) # Fix typo
-    country_value = re.sub(r'German Democratic Republic', 'Germany', country_value) # Fix typo
-    country_value = re.sub(r'German Empire', 'Germany', country_value) # Fix typo
-    country_value = re.sub(r'Hong Kong Stock Exchange', 'China', country_value) # Fix typo
-    country_value = re.sub(r'Hong Kong action cinema', 'China', country_value) # Fix typo
-    country_value = re.sub(r'Mainland China', 'China', country_value) # Fix typo
-    country_value = re.sub(r'Hong Kong people', 'China', country_value) # Fix typo
-    country_value = re.sub(r"People's Republic of China", 'China', country_value) # Fix typo
-    country_value = re.sub(r'Hong Kong S.A.R.', 'China', country_value) # Fix typo
-    country_value = re.sub(r'Hong Kong', 'China', country_value) # Fix typo
-    country_value = re.sub(r'^\bAustro\b$', 'Austria Hungary', country_value) # Fix typo
-    country_value = re.sub(r'Hungarian Empire', 'Hungary', country_value) # Fix typo
-    country_value = re.sub(r'^\blagos Nigeria\b$', 'Nigeria', country_value) # Fix typo
-    country_value = re.sub(r'^\bGeorgia\b$', 'Georgia (country)', country_value) # Fix typo
+    country_value = re.sub(r'^\bBritain\b$', 'United Kingdom', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'English', 'United States', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'East Germany', 'Germany', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'West Germany', 'Germany', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Nazi Germany', 'Germany', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'German Democratic Republic', 'Germany', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'German Empire', 'Germany', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Hong Kong Stock Exchange', 'China', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Hong Kong action cinema', 'China', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Mainland China', 'China', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Hong Kong people', 'China', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r"People's Republic of China", 'China', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Hong Kong S.A.R.', 'China', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Hong Kong', 'China', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bAustro\b$', 'Austria Hungary', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Hungarian Empire', 'Hungary', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\blagos Nigeria\b$', 'Nigeria', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bGeorgia\b$', 'Georgia (country)', country_value, flags=re.IGNORECASE) # Fix typo
     country_value = re.sub(r'^\bCzechia\b$', 'Czech Republic', country_value) # Fix typo
     country_value = re.sub(r'^\bCongo\b$', 'Republic of the Congo', country_value) # Fix typo
-    country_value = re.sub(r'^\bFrench\b$', 'France', country_value) # Fix typo
-    country_value = re.sub(r'^\bSwedish\b$', 'sweden', country_value) # Fix typo
-    country_value = re.sub(r'^\bIndian\b$', 'India', country_value) # Fix typo
-    country_value = re.sub(r'India cricket team', 'India', country_value) # Fix typo
-    country_value = re.sub(r'India national cricket team', 'India', country_value) # Fix typo
-    country_value = re.sub(r'Indian cinema', 'India', country_value) # Fix typo
+    country_value = re.sub(r'^\bFrench\b$', 'France', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bSwedish\b$', 'sweden', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'^\bIndian\b$', 'India', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'India cricket team', 'India', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'India national cricket team', 'India', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Indian cinema', 'India', country_value, flags=re.IGNORECASE) # Fix typo
     country_value = re.sub(r'Irish Free State', 'Ireland', country_value) # Fix typo
     country_value = re.sub(r'Lithuanian SSR', 'Lithuania', country_value) # Fix typo
-    country_value = re.sub(r'INDIA', 'India', country_value) # Fix typo
-    country_value = re.sub(r'Imperial Russia', 'Russia', country_value) # Fix typo
+    country_value = re.sub(r'INDIA', 'India', country_value, flags=re.IGNORECASE) # Fix typo
+    country_value = re.sub(r'Imperial Russia', 'Russia', country_value, flags=re.IGNORECASE) # Fix typo
     country_value = re.sub(r'^\bDominion of India\b$', 'India', country_value) # Fix typo
     country_value = re.sub(r'^\bJapanese\b$', 'Japan', country_value) # Fix typo
     country_value = re.sub(r'^\bFRANCE\b$', 'France', country_value) # Fix typo
@@ -192,18 +192,26 @@ def clean_genre_value(genre_value):
     genre_value = re.sub(r'/$', '', genre_value)  # Remove trailing slashes
     genre_value = re.sub(r"film", '', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"\(genre\)", '', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Comedy \(drama\)", 'Comedy, Drama', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r'\(.*?\)', '', genre_value)
     genre_value = re.sub(r"Syfy", 'Science Fiction', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Sci-Fi", 'Science Fiction', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Docufiction", 'Documentary, Fiction,', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Docudrama", 'Documentary Drama', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Dramedy", 'Drama, Comedy', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Comedy-drama", 'Comedy, Drama', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Satire \( and television\)", 'Satire', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
-    genre_value = re.sub(r"Comedy \(drama\)", 'Comedy, Drama', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Action \(fiction\)", 'Action, Fiction', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"List of reality television programs", 'Reality-TV', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Reality TV", 'Reality-TV', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
     genre_value = re.sub(r"Reality TV", 'Reality-TV', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
-    genre_value = re.sub(r"Crime thriller", 'Crime Thriller', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Crime thriller", 'Crime, Thriller', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Comedy thriller", 'Comedy, Thriller', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Comedy drama", 'Crime, Drama', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r"Comedy horror", 'Crime, Horror', genre_value, flags=re.IGNORECASE)  # Only replace if it is the only word    
+    genre_value = re.sub(r'\bgenre\b', '', genre_value)
+    genre_value = re.sub(r'\bgenre\b', '', genre_value)
+
 
     genre_value = genre_value.strip()  # Remove extra spaces
     genre_value = genre_value.capitalize()  # Capitalize the first letter
@@ -287,13 +295,13 @@ def preprocess_genres(g, resolved_genres_dict):
     for super_genre in super_genres:
         super_genre_uri = URIRef(clean_uri(f"{DBR}{super_genre.replace(' ', '_')}"))
         g.add((super_genre_uri, RDF.type, DBO.Genre))
-        g.add((super_genre_uri, RDFS.label, Literal(super_genre, lang="en")))
+        g.add((super_genre_uri, RDFS.label, Literal(super_genre.capitalize(), lang="en")))
 
         for sub_genre in super_genres[super_genre]:
             sub_genre_uri = URIRef(clean_uri(f"{DBR}{sub_genre.replace(' ', '_')}"))
             g.add((sub_genre_uri, RDF.type, DBO.Genre))
             g.add((sub_genre_uri, RDFS.subClassOf, super_genre_uri))
-            g.add((sub_genre_uri, RDFS.label, Literal(sub_genre, lang="en")))
+            g.add((sub_genre_uri, RDFS.label, Literal(sub_genre.capitalize(), lang="en")))
 
     for genre in resolved_genres_dict:
         resolved_genres = resolved_genres_dict.get(genre, [])
@@ -319,7 +327,7 @@ def preprocess_genres(g, resolved_genres_dict):
                     if genre_literal not in super_genres:
                         genre_uri = URIRef(clean_uri(f"{DBR}{genre_literal.replace(' ', '_')}"))
                         g.add((genre_uri, RDF.type, DBO.Genre))
-                        g.add((genre_uri, RDFS.label, Literal(genre_literal, lang="en")))
+                        g.add((genre_uri, RDFS.label, Literal(genre_literal.capitalize(), lang="en")))
                         g.add((genre_uri, RDFS.subClassOf, super_genre_uri))
         
     return g

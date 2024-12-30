@@ -105,6 +105,7 @@ class MovieDatabase:
             logging.info(f"Executing SPARQL query: {query}")
             results = self.sparql.query().convert()
             if "results" in results and "bindings" in results["results"]:
+                seen = set()
                 return_data = [
                     {
                         "object_uri": result["object"]["value"],
@@ -112,6 +113,12 @@ class MovieDatabase:
                     }
                     for result in results["results"]["bindings"]
                 ]
+                
+                for item in return_data:
+                    identifier = (item["object_uri"], item["label"])
+                    if identifier not in seen:
+                        seen.add(identifier)
+                        return_data.append(item)
             else:
                 logging.warning("No results found in SPARQL query response.")
         except Exception as e:
