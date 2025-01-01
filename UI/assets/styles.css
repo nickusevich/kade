@@ -59,8 +59,11 @@ body {
     width: 100%;
     margin-bottom: 20px;
     color: #000;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 1em;
+}
+.input{
+    height: 40px;
 }
 
 .dropdown {
