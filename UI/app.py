@@ -113,7 +113,7 @@ home_layout = html.Div([
             dcc.Textarea(
                 id="plot-description",
                 placeholder="Enter a brief description of the plot...",
-                style={"width": "100%", "height": "100px"},
+                style={"width": "100%", "height": "100px","border-radius":"12px"},
                 value=""
             ),
             html.Button("Search", id="search-btn", className="button", n_clicks=0)
