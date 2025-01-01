@@ -49,11 +49,18 @@ body {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
 }
+.button:hover{
+    color:#FFC107;
+    background:#000000;
+}
 
 /* Input and Dropdown styling */
 .input, .dropdown {
     width: 100%;
     margin-bottom: 20px;
+    color: #000;
+    border-radius: 8px;
+    font-size: 1em;
 }
 
 /* Slider styling */
@@ -103,3 +110,4 @@ body {
 .back-link:hover {
     text-decoration: underline;
 }
+
