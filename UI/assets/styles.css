@@ -63,6 +63,15 @@ body {
     font-size: 1em;
 }
 
+.dropdown {
+    background-color: #ffffff; /* White background */
+    color: #000000; /* Black text */
+    border: 1px solid #cccccc; /* Light grey border */
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
 /* Slider styling */
 .rc-slider {
     margin: 10px 0 30px 0;
