@@ -429,6 +429,94 @@ class MovieDatabase:
 
         return return_data
 
+    async def fetch_similar_movies(self, target_movie: str, limit: int = 10):
+        """
+        fetch movies similar to the target movie based on genre/release year/actors/directors
+
+        Returns:
+        list of dicts containing movie URIs and similarity score (similarity score is descending, the movie with highest score has more common properties with the target)
+        """
+        return_data = []
+
+                # Check if connected to the database
+        if not self.is_connected():
+            logging.info("Not connected to the database. Attempting to reconnect.")
+            self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
+            if not self.is_connected():
+                logging.error("Failed to reconnect to the database.")
+                raise Exception("Failed to reconnect to the database.")
+        query = f"""
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX dbr: <http://dbpedia.org/resource/>
+
+        SELECT ?movie
+            (COUNT(?sharedGenre) +
+             COUNT(?sharedYear) +
+             COUNT(?sharedActor) +
+             COUNT(?sharedDirector) AS ?similarityScore)
+        WHERE{{
+            #target movie
+            BIND(dbr:{target_movie.replace(' ','_')} AS ?targetMovie)
+
+            #properties from target movie
+            OPTIONAL {{ ?targetMovie dbo:genre ?targetGenre. }}
+            OPTIONAL {{ ?targetMovie dbo:releaseYear ?targetYear. }}
+            OPTIONAL {{ ?targetMovie dbo:starring ?targetActor. }}
+            OPTIONAL {{ ?targetMovie dbo:director ?targetDirector. }}
+
+            #chech not the same movie
+            ?movie a dbo:Film.
+            FILTER(?movie != ?targetMovie)
+
+            #matching
+            OPTIONAL{{
+                ?movie dbo:genre ?sharedGenre.
+                FILTER(?sharedGenre = ?targetGenre)
+            }}
+
+            OPTIONAL{{
+                ?movie dbo:releaseYear ?sharedYear.
+                FILTER(?sharedYear = ?targetYear)
+            }}
+            
+            OPTIONAL{{
+                ?movie dbo:starring ?sharedActor.
+                
+            }}
+            FILTER(?sharedActor = ?targetActor)
+            
+            OPTIONAL{{
+                ?movie dbo:director ?sharedDirector.
+                
+            }}
+               FILTER(?sharedDirector = ?targetDirector) 
+        }}
+        GROUP BY ?movie
+        ORDER BY DESC(?similarityScore)
+        LIMIT {limit}
+        """
+        self.sparql.setQuery(query)
+        self.sparql.setReturnFormat(JSON)
+
+        # Execute the query and process results
+        try:
+            logging.info(f"Executing SPARQL query: {query}")
+            results = self.sparql.query().convert()
+            if "results" in results and "bindings" in results["results"]:
+                return_data = [
+                    {
+                        "object_uri": result["movie"]["value"],
+                        "similarity_score": result["similarityScore"]["value"]
+                    }
+                    for result in results["results"]["bindings"]
+                ]
+            else:
+                logging.warning("No results found in SPARQL query response.")
+        except Exception as e:
+            logging.error(f"fetch_similar_movies - Failed: {e}")
+            raise
+
+        return return_data
 
 async def main():
     """
@@ -439,6 +527,11 @@ async def main():
     # Test fetching actors by name
     actors = await db.fetch_actors_by_name("Ali")
     print(f"Actors found: {len(actors)}")
+
+    #test fetching similar movies
+    user_limit = 5
+    similar_movies = await db.fetch_similar_movies("%27Til_We_Meet_Again", limit=user_limit)
+    print(similar_movies)
 
     properties_to_test = ["movies", "genres", "actors", "directors", "distributors", "writers", "producers", "composers", "cinematographers", "productionCompanies"]
     for property_to_test in properties_to_test:
