@@ -445,6 +445,11 @@ def csv_to_rdf(csv_file, rdf_file):
                 else:
                     g.add((movie_uri, DBO.genre, Literal(genres, lang="en")))
 
+            # Handle embedding of plot
+            plot = row.get('plot')
+            if plot is not None and plot != '' and plot.strip() != 'N/A':
+                    print("Nikita do your magic here")
+
             # Handle literal string attributes
             for attr, predicate in str_attributes.items():
                 value = row.get(attr)
