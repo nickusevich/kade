@@ -305,3 +305,17 @@ INSERT DATA {
             dbo:cinematographer 
             dbo:composer)].
 }
+
+
+# Get plot and plot embedding
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?movie ?plot ?plotEmbedding
+WHERE {
+  ?movie a dbo:Film ;
+         dbo:abstract ?plot ;
+    	 dbo:plotEmbedding ?plotEmbedding .
+  FILTER (?plot != <http://dbpedia.org/resource/N/A>)
+}
+LIMIT 500

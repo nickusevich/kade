@@ -8,6 +8,16 @@ import pandas as pd
 import time
 import os
 import pickle
+from sentence_transformers import SentenceTransformer
+import torch
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import json
+
+# Embedding model
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model = SentenceTransformer('all-MiniLM-L6-v2', device=device)
+#_________________________________________________________________
 
 
 # Define namespaces
@@ -448,7 +458,17 @@ def csv_to_rdf(csv_file, rdf_file):
             # Handle embedding of plot
             plot = row.get('plot')
             if plot is not None and plot != '' and plot.strip() != 'N/A':
-                    print("Nikita do your magic here")
+                    plot_embedding = model.encode(plot)
+                    embedding_str = json.dumps(plot_embedding.tolist())
+                    g.add((movie_uri, DBO.plotEmbedding, Literal(embedding_str, datatype=XSD.string)))
+                    print(f"added embedding")
+
+                    # #later on to deserealize
+                    # embedding_literal = g.value(movie_uri, DBO.plotEmbedding)
+                    # if embedding_literal -->
+                    # # deserialize the JSON string back to a Python list
+                    # plot_embedding = json.loads(embedding_literal)
+                    # print(plot_embedding)  # Now plot_embedding is a list of floats
 
             # Handle literal string attributes
             for attr, predicate in str_attributes.items():
