@@ -1,5 +1,7 @@
 """
-This module provides a class for interacting with a SPARQL endpoint to fetch various types of objects
+file: db_crud.py
+date: 10-01-2025
+description: This module provides a class for interacting with a SPARQL endpoint to fetch various types of objects
 such as movies, actors, directors, etc., from a GraphDB repository.
 """
 

@@ -1,3 +1,9 @@
+"""
+file: dbpedia_csv_to_rdf.py
+date: 10.01.2025
+description: This file contains the code to convert a CSV file movies data fetched from DBPedia to RDF (Turtle format) using the rdflib library.
+"""
+
 import csv
 from rdflib import Graph, URIRef, Literal, Namespace
 from rdflib.namespace import RDF, RDFS, XSD
@@ -333,6 +339,78 @@ def preprocess_genres(g, resolved_genres_dict):
                         g.add((genre_uri, RDFS.subClassOf, super_genre_uri))
         
     return g
+
+def add_ontology(g):
+    # Add domain and range
+    g.add((DBO.runtime, RDFS.domain, DBO.Film))
+    g.add((DBO.runtime, RDFS.range, XSD.integer))
+
+    g.add((DBO.budget, RDFS.domain, DBO.Film))
+    g.add((DBO.budget, RDFS.range, XSD.integer))
+
+    g.add((DBO.boxOffice, RDFS.domain, DBO.Film))
+    g.add((DBO.boxOffice, RDFS.range, XSD.integer))
+
+    g.add((DBO.releaseYear, RDFS.domain, DBO.Film))
+    g.add((DBO.releaseYear, RDFS.range, XSD.gYear))
+
+    g.add((DBO.country, RDFS.domain, DBO.Film))
+    g.add((DBO.country, RDFS.range, DBO.Country))
+
+    g.add((DBO.genre, RDFS.domain, DBO.Film))
+    g.add((DBO.genre, RDFS.range, DBO.Genre))
+
+    g.add((DBO.starring, RDFS.domain, DBO.Film))
+    g.add((DBO.starring, RDFS.range, DBO.Actor))
+
+    g.add((DBO.director, RDFS.domain, DBO.Film))
+    g.add((DBO.director, RDFS.range, DBO.Director))
+
+    g.add((DBO.producer, RDFS.domain, DBO.Film))
+    g.add((DBO.producer, RDFS.range, DBO.Producer))
+
+    g.add((DBO.writer, RDFS.domain, DBO.Film))
+    g.add((DBO.writer, RDFS.range, DBO.Writer))
+
+    g.add((DBO.composer, RDFS.domain, DBO.Film))
+    g.add((DBO.composer, RDFS.range, DBO.Composer))
+
+    g.add((DBO.cinematographer, RDFS.domain, DBO.Film))
+    g.add((DBO.cinematographer, RDFS.range, DBO.Cinematographer))
+
+    g.add((DBO.productionCompany, RDFS.domain, DBO.Film))
+    g.add((DBO.productionCompany, RDFS.range, DBO.ProductionCompany))
+
+    g.add((DBO.plotEmbedding, RDFS.domain, DBO.Film))
+    g.add((DBO.plotEmbedding, RDFS.range, XSD.string))
+
+    # Add subclass relationships
+    g.add((DBO.Actor, RDFS.subClassOf, DBO.Person))
+    g.add((DBO.Director, RDFS.subClassOf, DBO.Person))
+    g.add((DBO.Producer, RDFS.subClassOf, DBO.Person))
+    g.add((DBO.Writer, RDFS.subClassOf, DBO.Person))
+    g.add((DBO.Composer, RDFS.subClassOf, DBO.Person))
+    g.add((DBO.Cinematographer, RDFS.subClassOf, DBO.Person))
+    g.add((DBO.ProductionCompany, RDFS.subClassOf, DBO.Organization))
+
+    # Additional domain and range
+    g.add((DBO.language, RDFS.domain, DBO.Film))
+    g.add((DBO.language, RDFS.range, XSD.string))
+
+    g.add((DBO.imdbID, RDFS.domain, DBO.Film))
+    g.add((DBO.imdbID, RDFS.range, XSD.string))
+
+    g.add((DBO.rottenTomatoesID, RDFS.domain, DBO.Film))
+    g.add((DBO.rottenTomatoesID, RDFS.range, XSD.string))
+
+    g.add((DBO.mainSubject, RDFS.domain, DBO.Film))
+    g.add((DBO.mainSubject, RDFS.range, DBO.Subject))
+
+    g.add((DBO.series, RDFS.domain, DBO.Film))
+    g.add((DBO.series, RDFS.range, DBO.Series))
+
+    return g
+
 def csv_to_rdf(csv_file, rdf_file):
     """
     Convert a CSV file to RDF (Turtle format).
@@ -347,6 +425,9 @@ def csv_to_rdf(csv_file, rdf_file):
     g.bind("dbr", DBR)
     g.bind("dbo", DBO)
     g.bind("dct", DCT)
+
+    # Add ontology triples
+    g = add_ontology(g)
 
     processed_count = 0  # Count rows processed
     skipped_count = 0  # Count rows skipped

@@ -1,3 +1,9 @@
+"""
+File: run_script.py
+Date: 10-01-2025
+Description: Script to setup the environment for the Knowledge and Data Engineer project
+"""
+
 import os
 import subprocess
 import time

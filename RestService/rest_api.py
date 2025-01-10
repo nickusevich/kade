@@ -1,7 +1,7 @@
 """
 File: rest_api.py
-Date: Oct 3, 2024
-Description: rest api service for movie app (Knowledge and Data Engineer)
+Date: 10-01-2025
+Description: rest api service for movie app
 """
 
 from fastapi import FastAPI, HTTPException, Query, Depends

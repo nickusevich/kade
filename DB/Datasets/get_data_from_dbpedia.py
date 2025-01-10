@@ -1,7 +1,7 @@
 """
-File: get_reviews.py
+File: get_data_from_dbpedia.py
 Date: 09-12-2024
-Description: Get movie data from dbpedia
+Description: Get movies data from dbpedia
 """
 
 from SPARQLWrapper import SPARQLWrapper, JSON, POST
