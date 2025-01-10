@@ -19,7 +19,7 @@ def is_running_in_docker():
 
 GRAPHDB_ENDPOINT = "http://localhost:7200/repositories/MoviesRepo"
 if is_running_in_docker():
-    GRAPHDB_ENDPOINT = "http://graphdb-instance:7200/repositories/MoviesRepo"
+    GRAPHDB_ENDPOINT = "http://graphdb:7200/repositories/MoviesRepo"
 
 class MovieDatabase:
     """

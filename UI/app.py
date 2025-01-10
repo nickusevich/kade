@@ -234,6 +234,16 @@ def update_results(stored_data):
         })
     ])
 
+@callback(
+    Output("film-title", "options"),
+    Input("film-title", "search_value"),
+    State("film-title", "value")
+)
+def update_multi_options(search_value, value):
+    if not search_value:
+        return get_options_from_api(f'{REST_SERVICE_URI}/movies')
+    return get_options_from_api(f'{REST_SERVICE_URI}/movies?title={search_value}')
+
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0')
     # app.run_server(debug=True)
