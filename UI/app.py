@@ -239,10 +239,44 @@ def update_results(stored_data):
     Input("film-title", "search_value"),
     State("film-title", "value")
 )
-def update_multi_options(search_value, value):
+def update_multi_options_film_title(search_value, value):
     if not search_value:
         return get_options_from_api(f'{REST_SERVICE_URI}/movies')
     return get_options_from_api(f'{REST_SERVICE_URI}/movies?title={search_value}')
+
+
+@callback(
+    Output("genres", "options"),
+    Input("genres", "search_value"),
+    State("genres", "value")
+)
+def update_multi_options_genres(search_value, value):
+    if not search_value:
+        return get_options_from_api(f'{REST_SERVICE_URI}/genres')
+    return get_options_from_api(f'{REST_SERVICE_URI}/genres?genreName={search_value}')
+
+
+@callback(
+    Output("director", "options"),
+    Input("director", "search_value"),
+    State("director", "value")
+)
+def update_multi_options_directors(search_value, value):
+    if not search_value:
+        return get_options_from_api(f'{REST_SERVICE_URI}/directors')
+    return get_options_from_api(f'{REST_SERVICE_URI}/directors?directorName={search_value}')
+
+
+@callback(
+    Output("actors", "options"),
+    Input("actors", "search_value"),
+    State("actors", "value")
+)
+def update_multi_options_actors(search_value, value):
+    if not search_value:
+        return get_options_from_api(f'{REST_SERVICE_URI}/actors')
+    return get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={search_value}')
+
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0')
