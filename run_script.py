@@ -72,6 +72,15 @@ def setup_environment(ttl_file_path):
     os.chdir(kade_dir)
     success("Successfully navigated to kade.")
 
+    # Check if the Docker network already exists
+    result = subprocess.run(['docker', 'network', 'ls', '--filter', 'name=shared-network', '--format', '{{.Name}}'], capture_output=True, text=True)
+    if 'shared-network' not in result.stdout:
+        # Create the Docker network if it doesn't exist
+        print("Creating the shared-network Docker network...")
+        subprocess.run(['docker', 'network', 'create', 'shared-network'])
+    else:
+        print("shared-network Docker network already exists.")
+
     # Check if the GraphDB container already exists
     if not container_exists("graphdb"):
         # Create Data folder in DB folder if it does not already exist

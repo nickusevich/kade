@@ -19,7 +19,7 @@ def is_running_in_docker():
 
 GRAPHDB_ENDPOINT = "http://localhost:7200/repositories/MoviesRepo"
 if is_running_in_docker():
-    GRAPHDB_ENDPOINT = "http://host.docker.internal:7200/repositories/MoviesRepo"
+    GRAPHDB_ENDPOINT = "http://graphdb-instance:7200/repositories/MoviesRepo"
 
 class MovieDatabase:
     """
@@ -105,13 +105,16 @@ class MovieDatabase:
             logging.info(f"Executing SPARQL query: {query}")
             results = self.sparql.query().convert()
             if "results" in results and "bindings" in results["results"]:
-                return_data = [
-                    {
-                        "object_uri": result["object"]["value"],
-                        "label": result["label"]["value"]
-                    }
-                    for result in results["results"]["bindings"]
-                ]
+                unique_data = {}
+                for result in results["results"]["bindings"]:
+                    label = result["label"]["value"]
+                    label_cap = label.capitalize()
+                    if label_cap not in unique_data:
+                        unique_data[label_cap] = {
+                            "object_uri": result["object"]["value"],
+                            "label": label_cap
+                        }
+                return_data = list(unique_data.values())
             else:
                 logging.warning("No results found in SPARQL query response.")
         except Exception as e:

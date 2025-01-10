@@ -11,3 +11,8 @@ services:
         reservations:
           memory: 128M
           cpus: '0.2'
+    networks:
+      - shared-network
+networks:
+  shared-network:
+    external: true

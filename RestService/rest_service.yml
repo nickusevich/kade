@@ -8,7 +8,7 @@ services:
     ports:
       - "80:80"
     environment:
-      - DATABASE_URL=http://localhost:7200/repositories/MoviesRepo
+      - DATABASE_URL=http://graphdb-instance:7200/repositories/MoviesRepo
     deploy:
       resources:
         limits:
@@ -22,6 +22,8 @@ services:
       interval: 5s
       timeout: 2s
       retries: 3
+    networks:
+      - shared-network
 
   redis-cache:
     image: redis:alpine
@@ -29,6 +31,8 @@ services:
       - "6379:6379"
     volumes:
       - cache:/data
+    networks:
+      - shared-network
 
 volumes:
   cache:
@@ -37,3 +41,7 @@ volumes:
       type: none
       o: bind
       device: ./RedisCache
+
+networks:
+  shared-network:
+    external: true
