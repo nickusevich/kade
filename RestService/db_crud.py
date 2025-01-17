@@ -434,7 +434,7 @@ class MovieDatabase:
 
         return return_data
 
-    async def fetch_similar_movies(self, target_movie: str, limit: int = 10):
+    async def generate_sparql_query(self, params):
         """
         fetch movies similar to the target movie based on genre/release year/actors/directors
 
@@ -450,56 +450,65 @@ class MovieDatabase:
             if not self.is_connected():
                 logging.error("Failed to reconnect to the database.")
                 raise Exception("Failed to reconnect to the database.")
+       
+        title = params.get('title',None)
+        genres = params.get('genres', [])
+        actors = params.get('actors', [])
+        director = params.get('director', None)
+        year = params.get('year_range', None)
+        limit = params.get('similar_movies', 10)
+
         query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX dbr: <http://dbpedia.org/resource/>
 
         SELECT ?movie
-            (COUNT(?sharedGenre) +
-             COUNT(?sharedYear) +
-             COUNT(?sharedActor) +
-             COUNT(?sharedDirector) AS ?similarityScore)
+            (COUNT(?sharedProperty)  AS ?similarityScore)
         WHERE{{
-            #target movie
-            BIND(dbr:{target_movie.replace(' ','_')} AS ?targetMovie)
+           """
+        if title:
+            query += f""""
+             #target movie
+            BIND(dbr:{title.replace(' ','_')} AS ?targetMovie)
 
             #properties from target movie
             OPTIONAL {{ ?targetMovie dbo:genre ?targetGenre. }}
             OPTIONAL {{ ?targetMovie dbo:releaseYear ?targetYear. }}
             OPTIONAL {{ ?targetMovie dbo:starring ?targetActor. }}
             OPTIONAL {{ ?targetMovie dbo:director ?targetDirector. }}
-
+"""
+            query +=""""
             #chech not the same movie
             ?movie a dbo:Film.
             FILTER(?movie != ?targetMovie)
+"""     #matching
+        if genres: 
+            genre_filters = "||".join([f"?movie dbo:genre <{genre}>" for genre in genres])
+        query +=f"OPTIONAL {{{genre_filters}}}"   
 
-            #matching
-            OPTIONAL{{
-                ?movie dbo:genre ?sharedGenre.
-                FILTER(?sharedGenre = ?targetGenre)
-            }}
+        if actors: 
+            actor_filters = "||".join([f"?movie dbo:starring <{actor}>" for actor in actors])
+        query +=f"OPTIONAL {{{actor_filters}}}"            
 
+        if director: 
+            query += f"OPTIONAL {{?movie dbo:director <{director}>.}}"
+
+        if year:
+            query +=f"""
             OPTIONAL{{
-                ?movie dbo:releaseYear ?sharedYear.
-                FILTER(?sharedYear = ?targetYear)
+                ?movie dbo:releaseYear ?movieYear.
             }}
-            
-            OPTIONAL{{
-                ?movie dbo:starring ?sharedActor.
-                
-            }}
-            FILTER(?sharedActor = ?targetActor)
-            
-            OPTIONAL{{
-                ?movie dbo:director ?sharedDirector.
-                
-            }}
-               FILTER(?sharedDirector = ?targetDirector) 
+            """
+        query +=f"""
         }}
         GROUP BY ?movie
         ORDER BY DESC(?similarityScore)
         LIMIT {limit}
         """
+        return query
+    
+    def fetch_similar_movies(self, params):
+        query = self.generate_sparql_query(params)
         self.sparql.setQuery(query)
         self.sparql.setReturnFormat(JSON)
 
@@ -515,13 +524,14 @@ class MovieDatabase:
                     }
                     for result in results["results"]["bindings"]
                 ]
+                return return_data
             else:
                 logging.warning("No results found in SPARQL query response.")
         except Exception as e:
             logging.error(f"fetch_similar_movies - Failed: {e}")
             raise
 
-        return return_data
+        return []
 
 async def main():
     """
@@ -534,8 +544,16 @@ async def main():
     print(f"Actors found: {len(actors)}")
 
     #test fetching similar movies
-    user_limit = 5
-    similar_movies = await db.fetch_similar_movies("%27Til_We_Meet_Again", limit=user_limit)
+    params = {
+        "title": "%27Til_We_Meet_Again",
+        "genres":["Drama","Action"],
+        "actors":["Ali","Smith"],
+        "director":"James Cameron",
+        "year_range":[1990,2023],
+        "similar_movies":5
+    }
+    similar_movies = await db.fetch_similar_movies(params)
+    print(f"similar movies found: {len(similar_movies)}")
     print(similar_movies)
 
     properties_to_test = ["movies", "genres", "actors", "directors", "distributors", "writers", "producers", "composers", "cinematographers", "productionCompanies"]

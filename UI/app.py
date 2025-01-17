@@ -7,6 +7,7 @@ import os
 # from RestService import MovieDatabase
 import json
 import asyncio
+from RestService import db_crud
 
 
 
@@ -69,11 +70,11 @@ home_layout = html.Div([
             html.Label("Year Range:", className="label"),
             dcc.RangeSlider(
                 id="year-range",
-                min=1990,
-                max=2023,
+                min=1940,
+                max=2024,
                 step=1,
-                value=[1990, 2023],
-                marks={i: str(i) for i in range(1990, 2024, 3)}
+                value=[1940, 2024],
+                marks={i: str(i) for i in range(1940, 2024, 3)}
             ),
             html.Label("Rating Range:", className="label"),
             dcc.RangeSlider(
@@ -154,7 +155,7 @@ def display_page(pathname):
 
 # Callback for the search button to store parameters and redirect
 @app.callback(
-    [Output('search-store', 'data'),
+    [Output('results-display', 'children'),
      Output('url', 'pathname')],
     [Input('search-btn', 'n_clicks')],
     [State('film-title', 'value'),
@@ -167,28 +168,37 @@ def display_page(pathname):
      State('plot-description', 'value')],
     prevent_initial_call=True
 )
-def store_search_parameters(n_clicks, film_title, rating_range, year_range, 
+def store_search_parameters(n_clicks, film_title, rating_range, year, 
                           genres, similar_movies, actors, director, plot_description):
         
     if n_clicks == 0:
         raise PreventUpdate
 
     # Check if any of the search parameters are filled in
-    if not any([film_title, rating_range, year_range, genres, similar_movies, actors, director, plot_description]):
+    if not any([film_title, rating_range, year, genres, similar_movies, actors, director, plot_description]):
         raise PreventUpdate  # Prevent the page from redirecting if no parameters are selected
 
-    search_params = {
+    params = {
         'title': film_title,
         # 'rating_range': rating_range,
-        # 'year_range': year_range,
+        'year_range': year,
         'genres': genres,
-        # 'similar_movies': similar_movies,
+        'similar_movies': similar_movies,
         'actors': actors,
         'director': director,
         # 'plot_description': plot_description
     }
+    similar_movies = asyncio.run(db_crud.fetch_similar_movies(params))
+    if not similar_movies:
+        return html.Div("no similar movies are found.")
     
-    return search_params, '/results'
+    movie_results = [
+         html.Div([
+             html.H3(f"movie:{movie['object_uri']}"),
+             html.P(f"Similarity Score: {movie['similarity_score']}")
+         ]) for movie in similar_movies
+     ]
+    return html.Div(movie_results), '/results'
 
 
 # Callback to display search results
