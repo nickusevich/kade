@@ -10,6 +10,8 @@ import logging
 import asyncio
 import numpy as np
 import os
+import pandas as pd
+
 
 def is_running_in_docker():
     """Check if the code is running inside a Docker container."""
@@ -18,6 +20,18 @@ def is_running_in_docker():
         with open(path, 'r') as f:
             return 'docker' in f.read()
     return False
+
+
+def add_filters(filters, param_name, param_values, sparql_property, use_or=False):
+    if param_values:
+        if use_or:
+            conditions = [f'CONTAINS(LCASE(STR(?{param_name})), "{value.lower()}")' for value in param_values]
+            filter_condition = " || ".join(conditions)
+            filters.append(f'FILTER ({filter_condition})')
+        else:
+            for value in param_values:
+                filters.append(f'?movie {sparql_property} ?{param_name} . ?{param_name} rdfs:label ?{param_name}Label . FILTER (CONTAINS(LCASE(STR(?{param_name}Label)), "{value.lower()}")) .')
+    return filters
 
 GRAPHDB_ENDPOINT = "http://localhost:7200/repositories/MoviesRepo"
 if is_running_in_docker():
@@ -299,27 +313,16 @@ class MovieDatabase:
 
         # Add filters based on provided properties
         filters = []
-
-        def add_filters(param_name, param_values, sparql_property, use_or=False):
-            if param_values:
-                if use_or:
-                    conditions = [f'CONTAINS(LCASE(STR(?{param_name})), "{value.lower()}")' for value in param_values]
-                    filter_condition = " || ".join(conditions)
-                    filters.append(f'FILTER ({filter_condition})')
-                else:
-                    for value in param_values:
-                        filters.append(f'?movie {sparql_property} ?{param_name} . ?{param_name} rdfs:label ?{param_name}Label . FILTER (CONTAINS(LCASE(STR(?{param_name}Label)), "{value.lower()}")) .')
-
-        add_filters('title', title, 'rdfs:label', use_or=True)
-        add_filters('genre', genre, 'dbo:genre')
-        add_filters('actor', actor, 'dbo:starring')
-        add_filters('director', director, 'dbo:director')
-        add_filters('distributor', distributor, 'dbo:distributor')
-        add_filters('writer', writer, 'dbo:writer')
-        add_filters('producer', producer, 'dbo:producer')
-        add_filters('composer', composer, 'dbo:musicComposer')
-        add_filters('cinematographer', cinematographer, 'dbo:cinematography')
-        add_filters('production_company', production_company, 'dbo:productionCompany')
+        add_filters(filters, 'title', title, 'rdfs:label', use_or=True)
+        add_filters(filters, 'genre', genre, 'dbo:genre')
+        add_filters(filters, 'actor', actor, 'dbo:starring')
+        add_filters(filters, 'director', director, 'dbo:director')
+        add_filters(filters, 'distributor', distributor, 'dbo:distributor')
+        add_filters(filters, 'writer', writer, 'dbo:writer')
+        add_filters(filters, 'producer', producer, 'dbo:producer')
+        add_filters(filters, 'composer', composer, 'dbo:musicComposer')
+        add_filters(filters, 'cinematographer', cinematographer, 'dbo:cinematography')
+        add_filters(filters, 'production_company', production_company, 'dbo:productionCompany')
 
         query += " ".join(filters)
         query += """
@@ -352,6 +355,115 @@ class MovieDatabase:
             raise
 
         return return_data
+    
+
+    async def fetch_movies_details(self, movies):
+        """
+        Fetch movies details from the SPARQL endpoint.
+
+        Args:
+            movies (list): The movies to get details for.
+
+        Returns:
+            list: A list of dictionaries containing movie URIs and their details.
+        """
+        return_data = []
+
+        # Check if connected to the database
+        if not self.is_connected():
+            logging.info("Not connected to the database. Attempting to reconnect.")
+            self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
+            if not self.is_connected():
+                logging.error("Failed to reconnect to the database.")
+                raise Exception("Failed to reconnect to the database.")
+
+        # Construct the SPARQL query
+        movies_filter = " ".join([f"<{movie['object_uri']}>" for movie in movies])
+
+        query = f"""
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT ?movie ?title ?abstract ?runtime ?budget ?boxOffice ?releaseYear ?country_label 
+            (GROUP_CONCAT(DISTINCT ?genre_label; separator=", ") AS ?genres)
+            (GROUP_CONCAT(DISTINCT ?starring_label; separator=", ") AS ?starring)
+            (GROUP_CONCAT(DISTINCT ?director_label; separator=", ") AS ?directors)
+            (GROUP_CONCAT(DISTINCT ?producer_label; separator=", ") AS ?producers)
+            (GROUP_CONCAT(DISTINCT ?writer_label; separator=", ") AS ?writers)
+            (GROUP_CONCAT(DISTINCT ?composer_label; separator=", ") AS ?composers)
+            (GROUP_CONCAT(DISTINCT ?cinematographer_label; separator=", ") AS ?cinematographers)
+        WHERE {{
+            VALUES ?movie {{ {movies_filter} }}
+            ?movie rdfs:label ?title .
+
+            OPTIONAL {{ ?movie dbo:abstract ?abstract . }}
+            OPTIONAL {{ ?movie dbo:runtime ?runtime . }}
+            OPTIONAL {{ ?movie dbo:budget ?budget . }}
+            OPTIONAL {{ ?movie dbo:boxOffice ?boxOffice . }}
+            OPTIONAL {{ ?movie dbo:releaseYear ?releaseYear . }}
+            OPTIONAL {{ ?movie dbo:country ?country .
+                    ?country rdfs:label ?country_label .
+                    FILTER (lang(?country_label) = 'en')
+                    }}        
+            OPTIONAL {{ ?movie dbo:genre ?genre .
+                    ?genre rdfs:label ?genre_label .
+                    FILTER (lang(?genre_label) = 'en')
+                    }}
+            OPTIONAL {{ ?movie dbo:starring ?starring .
+                    ?starring rdfs:label ?starring_label .
+                    FILTER (lang(?starring_label) = 'en')
+                    }}
+            OPTIONAL {{ ?movie dbo:director ?director .
+                    ?director rdfs:label ?director_label .
+                    FILTER (lang(?director_label) = 'en')
+                    }}
+            OPTIONAL {{ ?movie dbo:producer ?producer .
+                    ?producer rdfs:label ?producer_label .
+                    FILTER (lang(?producer_label) = 'en')
+                    }}
+            OPTIONAL {{ ?movie dbo:writer ?writer .
+                    ?writer rdfs:label ?writer_label .
+                    FILTER (lang(?writer_label) = 'en')
+                    }}
+            OPTIONAL {{ ?movie dbo:musicComposer ?composer .
+                    ?composer rdfs:label ?composer_label .
+                    FILTER (lang(?composer_label) = 'en')
+                    }}
+            OPTIONAL {{ ?movie dbo:cinematography ?cinematographer .
+                    ?cinematographer rdfs:label ?cinematographer_label .
+                    FILTER (lang(?cinematographer_label) = 'en')
+                    }}
+        }}
+        GROUP BY ?movie ?title ?abstract ?runtime ?budget ?boxOffice ?releaseYear ?country_label
+        """
+        self.sparql.setQuery(query)
+        self.sparql.setReturnFormat(JSON)
+        results = self.sparql.query().convert()
+
+        # Use a dictionary to remove duplicates based on the movie URI
+        unique_movies = {}
+        for result in results["results"]["bindings"]:
+            movie_uri = result["movie"]["value"]
+            if movie_uri not in unique_movies:
+                unique_movies[movie_uri] = {
+                    "movie": movie_uri,
+                    "title": result["title"]["value"],
+                    "abstract": result.get("abstract", {}).get("value", ""),
+                    "runtime": result.get("runtime", {}).get("value", ""),
+                    "budget": result.get("budget", {}).get("value", ""),
+                    "boxOffice": result.get("boxOffice", {}).get("value", ""),
+                    "releaseYear": result.get("releaseYear", {}).get("value", ""),
+                    "country": result.get("country_label", {}).get("value", ""),
+                    "genres": result.get("genres", {}).get("value", ""),
+                    "starring": result.get("starring", {}).get("value", ""),
+                    "directors": result.get("directors", {}).get("value", ""),
+                    "producers": result.get("producers", {}).get("value", ""),
+                    "writers": result.get("writers", {}).get("value", ""),
+                    "composers": result.get("composers", {}).get("value", ""),
+                    "cinematographers": result.get("cinematographers", {}).get("value", "")
+                }
+
+        return list(unique_movies.values())
     
 
     async def fetch_movies_by_properties_dev(self, **kwargs):
@@ -566,11 +678,18 @@ async def main():
         else:
             print(f"No {property_to_test} found.")
 
-    movies = await db.fetch_movies_by_properties(actor="Lauren Graham")
+    movies = await db.fetch_movies_by_properties(actor=["Lauren Graham"])
     print(f"Movies by Lauren Graham found: {len(movies)}")
     print(movies)
 
-    movies = await db.fetch_movies_by_properties(genre="Drama")
+    # Fetch detailed information for these movies using fetch_movies_details
+    movie_details = await db.fetch_movies_details(movies)
+    print(f"Movie details found: {len(movie_details)}")
+    df_movie_details = pd.DataFrame(movie_details)
+    df_movie_details.to_csv("movie_details_test.csv", index=False)
+
+
+    movies = await db.fetch_movies_by_properties(genre=["Drama"])
     print(f"Movies found by genre Drama: {len(movies)}")
     print(movies[:10])
 
