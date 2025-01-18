@@ -176,19 +176,19 @@ def handle_search_and_display(n_clicks, stored_data, film_title, year,
         movie_results = [
             html.Div([
                 html.H3(f"Title: {movie.get('title', 'N/A')}"),
-                html.P(f"Abstract: {movie.get('abstract', 'N/A')}"),
+                #html.P(f"Abstract: {movie.get('abstract', 'N/A')}"),
                 html.P(f"Runtime: {movie.get('runtime', 'N/A')}"),
-                html.P(f"Budget: {movie.get('budget', 'N/A')}"),
-                html.P(f"Box Office: {movie.get('boxOffice', 'N/A')}"),
+                #html.P(f"Budget: {movie.get('budget', 'N/A')}"),
+                #html.P(f"Box Office: {movie.get('boxOffice', 'N/A')}"),
                 html.P(f"Release Year: {movie.get('releaseYear', 'N/A')}"),
                 html.P(f"Country: {movie.get('country', 'N/A')}"),
                 html.P(f"Genres: {movie.get('genres', 'N/A')}"),
                 html.P(f"Starring: {movie.get('starring', 'N/A')}"),
                 html.P(f"Directors: {movie.get('directors', 'N/A')}"),
-                html.P(f"Producers: {movie.get('producers', 'N/A')}"),
-                html.P(f"Writers: {movie.get('writers', 'N/A')}"),
-                html.P(f"Composers: {movie.get('composers', 'N/A')}"),
-                html.P(f"Cinematographers: {movie.get('cinematographers', 'N/A')}"),
+                #html.P(f"Producers: {movie.get('producers', 'N/A')}"),
+                #html.P(f"Writers: {movie.get('writers', 'N/A')}"),
+                #html.P(f"Composers: {movie.get('composers', 'N/A')}"),
+                #html.P(f"Cinematographers: {movie.get('cinematographers', 'N/A')}"),
                 html.P(f"Similarity Score: {movie.get('similarity_score', 'N/A')}")
             ], className="movie-card")
             for movie in movies
