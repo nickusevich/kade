@@ -9,22 +9,31 @@ body {
 .main-container {
     display: flex;
     flex-direction: row;
-    padding: 20px;
+    padding: 10px;
+}
+
+/* Main title styling */
+.main-title {
+    font-size: 1.5em; /* Adjust the font size */
+    margin: 10px 0; /* Adjust the margins */
+    text-align: center;
 }
 
 /* Filters container */
 .filters-container {
-    width: 25%;
-    padding: 20px;
+    width: 30%;
+    padding: 10px;
     background-color: #1d1d1d;
     border-radius: 8px;
-    margin-right: 20px;
+    margin-right: 10px;
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 /* Results container */
 .results-container {
-    width: 75%;
-    padding: 20px;
+    width: 70%;
+    padding: 10px;
     background-color: #1d1d1d;
     border-radius: 8px;
     overflow-x: auto;
@@ -35,11 +44,11 @@ body {
 .movie-card {
     display: inline-block;
     vertical-align: top;
-    margin: 10px;
-    padding: 10px;
+    margin: 5px;
+    padding: 5px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    width: 300px;
+    width: 250px;
     background-color: #2d2d2d;
 }
 
@@ -47,14 +56,14 @@ body {
 .form-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 5px;
 }
 
 /* Label styling */
 .label {
-    font-size: 1.2em;
+    font-size: 0.9em;
     color: #FFFFFF;
-    margin: 15px 0 10px 0;
+    margin: 5px 0 5px 0;
     display: block;
     text-align: left;
 }
@@ -62,14 +71,14 @@ body {
 /* Enhanced Search Button Styling */
 .button {
     width: 100%;
-    padding: 15px;
-    font-size: 1.2em;
+    padding: 10px;
+    font-size: 0.9em;
     background: linear-gradient(135deg, #FFD700, #FFC107);
     color: #000000;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    margin: 30px 0;
+    margin: 10px 0;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -84,27 +93,27 @@ body {
 /* Input and Dropdown styling */
 .input, .dropdown {
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     color: #000;
     border-radius: 4px;
-    font-size: 1em;
+    font-size: 0.8em;
 }
 .input {
-    height: 40px;
+    height: 30px;
 }
 
 .dropdown {
     background-color: #ffffff; /* White background */
     color: #000000; /* Black text */
     border: 1px solid #cccccc; /* Light grey border */
-    padding: 10px;
-    font-size: 14px;
+    padding: 5px;
+    font-size: 12px;
     border-radius: 4px;
 }
 
 /* Slider styling */
 .rc-slider {
-    margin: 10px 0 30px 0;
+    margin: 5px 0 10px 0;
 }
 
 .rc-slider-track {
@@ -120,29 +129,31 @@ body {
 /* Slider marks and handle styling */
 .rc-slider-mark-text {
     color: #FFD700;
+    font-size: 0.8em;
+    transform: translateY(10px); /* Adjust the position of the mark labels */
 }
 
 .rc-slider-handle {
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
     background: #FFD700;
 }
 
 /* Results Page (Adjusting for minimal styling) */
 #results-display {
-    padding: 20px;
+    padding: 10px;
     background-color: #1d1d1d;
     border-radius: 8px;
-    margin-top: 30px;
+    margin-top: 10px;
 }
 
 /* Back to Search Link */
 .back-link {
     color: #FFC107;
-    font-size: 1.2em;
+    font-size: 1em;
     display: block;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 10px;
     text-decoration: none;
 }
 

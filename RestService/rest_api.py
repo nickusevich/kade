@@ -121,7 +121,7 @@ async def get_movies_details(movie: Optional[List[str]] = Query(None, alias="mov
 
         if not number_of_results: # set default number of results to 10
             number_of_results = 10
-
+        movie_details = []
         params = {
             "movie": movie,
             "title": title,
@@ -148,17 +148,22 @@ async def get_movies_details(movie: Optional[List[str]] = Query(None, alias="mov
         if (cached_answer := redis_client.get(var_name)) is not None:
             write_log(f"Found movie query in cache")
             return pickle.loads(cached_answer)
-
-        # query_string = " AND ".join(query_conditions)
-        results = await movieDatabase.fetch_movies_by_properties(**params)
         
-        redis_client.set(var_name, pickle.dumps(results))
+        if title: # get similar movies
+            movies = await movieDatabase.fetch_similar_movies(**params)
+        else: # get movies with provided filters
+            movies = await movieDatabase.fetch_movies_by_properties(**params)
+        
+        if movies:
+            movie_details = await movieDatabase.fetch_movies_details(movies)
+        
+        redis_client.set(var_name, pickle.dumps(movie_details))
         write_log(f"Written movie query into cache")
     except Exception as e:
         print(f"Error executing query: {e}")
         raise HTTPException(status_code=500, detail=f"The following error occurred during the operation: {str(e)}")
 
-    return results
+    return movie_details
 
 @app.get('/genres')
 @cache(expire=300)

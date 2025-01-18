@@ -313,7 +313,7 @@ class MovieDatabase:
                 "actors": actor,
                 "director": director,
                 "year_range": [start_year, end_year],
-                "similar_movies": number_of_results
+                "number_of_results": number_of_results
             }
             similar_movies = await self.fetch_similar_movies(params)
             return similar_movies
@@ -511,7 +511,7 @@ class MovieDatabase:
         actors = params.get('actors', [])
         director = params.get('director', None)
         year = params.get('year_range', None)
-        limit = params.get('similar_movies', 10)
+        limit = params.get('number_of_results', 10)
 
         query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
