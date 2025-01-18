@@ -271,15 +271,21 @@ class MovieDatabase:
         """
         return await self.fetch_objects_by_title("Country", name)
 
-    async def fetch_movies_by_properties(self, title: list = None, genre: list = None, actor: list = None, director: list = None, distributor: list = None, writer: list = None, producer: list = None, composer: list = None, cinematographer: list = None, production_company: list = None):
+    async def fetch_movies_by_properties(self, title: list = None, genre: list = None, start_year: int = 1940, end_year: int = 2024, rating_lower: int = 0, rating_upper: int = 10, actor: list = None, director: list = None, description: str = "", number_of_results: int = 10, distributor: list = None, writer: list = None, producer: list = None, composer: list = None, cinematographer: list = None, production_company: list = None):
         """
         Fetch movies by various properties from the SPARQL endpoint.
 
         Args:
             title (list, optional): The titles to search for. Defaults to None.
             genre (list, optional): The genres to search for. Defaults to None.
+            start_year (int, optional): The start year to search for. Defaults to 1940.
+            end_year (int, optional): The end year to search for. Defaults to 2024.
+            rating_lower (int, optional): The lower rating to search for. Defaults to 0.
+            rating_upper (int, optional): The upper rating to search for. Defaults to 10.
             actor (list, optional): The actors to search for. Defaults to None.
             director (list, optional): The directors to search for. Defaults to None.
+            description (str, optional): The description to search for. Defaults to "".
+            number_of_results (int, optional): The number of results to return. Defaults to 10.
             distributor (list, optional): The distributors to search for. Defaults to None.
             writer (list, optional): The writers to search for. Defaults to None.
             producer (list, optional): The producers to search for. Defaults to None.
@@ -290,8 +296,6 @@ class MovieDatabase:
         Returns:
             list: A list of dictionaries containing movie URIs and labels.
         """
-        return_data = []
-
         # Check if connected to the database
         if not self.is_connected():
             logging.info("Not connected to the database. Attempting to reconnect.")
@@ -300,61 +304,80 @@ class MovieDatabase:
                 logging.error("Failed to reconnect to the database.")
                 raise Exception("Failed to reconnect to the database.")
 
-        # Construct the SPARQL query
-        query = """
-        PREFIX dbo: <http://dbpedia.org/ontology/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        return_data = []
 
-        SELECT DISTINCT ?movie ?title
-        WHERE {
-        ?movie a dbo:Film .
-        ?movie rdfs:label ?title .
-        """
+        if title: # if title is given fetch similar movies
+            params = {
+                "title": title,
+                "genre": genre,
+                "actors": actor,
+                "director": director,
+                "year_range": [start_year, end_year],
+                "similar_movies": number_of_results
+            }
+            similar_movies = await self.fetch_similar_movies(params)
+            return similar_movies
+        else:  # fetch movies based on properties
+            # Construct the SPARQL query
+            query = """
+            PREFIX dbo: <http://dbpedia.org/ontology/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        # Add filters based on provided properties
-        filters = []
-        add_filters(filters, 'title', title, 'rdfs:label', use_or=True)
-        add_filters(filters, 'genre', genre, 'dbo:genre')
-        add_filters(filters, 'actor', actor, 'dbo:starring')
-        add_filters(filters, 'director', director, 'dbo:director')
-        add_filters(filters, 'distributor', distributor, 'dbo:distributor')
-        add_filters(filters, 'writer', writer, 'dbo:writer')
-        add_filters(filters, 'producer', producer, 'dbo:producer')
-        add_filters(filters, 'composer', composer, 'dbo:musicComposer')
-        add_filters(filters, 'cinematographer', cinematographer, 'dbo:cinematography')
-        add_filters(filters, 'production_company', production_company, 'dbo:productionCompany')
+            SELECT DISTINCT ?movie ?title
+            WHERE {
+            ?movie a dbo:Film .
+            ?movie rdfs:label ?title .
+            """
 
-        query += " ".join(filters)
-        query += """
-        FILTER (LANG(?title) = "en")
-        }"""
-        query += f"""
-        LIMIT {self.limit}
-        """
+            # Add filters based on provided properties
+            filters = []
+            add_filters(filters, 'title', title, 'rdfs:label', use_or=True)
+            add_filters(filters, 'genre', genre, 'dbo:genre')
+            add_filters(filters, 'actor', actor, 'dbo:starring')
+            add_filters(filters, 'director', director, 'dbo:director')
+            add_filters(filters, 'distributor', distributor, 'dbo:distributor')
+            add_filters(filters, 'writer', writer, 'dbo:writer')
+            add_filters(filters, 'producer', producer, 'dbo:producer')
+            add_filters(filters, 'composer', composer, 'dbo:musicComposer')
+            add_filters(filters, 'cinematographer', cinematographer, 'dbo:cinematography')
+            add_filters(filters, 'production_company', production_company, 'dbo:productionCompany')
 
-        logging.info(f"SPARQL query: {query}")
-        self.sparql.setQuery(query)
-        self.sparql.setReturnFormat(JSON)
+            if start_year:
+                filters.append(f'?movie dbo:releaseYear ?releaseYear . FILTER (?releaseYear >= {start_year})')
+            if end_year:
+                filters.append(f'?movie dbo:releaseYear ?releaseYear . FILTER (?releaseYear <= {end_year})')
 
-        # Execute the query and process results
-        try:
-            logging.info(f"Executing SPARQL query: {query}")
-            results = self.sparql.query().convert()
-            if "results" in results and "bindings" in results["results"]:
-                return_data = [
-                    {
-                        "object_uri": result["movie"]["value"],
-                        "label": result["title"]["value"]
-                    }
-                    for result in results["results"]["bindings"]
-                ]
-            else:
-                logging.warning("No results found in SPARQL query response.")
-        except Exception as e:
-            logging.error(f"fetch_movies_by_properties - Failed: {e}")
-            raise
+            query += " ".join(filters)
+            query += """
+            FILTER (LANG(?title) = "en")
+            }"""
+            query += f"""
+            LIMIT {number_of_results}
+            """
 
-        return return_data
+            logging.info(f"SPARQL query: {query}")
+            self.sparql.setQuery(query)
+            self.sparql.setReturnFormat(JSON)
+
+            # Execute the query and process results
+            try:
+                logging.info(f"Executing SPARQL query: {query}")
+                results = self.sparql.query().convert()
+                if "results" in results and "bindings" in results["results"]:
+                    return_data = [
+                        {
+                            "object_uri": result["movie"]["value"],
+                            "label": result["title"]["value"]
+                        }
+                        for result in results["results"]["bindings"]
+                    ]
+                else:
+                    logging.warning("No results found in SPARQL query response.")
+            except Exception as e:
+                logging.error(f"fetch_movies_by_properties - Failed: {e}")
+                raise
+
+            return return_data
     
 
     async def fetch_movies_details(self, movies):
@@ -466,86 +489,6 @@ class MovieDatabase:
         return list(unique_movies.values())
     
 
-    async def fetch_movies_by_properties_dev(self, **kwargs):
-        """
-        Fetch movies by various properties from the SPARQL endpoint.
-
-        Returns:
-            list: A list of dictionaries containing movie URIs and labels.
-        """
-        return_data = []
-
-        # Extract relevant key/values from the submitted fields
-        title = kwargs.get('title', None)
-        genres = kwargs.get('genres', None)
-        actors = kwargs.get('actors', None)
-        director = kwargs.get('director', None)
-
-        # if title:
-        #     print(f"It works!!!!{title[0]}")
-
-        # Check if connected to the database
-        if not self.is_connected():
-            logging.info("Not connected to the database. Attempting to reconnect.")
-            self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
-            if not self.is_connected():
-                logging.error("Failed to reconnect to the database.")
-                raise Exception("Failed to reconnect to the database.")
-
-        # Construct the SPARQL query
-        query = """
-        PREFIX dbo: <http://dbpedia.org/ontology/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-        SELECT DISTINCT ?movie ?movieLabel
-        WHERE {
-          ?movie a dbo:Film .
-          ?movie rdfs:label ?movieLabel .
-        """
-
-        # Add filters based on provided properties
-        filters = []
-        if title:
-            filters.append(f'FILTER (CONTAINS(LCASE(STR(?movieLabel)), "{title[0].lower()}"))')
-        if genres:
-            filters.append(f'?movie dbo:genre ?genre . ?genre rdfs:label ?genreLabel . FILTER (CONTAINS(LCASE(STR(?genreLabel)), "{genres.lower()}")) . ')
-        if actors:
-            query += f'?movie dbo:starring ?actor . ?actor rdfs:label ?actorLabel . FILTER (CONTAINS(LCASE(STR(?actorLabel)), "{actors.lower()}")) . '
-        if director:
-            query += f'?movie dbo:director ?director . ?director rdfs:label ?directorLabel . FILTER (CONTAINS(LCASE(STR(?directorLabel)), "{director.lower()}")) . '
-
-
-        query += " ".join(filters)
-        query += """
-        FILTER (LANG(?movieLabel) = "en")
-        }"""
-        query += f"""
-        LIMIT {self.limit}
-        """
-
-        self.sparql.setQuery(query)
-        self.sparql.setReturnFormat(JSON)
-
-        # Execute the query and process results
-        try:
-            logging.info(f"Executing SPARQL query: {query}")
-            results = self.sparql.query().convert()
-            if "results" in results and "bindings" in results["results"]:
-                return_data = [
-                    {
-                        "object_uri": result["movie"]["value"],
-                        "label": result["movieLabel"]["value"]
-                    }
-                    for result in results["results"]["bindings"]
-                ]
-            else:
-                logging.warning("No results found in SPARQL query response.")
-        except Exception as e:
-            logging.error(f"fetch_movies_by_properties - Failed: {e}")
-            raise
-
-        return return_data
-
     async def generate_sparql_query(self, params):
         """
         fetch movies similar to the target movie based on genre/release year/actors/directors
@@ -555,7 +498,7 @@ class MovieDatabase:
         """
         return_data = []
 
-                # Check if connected to the database
+        # Check if connected to the database
         if not self.is_connected():
             logging.info("Not connected to the database. Attempting to reconnect.")
             self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
@@ -621,6 +564,8 @@ class MovieDatabase:
     
     def fetch_similar_movies(self, params):
         query = self.generate_sparql_query(params)
+        logging.info(f"SPARQL query: {query}")
+        
         self.sparql.setQuery(query)
         self.sparql.setReturnFormat(JSON)
 
