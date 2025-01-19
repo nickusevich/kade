@@ -359,6 +359,7 @@ class MovieDatabase:
             # Nikita we need to add the description filter logic here
 
             if start_year or end_year:
+                query += "?movie dbo:releaseYear ?releaseYear ."
                 if start_year:
                     filters.append(f'FILTER (?releaseYear >= "{start_year}"^^xsd:gYear)')
                 if end_year:
@@ -612,10 +613,11 @@ async def main():
     """
     db = MovieDatabase()
 
-    movies = await db.fetch_movies_by_properties(title=["Shrek"], get_similar_movies=True)
+    # movies = await db.fetch_movies_by_properties(start_year=2000, end_year=2020, number_of_results=10)
+    # movies = await db.fetch_movies_by_properties(title=["Shrek"], get_similar_movies=True)
 
     # Test fetching actors by name
-    actors = await db.fetch_actors_by_name("Ali")
+    actors = await db.fetch_actors_by_name("Lauren Graham")
     print(f"Actors found: {len(actors)}")
 
     results = await db.fetch_movies_by_properties(title=["shrek"], number_of_results=5000)
