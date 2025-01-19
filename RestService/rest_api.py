@@ -132,7 +132,7 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
         
         if title: # get similar movies
             write_log(f"Getting similar movies for {title} calling fetch_similar_movies", "info")
-            movies = await movieDatabase.fetch_similar_movies(**params)
+            movies = await movieDatabase.fetch_similar_movies(params)
         else: # get movies with provided filters
             write_log(f"Getting movies with provided filters, calling fetch_movies_by_properties", "info")
             movies = await movieDatabase.fetch_movies_by_properties(**params)
