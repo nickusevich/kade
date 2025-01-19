@@ -146,9 +146,9 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
         raise PreventUpdate  # Prevent the page from redirecting if no parameters are selected
 
     params = {
-        'title': [film_title] if film_title else None,
-        'start_year': year[0] if 'enabled' in enable_year_range else 1940,
-        'end_year': year[1] if 'enabled' in enable_year_range else 2024,
+        'movieLabel': [film_title] if film_title else None,
+        'startYear': year[0] if 'enabled' in enable_year_range else 1940,
+        'endYear': year[1] if 'enabled' in enable_year_range else 2024,
         'genres': genres,
         'number_of_results': number_of_results,
         'actors': actors,

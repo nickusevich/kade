@@ -283,7 +283,7 @@ class MovieDatabase:
         """
         return await self.fetch_objects_by_title("Film", title)
 
-    async def fetch_movies_by_properties(self, title: list = None, genre: list = None, start_year: int = 1940, end_year: int = 2024, actor: list = None, director: list = None, description: str = "", number_of_results: int = 10, distributor: list = None, writer: list = None, producer: list = None, composer: list = None, cinematographer: list = None, production_company: list = None,
+    async def fetch_movies_by_properties(self, title: list = None, genre: list = None, start_year: int = None, end_year: int = None, actor: list = None, director: list = None, description: str = "", number_of_results: int = 10, distributor: list = None, writer: list = None, producer: list = None, composer: list = None, cinematographer: list = None, production_company: list = None,
                                          get_similar_movies=False):
         """
         Fetch movies by various properties from the SPARQL endpoint.
@@ -291,8 +291,8 @@ class MovieDatabase:
         Args:
             title (list, optional): The titles to search for. Defaults to None.
             genre (list, optional): The genres to search for. Defaults to None.
-            start_year (int, optional): The start year to search for. Defaults to 1940.
-            end_year (int, optional): The end year to search for. Defaults to 2024.
+            start_year (int, optional): The start year to search for. Defaults to None.
+            end_year (int, optional): The end year to search for. Defaults to None.
             actor (list, optional): The actors to search for. Defaults to None.
             director (list, optional): The directors to search for. Defaults to None.
             description (str, optional): The description to search for. Defaults to "".
@@ -554,6 +554,7 @@ class MovieDatabase:
             # check not the same movie
             ?movie a dbo:Film.
             FILTER(?movie != ?targetMovie)
+            FILTER(?similarityScore > 0)
             """
         
         # Add filters using the existing add_filters method
@@ -564,7 +565,7 @@ class MovieDatabase:
             add_filters(filters, 'actor', actors, 'dbo:starring')
         if director:
             add_filters(filters, 'director', [director], 'dbo:director')
-        if year:
+        if year is not None and len(year) == 2 and year[0] is not None and year[1] is not None:
             filters.append(f'OPTIONAL {{ ?movie dbo:releaseYear ?movieYear . FILTER(?movieYear >= {year[0]} && ?movieYear <= {year[1]}) }}')
 
         query += "\n".join(filters)
@@ -611,7 +612,7 @@ async def main():
     """
     db = MovieDatabase()
 
-    movies = await db.fetch_movies_by_name()
+    movies = await db.fetch_movies_by_properties(title=["Shrek"], get_similar_movies=True)
 
     # Test fetching actors by name
     actors = await db.fetch_actors_by_name("Ali")
