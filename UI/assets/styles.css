@@ -23,9 +23,13 @@ body {
     overflow-y: auto;
 }
 
+/* Results wrapper */
+.results-wrapper {
+    width: 70%;
+}
+
 /* Results container */
 .results-container {
-    width: 70%;
     padding: 10px;
     background-color: #1d1d1d;
     border-radius: 8px;
@@ -67,6 +71,10 @@ body {
     padding: 2px 5px;
     border-radius: 3px;
     font-weight: bold;
+}
+
+.range-slider{
+    width: 100%;
 }
 
 /* Movie title styling */
@@ -168,10 +176,6 @@ body {
     background: #FFD700;
 }
 
-.range-slider{
-    width: 100%;
-}
-
 /* Results Page (Adjusting for minimal styling) */
 #results-display {
     padding: 10px;
@@ -200,7 +204,7 @@ body {
     text-overflow: ellipsis;
     white-space: normal; /* Allow text to wrap */
     display: -webkit-box;
-    -webkit-line-clamp: 200; /* Limit to 10 lines */
+    -webkit-line-clamp: 10; /* Limit to 10 lines */
     -webkit-box-orient: vertical;
 }
 

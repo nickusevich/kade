@@ -576,6 +576,9 @@ def csv_to_rdf(csv_file, rdf_file):
                 if uri_values is None or uri_values == '' or uri_values == 'N/A':
                     uri_values = ""
 
+                if attr == "actors" and 'Meryl' in values:
+                    values = row.get(attr)
+
                 if values is not None and values != '' and values.strip() != 'N/A':
                     for value, uri in  zip(values.split('; '), uri_values.split('; ')):
                         if uri is not None and uri != '' and uri.strip() != 'N/A':
@@ -585,13 +588,15 @@ def csv_to_rdf(csv_file, rdf_file):
 
                         if isinstance(predicate, tuple):
                             tuple_tmp = predicate
-                            predicate = tuple_tmp[0] 
+                            obj_predicate = tuple_tmp[0] 
                             classType = tuple_tmp[1]
                             type = tuple_tmp[2]
                             g.add((object_uri, RDF.type, type))
                             g.add((object_uri, RDF.type, classType))
+                        else:
+                            obj_predicate = predicate
                             
-                        g.add((movie_uri, predicate, object_uri))                        
+                        g.add((movie_uri, obj_predicate, object_uri))                        
                         g.add((object_uri, RDFS.label, Literal(value.strip(), lang="en")))
 
     # Serialize the graph to RDF (Turtle format)

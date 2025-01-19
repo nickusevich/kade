@@ -111,7 +111,13 @@ app.layout = html.Div([
         ], className="form-container")
     ], className="filters-container"),  # Apply the filters container class here
 
-    html.Div(id="results-display", className="results-container")
+    html.Div([
+        dcc.Loading(
+            id="loading-results",
+            type="default",
+            children=html.Div(id="results-display", className="results-container")
+        )
+    ], className="results-wrapper")
 ], className="main-container")
 
 # Callback to enable/disable the RangeSlider
@@ -177,24 +183,20 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
     ]
     return html.Div(movie_results, className="movie-results")
 
-# @callback(
-#     Output("film-title", "options"),
-#     [Input("film-title", "search_value"),
-#      State("film-title", "value")]
-# )
-# def update_options_film_title(search_value, current_value):
-#     if search_value is None or search_value == "":
-#         movies = get_options_from_api(f'{REST_SERVICE_URI}/movies')
-#     else:
-#         encoded_search_value = quote(search_value) 
-#         movies = get_options_from_api(f'{REST_SERVICE_URI}/movies?movieLabel={encoded_search_value}')
+@callback(
+    Output("film-title", "options"),
+    [Input("film-title", "search_value"),
+     State("film-title", "value")]
+)
+def update_options_film_title(search_value, current_value):
+    encoded_search_value = quote(search_value) if search_value else ""
+    movies = get_options_from_api(f'{REST_SERVICE_URI}/movies?movieLabel={encoded_search_value}&numberOfResults=500')
     
+    # Ensure the current value is included in the options
+    if current_value and current_value not in [movie['value'] for movie in movies]:
+        movies.append({"label": current_value, "value": current_value})
     
-#     # Ensure the current value is included in the options
-#     if current_value and current_value not in [movie['value'] for movie in movies]:
-#         movies.append({"label": current_value, "value": current_value})
-    
-#     return movies
+    return movies
 
 @callback(
     Output("genres", "options"),
@@ -224,7 +226,9 @@ def update_multi_options_directors(search_value, value):
 def update_multi_options_actors(search_value, value):
     if not search_value:
         return get_options_from_api(f'{REST_SERVICE_URI}/actors')
-    return get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={search_value}')
+    encoded_search_value = quote(search_value) 
+    actors = get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={encoded_search_value}')
+    return actors
 
 if __name__ == '__main__':
     # app.run_server(debug=True, host='0.0.0.0')
