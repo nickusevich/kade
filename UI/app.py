@@ -221,5 +221,5 @@ def update_multi_options_actors(search_value, value):
     return get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={search_value}')
 
 if __name__ == '__main__':
-    # app.run_server(debug=True, host='0.0.0.0')
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0')
+    # app.run_server(debug=True)

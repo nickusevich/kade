@@ -345,12 +345,10 @@ class MovieDatabase:
             add_filters(filters, 'production_company', production_company, 'dbo:productionCompany')
 
             if start_year or end_year:
-                # Add optional releaseYear filter
-                filters.append('OPTIONAL { ?movie dbo:releaseYear ?releaseYear . }')
                 if start_year:
-                    filters.append(f'FILTER (!BOUND(?releaseYear) || ?releaseYear >= "{start_year}"^^xsd:gYear)')
+                    filters.append(f'FILTER (?releaseYear >= "{start_year}"^^xsd:gYear)')
                 if end_year:
-                    filters.append(f'FILTER (!BOUND(?releaseYear) || ?releaseYear <= "{end_year}"^^xsd:gYear)')
+                    filters.append(f'FILTER (?releaseYear <= "{end_year}"^^xsd:gYear)')
 
             query += " ".join(filters)
             query += """
