@@ -60,7 +60,7 @@ app.layout = html.Div([
                 dcc.Checklist(
                     id="enable-year-range",
                     options=[{'label': 'Enable Year Range', 'value': 'enabled'}],
-                    value=['enabled'],
+                    value=['disabled'],
                     className="checkbox",
                     style={"margin-right": "10px"}
                 ),
@@ -147,8 +147,8 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
 
     params = {
         'movieLabel': [film_title] if film_title else None,
-        'startYear': year[0] if 'enabled' in enable_year_range else 1940,
-        'endYear': year[1] if 'enabled' in enable_year_range else 2024,
+        'startYear': year[0] if 'enabled' in enable_year_range else None,
+        'endYear': year[1] if 'enabled' in enable_year_range else None,
         'genres': genres,
         'number_of_results': number_of_results,
         'actors': actors,
@@ -227,5 +227,5 @@ def update_multi_options_actors(search_value, value):
     return get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={search_value}')
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0')
-    # app.run_server(debug=True)
+    # app.run_server(debug=True, host='0.0.0.0')
+    app.run_server(debug=True)
