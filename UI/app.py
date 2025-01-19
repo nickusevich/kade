@@ -240,5 +240,7 @@ def update_multi_options_actors(search_value, value):
     return actors
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0')
-    # app.run_server(debug=True)
+    if is_running_in_docker():
+        app.run_server(debug=True, host='0.0.0.0') 
+    else:
+        app.run_server(debug=True)
