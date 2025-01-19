@@ -9,6 +9,7 @@ from typing import Optional, List
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
+from urllib.parse import unquote
 import redis
 import pickle
 from redis.asyncio import Redis  # Async Redis client
@@ -130,12 +131,15 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
             write_log(f"Found movie query in cache")
             return pickle.loads(cached_answer)
         
+        # Decode relevant parameters
+        decoded_params = {k: (unquote(v) if isinstance(v, str) else [unquote(i) for i in v]) for k, v in filtered_params.items()}
+        
         if title: # get similar movies
             write_log(f"Getting similar movies for {title} calling fetch_similar_movies", "info")
-            movies = await movieDatabase.fetch_similar_movies(params)
+            movies = await movieDatabase.fetch_similar_movies(decoded_params)
         else: # get movies with provided filters
             write_log(f"Getting movies with provided filters, calling fetch_movies_by_properties", "info")
-            movies = await movieDatabase.fetch_movies_by_properties(**params)
+            movies = await movieDatabase.fetch_movies_by_properties(**decoded_params)
         
         if movies:
             movie_details = await movieDatabase.fetch_movies_details(movies)
