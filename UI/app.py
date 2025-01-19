@@ -153,7 +153,8 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
 
     params = {
         'title': film_title,
-        'year_range': year if 'enabled' in enable_year_range else None,
+        'start_year': year[0] if 'enabled' in enable_year_range else None,
+        'end_year': year[1] if 'enabled' in enable_year_range else None,
         'genres': genres,
         'number_of_results': number_of_results,
         'actors': actors,
@@ -221,5 +222,5 @@ def update_multi_options_actors(search_value, value):
     return get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={search_value}')
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0')
-    # app.run_server(debug=True)
+    # app.run_server(debug=True, host='0.0.0.0')
+    app.run_server(debug=True)
