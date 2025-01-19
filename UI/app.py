@@ -151,24 +151,34 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
     if not any([film_title, genres, number_of_results, actors, director, plot_description]) and not ('enabled' in enable_year_range and year):
         raise PreventUpdate  # Prevent the page from redirecting if no parameters are selected
 
+
+
     params = {
-        'movieLabel': [film_title] if film_title else None,
+        'movieLabel': [quote(film_title)] if film_title else None,
         'startYear': year[0] if 'enabled' in enable_year_range else None,
         'endYear': year[1] if 'enabled' in enable_year_range else None,
-        'genres': genres,
+        'genres': [quote(genre) for genre in genres] if genres else None,
         'number_of_results': number_of_results,
-        'actors': actors,
-        'director': director,
-        'description': plot_description,
+        'actors': [quote(actor) for actor in actors] if actors else None,
+        'director': quote(director) if director else None,
+        'description': quote(plot_description) if plot_description else None,
         'getSimilarMovies': True if film_title else False
     }
     movies = requests.get(f'{REST_SERVICE_URI}/movies_details', params=params).json()
-    if not movies or ('detail' in movies and 'not found' in movies['detail'].lower()):
-        return html.Div("No similar movies are found.")
+    if not movies:
+        if len(movies) == 0 or ('detail' in movies and 'not found' in movies['detail'].lower()):
+            return html.Div("No movies were found.")
+        else:
+            return html.Div("An error occurred while fetching the movies. Please try again later.")
+    
 
     movie_results = [
         html.Div([
             html.Div(f"{index + 1}", className="movie-index"),
+            html.Div([
+                html.Span("Similarity Score: ", className="attribute-label"),
+                html.Span(movie.get('similarity_score', 'N/A'), className="attribute-value")
+            ], className="similarity-score") if 'similarity_score' in movie and movie['similarity_score'] not in [None, ''] else None,
             html.H3(f"{movie.get('title', 'N/A')}"),
             html.P([html.Span("Runtime: ", className="attribute-label"), html.Span(movie.get('runtime', 'N/A'), className="attribute-value")]) if 'runtime' in movie and movie['runtime'] not in [None, ''] else None,
             html.P([html.Span("Release Year: ", className="attribute-label"), html.Span(movie.get('releaseYear', 'N/A'), className="attribute-value")]) if 'releaseYear' in movie and movie['releaseYear'] not in [None, ''] else None,
@@ -176,27 +186,26 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
             html.P([html.Span("Genres: ", className="attribute-label"), html.Span(movie.get('genres', 'N/A'), className="attribute-value")], className="genres") if 'genres' in movie and movie['genres'] not in [None, ''] else None,
             html.P([html.Span("Starring: ", className="attribute-label"), html.Span(movie.get('starring', 'N/A'), className="attribute-value")], className="starring") if 'starring' in movie and movie['starring'] not in [None, ''] else None,
             html.P([html.Span("Directors: ", className="attribute-label"), html.Span(movie.get('directors', 'N/A'), className="attribute-value")], className="directors") if 'directors' in movie and movie['directors'] not in [None, ''] else None,
-            html.P([html.Span("Abstract: ", className="attribute-label"), html.Span(movie.get('abstract', 'N/A'), className="attribute-value")], className="abstract") if 'abstract' in movie and movie['abstract'] not in [None, ''] else None,
-            html.P([html.Span("Similarity Score: ", className="attribute-label"), html.Span(movie.get('similarity_score', 'N/A'), className="attribute-value")]) if 'similarity_score' in movie and movie['similarity_score'] not in [None, ''] else None
+            html.P([html.Span("Abstract: ", className="attribute-label"), html.Span(movie.get('abstract', 'N/A'), className="attribute-value")], className="abstract") if 'abstract' in movie and movie['abstract'] not in [None, ''] else None
         ], className="movie-card")
         for index, movie in enumerate(movies)
     ]
     return html.Div(movie_results, className="movie-results")
 
-@callback(
-    Output("film-title", "options"),
-    [Input("film-title", "search_value"),
-     State("film-title", "value")]
-)
-def update_options_film_title(search_value, current_value):
-    encoded_search_value = quote(search_value) if search_value else ""
-    movies = get_options_from_api(f'{REST_SERVICE_URI}/movies?movieLabel={encoded_search_value}&numberOfResults=500')
+# @callback(
+#     Output("film-title", "options"),
+#     [Input("film-title", "search_value"),
+#      State("film-title", "value")]
+# )
+# def update_options_film_title(search_value, current_value):
+#     encoded_search_value = quote(search_value) if search_value else ""
+#     movies = get_options_from_api(f'{REST_SERVICE_URI}/movies?movieLabel={encoded_search_value}&numberOfResults=500')
     
-    # Ensure the current value is included in the options
-    if current_value and current_value not in [movie['value'] for movie in movies]:
-        movies.append({"label": current_value, "value": current_value})
+#     # Ensure the current value is included in the options
+#     if current_value and current_value not in [movie['value'] for movie in movies]:
+#         movies.append({"label": current_value, "value": current_value})
     
-    return movies
+#     return movies
 
 @callback(
     Output("genres", "options"),
@@ -231,5 +240,5 @@ def update_multi_options_actors(search_value, value):
     return actors
 
 if __name__ == '__main__':
-    # app.run_server(debug=True, host='0.0.0.0')
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0')
+    # app.run_server(debug=True)

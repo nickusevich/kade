@@ -73,8 +73,16 @@ body {
     font-weight: bold;
 }
 
-.range-slider{
-    width: 100%;
+/* Similarity score styling */
+.movie-card .similarity-score {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #FFD700;
+    color: #000;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-weight: bold;
 }
 
 /* Movie title styling */
@@ -151,6 +159,10 @@ body {
 /* Slider styling */
 .rc-slider {
     margin: 5px 0 10px 0;
+}
+
+.range-slider {
+    width: 100%;
 }
 
 .rc-slider-track {
