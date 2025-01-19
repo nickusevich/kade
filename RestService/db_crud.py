@@ -271,7 +271,8 @@ class MovieDatabase:
         """
         return await self.fetch_objects_by_title("Country", name)
 
-    async def fetch_movies_by_properties(self, title: list = None, genre: list = None, start_year: int = 1940, end_year: int = 2024, rating_lower: int = 0, rating_upper: int = 10, actor: list = None, director: list = None, description: str = "", number_of_results: int = 10, distributor: list = None, writer: list = None, producer: list = None, composer: list = None, cinematographer: list = None, production_company: list = None):
+    async def fetch_movies_by_properties(self, title: list = None, genre: list = None, start_year: int = 1940, end_year: int = 2024, actor: list = None, director: list = None, description: str = "", number_of_results: int = 10, distributor: list = None, writer: list = None, producer: list = None, composer: list = None, cinematographer: list = None, production_company: list = None,
+                                         get_similar_movies=False):
         """
         Fetch movies by various properties from the SPARQL endpoint.
 
@@ -280,8 +281,6 @@ class MovieDatabase:
             genre (list, optional): The genres to search for. Defaults to None.
             start_year (int, optional): The start year to search for. Defaults to 1940.
             end_year (int, optional): The end year to search for. Defaults to 2024.
-            rating_lower (int, optional): The lower rating to search for. Defaults to 0.
-            rating_upper (int, optional): The upper rating to search for. Defaults to 10.
             actor (list, optional): The actors to search for. Defaults to None.
             director (list, optional): The directors to search for. Defaults to None.
             description (str, optional): The description to search for. Defaults to "".
@@ -292,6 +291,7 @@ class MovieDatabase:
             composer (list, optional): The composers to search for. Defaults to None.
             cinematographer (list, optional): The cinematographers to search for. Defaults to None.
             production_company (list, optional): The production companies to search for. Defaults to None.
+            get_similar_movies (bool, optional): Whether to fetch similar movies. Defaults to False.
 
         Returns:
             list: A list of dictionaries containing movie URIs and labels.
@@ -306,7 +306,8 @@ class MovieDatabase:
 
         return_data = []
 
-        if title: # if title is given fetch similar movies
+        if get_similar_movies and title: # if title is given fetch similar movies
+            logging.info("Fetching similar movies based on properties. - fetch_movies_by_properties")
             params = {
                 "title": title,
                 "genre": genre,
@@ -319,6 +320,7 @@ class MovieDatabase:
             return similar_movies
         else:  # fetch movies based on properties
             # Construct the SPARQL query
+            logging.info("Fetching movies based on properties. - fetch_movies_by_properties")
             query = """
             PREFIX dbo: <http://dbpedia.org/ontology/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -342,10 +344,13 @@ class MovieDatabase:
             add_filters(filters, 'cinematographer', cinematographer, 'dbo:cinematography')
             add_filters(filters, 'production_company', production_company, 'dbo:productionCompany')
 
-            if start_year:
-                filters.append(f'?movie dbo:releaseYear ?releaseYear . FILTER (?releaseYear >= {start_year})')
-            if end_year:
-                filters.append(f'?movie dbo:releaseYear ?releaseYear . FILTER (?releaseYear <= {end_year})')
+            if start_year or end_year:
+                # Add optional releaseYear filter
+                filters.append('OPTIONAL { ?movie dbo:releaseYear ?releaseYear . }')
+                if start_year:
+                    filters.append(f'FILTER (!BOUND(?releaseYear) || ?releaseYear >= "{start_year}"^^xsd:gYear)')
+                if end_year:
+                    filters.append(f'FILTER (!BOUND(?releaseYear) || ?releaseYear <= "{end_year}"^^xsd:gYear)')
 
             query += " ".join(filters)
             query += """
@@ -355,7 +360,7 @@ class MovieDatabase:
             LIMIT {number_of_results}
             """
 
-            logging.info(f"SPARQL query: {query}")
+            logging.info(f"SPARQL query: {query} - fetch_movies_by_properties")
             self.sparql.setQuery(query)
             self.sparql.setReturnFormat(JSON)
 
@@ -505,8 +510,10 @@ class MovieDatabase:
             if not self.is_connected():
                 logging.error("Failed to reconnect to the database.")
                 raise Exception("Failed to reconnect to the database.")
-       
-        title = params.get('title',None)
+        
+        title = params.get('title', None)
+        if type(title) == list:
+            title = title[0]
         genres = params.get('genres', [])
         actors = params.get('actors', [])
         director = params.get('director', None)
@@ -519,42 +526,38 @@ class MovieDatabase:
 
         SELECT ?movie
             (COUNT(?sharedProperty)  AS ?similarityScore)
-        WHERE{{
-           """
+        WHERE {{
+        """
         if title:
-            query += f""""
-             #target movie
-            BIND(dbr:{title.replace(' ','_')} AS ?targetMovie)
+            query += f"""
+            # target movie
+            BIND(dbr:{title.replace(' ', '_')} AS ?targetMovie)
 
-            #properties from target movie
+            # properties from target movie
             OPTIONAL {{ ?targetMovie dbo:genre ?targetGenre. }}
             OPTIONAL {{ ?targetMovie dbo:releaseYear ?targetYear. }}
             OPTIONAL {{ ?targetMovie dbo:starring ?targetActor. }}
             OPTIONAL {{ ?targetMovie dbo:director ?targetDirector. }}
-"""
-            query +=""""
-            #chech not the same movie
+
+            # check not the same movie
             ?movie a dbo:Film.
             FILTER(?movie != ?targetMovie)
-"""     #matching
-        if genres: 
-            genre_filters = "||".join([f"?movie dbo:genre <{genre}>" for genre in genres])
-        query +=f"OPTIONAL {{{genre_filters}}}"   
-
-        if actors: 
-            actor_filters = "||".join([f"?movie dbo:starring <{actor}>" for actor in actors])
-        query +=f"OPTIONAL {{{actor_filters}}}"            
-
-        if director: 
-            query += f"OPTIONAL {{?movie dbo:director <{director}>.}}"
-
-        if year:
-            query +=f"""
-            OPTIONAL{{
-                ?movie dbo:releaseYear ?movieYear.
-            }}
             """
-        query +=f"""
+        
+        # Add filters using the existing add_filters method
+        filters = []
+        if genres:
+            add_filters(filters, 'genre', genres, 'dbo:genre')
+        if actors:
+            add_filters(filters, 'actor', actors, 'dbo:starring')
+        if director:
+            add_filters(filters, 'director', [director], 'dbo:director')
+        if year:
+            filters.append(f'OPTIONAL {{ ?movie dbo:releaseYear ?movieYear . FILTER(?movieYear >= {year[0]} && ?movieYear <= {year[1]}) }}')
+
+        query += "\n".join(filters)
+        
+        query += f"""
         }}
         GROUP BY ?movie
         ORDER BY DESC(?similarityScore)
@@ -562,8 +565,8 @@ class MovieDatabase:
         """
         return query
     
-    def fetch_similar_movies(self, params):
-        query = self.generate_sparql_query(params)
+    async def fetch_similar_movies(self, params):
+        query = await self.generate_sparql_query(params)
         logging.info(f"SPARQL query: {query}")
         
         self.sparql.setQuery(query)
@@ -599,6 +602,8 @@ async def main():
     # Test fetching actors by name
     actors = await db.fetch_actors_by_name("Ali")
     print(f"Actors found: {len(actors)}")
+
+    results = await db.fetch_movies_by_properties(title=["shrek"], number_of_results=5000)
 
     #test fetching similar movies
     params = {

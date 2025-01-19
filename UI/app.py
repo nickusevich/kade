@@ -4,15 +4,14 @@ import dash
 from dash.exceptions import PreventUpdate
 from urllib.parse import urlencode, parse_qs
 import os
-# from RestService import MovieDatabase
 import json
 import asyncio
-# from RestService import db_crud
+from urllib.parse import quote
+
 
 # Initialize the app
 app = Dash(__name__, suppress_callback_exceptions=True)
 
-# movie_db = MovieDatabase()
 
 # Function to fetch dropdown options from REST API
 def get_options_from_api(endpoint):
@@ -36,13 +35,13 @@ if is_running_in_docker():
     REST_SERVICE_URI = "http://host.docker.internal:80"
 
 # Fetch initial options
-movies_options = get_options_from_api(f'{REST_SERVICE_URI}/movies')
+movies_options = get_options_from_api(f'{REST_SERVICE_URI}/movies?numberOfResults=500')
 director_options = get_options_from_api(f'{REST_SERVICE_URI}/directors')
 actor_options = get_options_from_api(f'{REST_SERVICE_URI}/actors')
 genre_options = get_options_from_api(f'{REST_SERVICE_URI}/genres')
 
 # Define the layout for the home page
-home_layout = html.Div([
+app.layout = html.Div([
     html.Div([
         html.H1("Movie Finder 🎥", className="main-title"),
         html.Div([
@@ -50,7 +49,7 @@ home_layout = html.Div([
             dcc.Dropdown(
                 id="film-title",
                 options=movies_options,
-                multi=True,
+                multi=False,
                 placeholder="Start typing to search for a title",
                 className="dropdown"
             ),
@@ -62,15 +61,25 @@ home_layout = html.Div([
                 placeholder="Select genres",
                 className="dropdown"
             ),
-            html.Label("Year Range:", className="label"),
-            dcc.RangeSlider(
-                id="year-range",
-                min=1924,
-                max=2024,
-                step=1,
-                value=[1924, 2024],
-                marks={i: str(i) for i in range(1924, 2025, 10)},
-            ),            
+            html.Div([
+                html.Label("Year Range:", className="label", style={"margin-right": "10px"}),
+                dcc.Checklist(
+                    id="enable-year-range",
+                    options=[{'label': '', 'value': 'enabled'}],
+                    value=['enabled'],
+                    className="checkbox",
+                    style={"margin-right": "10px"}
+                ),
+                dcc.RangeSlider(
+                    id="year-range",
+                    min=1924,
+                    max=2024,
+                    step=1,
+                    value=[1924, 2024],
+                    marks={i: str(i) for i in range(1924, 2025, 10)},
+                    className="range-slider"
+                ),
+            ], className="year-range-container", style={"display": "flex", "alignItems": "center"}),
             html.Label("Select Director:", className="label"),
             dcc.Dropdown(
                 id="director",
@@ -98,7 +107,7 @@ home_layout = html.Div([
                 id="number_of_results",
                 type="number",
                 min=1,
-                max=50,
+                max=100,
                 step=1,
                 value=10,
                 className="input"
@@ -110,38 +119,21 @@ home_layout = html.Div([
     html.Div(id="results-display", className="results-container")
 ], className="main-container")
 
-# Layout for the results page
-results_layout = html.Div([
-    html.H1("Results Page", className="main-title"),
-    html.Div(id="results-display"),
-    dcc.Link('Back to Search', href='/', className="back-link")
-])
 
-# Define the layout for the app (main entry point)
-app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),  # it is a component that allows you to manage the URL state in your Dash app.
-    # this is important for handling navigation between pages. the pathname of this component changes based on the URL in the browser.
-    dcc.Store(id='search-store', storage_type='memory'),  # it is a component used to store the search parameters in memory. This is where you will save the user's search parameters, which can then be accessed on the results page.
-    html.Div(id='page-content')
-])
-
-# Callback to update the page content based on the URL
+# Callback to enable/disable the RangeSlider
 @app.callback(
-    Output('page-content', 'children'),  # output is the page content itself
-    [Input('url', 'pathname')]  # Input as url, so below we have function, and based on URL it returns the layout
+    Output('year-range', 'disabled'),
+    [Input('enable-year-range', 'value')]
 )
-def display_page(pathname):
-    if pathname == '/results':
-        return results_layout
-    return home_layout
+def toggle_year_range(enable_year_range):
+    return 'enabled' not in enable_year_range
 
 # Combined callback for storing search parameters and displaying results
 @app.callback(
-    [Output('results-display', 'children'),
-     Output('url', 'pathname')],
-    [Input('search-btn', 'n_clicks'),
-     Input('search-store', 'data')],
+    Output('results-display', 'children'),
+    [Input('search-btn', 'n_clicks')],
     [State('film-title', 'value'),
+     State('enable-year-range', 'value'),
      State('year-range', 'value'),
      State('genres', 'value'),
      State('number_of_results', 'value'),
@@ -150,92 +142,53 @@ def display_page(pathname):
      State('plot-description', 'value')],
     prevent_initial_call=True
 )
-def handle_search_and_display(n_clicks, stored_data, film_title, year,
+def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
                               genres, number_of_results, actors, director, plot_description):
-    if ctx.triggered_id == 'search-btn':
-        if n_clicks == 0:
-            raise PreventUpdate
+    if n_clicks == 0:
+        raise PreventUpdate
 
-        # Check if any of the search parameters are filled in
-        if not any([film_title, year, genres, number_of_results, actors, director, plot_description]):
-            raise PreventUpdate  # Prevent the page from redirecting if no parameters are selected
+    # Check if any of the search parameters are filled in
+    if not any([film_title, year, genres, number_of_results, actors, director, plot_description]):
+        raise PreventUpdate  # Prevent the page from redirecting if no parameters are selected
 
-        params = {
-            'title': film_title,
-            'year_range': year,
-            'genres': genres,
-            'number_of_results': number_of_results,
-            'actors': actors,
-            'director': director,
-            # 'plot_description': plot_description
-        }
-        movies = requests.get(f'{REST_SERVICE_URI}/get_movies_details', params=params).json()
-        if not movies:
-            return html.Div("no similar movies are found."), '/results'
+    params = {
+        'title': film_title,
+        'year_range': year if 'enabled' in enable_year_range else None,
+        'genres': genres,
+        'number_of_results': number_of_results,
+        'actors': actors,
+        'director': director,
+        'description': plot_description
+    }
+    movies = requests.get(f'{REST_SERVICE_URI}/movies_details', params=params).json()
+    if not movies or ('detail' in movies and 'not found' in movies['detail'].lower()):
+        return html.Div("No similar movies are found.")
 
-        movie_results = [
-            html.Div([
-                html.H3(f"Title: {movie.get('title', 'N/A')}"),
-                #html.P(f"Abstract: {movie.get('abstract', 'N/A')}"),
-                html.P(f"Runtime: {movie.get('runtime', 'N/A')}"),
-                #html.P(f"Budget: {movie.get('budget', 'N/A')}"),
-                #html.P(f"Box Office: {movie.get('boxOffice', 'N/A')}"),
-                html.P(f"Release Year: {movie.get('releaseYear', 'N/A')}"),
-                html.P(f"Country: {movie.get('country', 'N/A')}"),
-                html.P(f"Genres: {movie.get('genres', 'N/A')}"),
-                html.P(f"Starring: {movie.get('starring', 'N/A')}"),
-                html.P(f"Directors: {movie.get('directors', 'N/A')}"),
-                #html.P(f"Producers: {movie.get('producers', 'N/A')}"),
-                #html.P(f"Writers: {movie.get('writers', 'N/A')}"),
-                #html.P(f"Composers: {movie.get('composers', 'N/A')}"),
-                #html.P(f"Cinematographers: {movie.get('cinematographers', 'N/A')}"),
-                html.P(f"Similarity Score: {movie.get('similarity_score', 'N/A')}")
-            ], className="movie-card")
-            for movie in movies
-        ]
-        return html.Div(movie_results, className="movie-results"), '/results'
-
-    elif ctx.triggered_id == 'search-store':
-        if not stored_data:
-            raise PreventUpdate
-
-        # Make the GET request to the FastAPI service
-        url = REST_SERVICE_URI + "/movies"
-        response = requests.get(url, params=stored_data)
-
-        # Check if the request was successful
-        extracted_movies = []
-        if response.status_code == 200:
-            # Print the response JSON
-            extracted_movies = response.json()
-        else:
-            # Print the error message
-            print(f"Failed to get movies: {response.status_code}, {response.text}")
-
-        # JSON
-        formatted_json = json.dumps(extracted_movies, indent=4)
-
-        # Showing results in JSON (extracted films)
-        return html.Div([
-            html.H2("Extracted JSON"),
-            html.Pre(formatted_json, className="json-output", style={
-                "backgroundColor": "#000000",
-                "padding": "10px",
-                "borderRadius": "5px",
-                "whiteSpace": "pre-wrap",
-                "wordBreak": "break-word",
-            })
-        ]), '/results'
+    movie_results = [
+        html.Div([
+            html.Div(f"{index + 1}", className="movie-index"),
+            html.H3(f"{movie.get('title', 'N/A')}"),
+            html.P([html.Span("Runtime: ", className="attribute-label"), html.Span(movie.get('runtime', 'N/A'), className="attribute-value")]) if 'runtime' in movie and movie['runtime'] not in [None, ''] else None,
+            html.P([html.Span("Release Year: ", className="attribute-label"), html.Span(movie.get('releaseYear', 'N/A'), className="attribute-value")]) if 'releaseYear' in movie and movie['releaseYear'] not in [None, ''] else None,
+            html.P([html.Span("Country: ", className="attribute-label"), html.Span(movie.get('country', 'N/A'), className="attribute-value")]) if 'country' in movie and movie['country'] not in [None, ''] else None,
+            html.P([html.Span("Genres: ", className="attribute-label"), html.Span(movie.get('genres', 'N/A'), className="attribute-value")], className="genres") if 'genres' in movie and movie['genres'] not in [None, ''] else None,
+            html.P([html.Span("Starring: ", className="attribute-label"), html.Span(movie.get('starring', 'N/A'), className="attribute-value")], className="starring") if 'starring' in movie and movie['starring'] not in [None, ''] else None,
+            html.P([html.Span("Directors: ", className="attribute-label"), html.Span(movie.get('directors', 'N/A'), className="attribute-value")], className="directors") if 'directors' in movie and movie['directors'] not in [None, ''] else None,
+            html.P([html.Span("Abstract: ", className="attribute-label"), html.Span(movie.get('abstract', 'N/A'), className="attribute-value")], className="abstract") if 'abstract' in movie and movie['abstract'] not in [None, ''] else None,
+            html.P([html.Span("Similarity Score: ", className="attribute-label"), html.Span(movie.get('similarity_score', 'N/A'), className="attribute-value")]) if 'similarity_score' in movie and movie['similarity_score'] not in [None, ''] else None
+        ], className="movie-card")
+        for index, movie in enumerate(movies)
+    ]
+    return html.Div(movie_results, className="movie-results")
 
 @callback(
     Output("film-title", "options"),
-    Input("film-title", "search_value"),
-    State("film-title", "value")
+    Input("film-title", "search_value")
 )
-def update_multi_options_film_title(search_value, value):
-    if not search_value:
-        return get_options_from_api(f'{REST_SERVICE_URI}/movies')
-    return get_options_from_api(f'{REST_SERVICE_URI}/movies?title={search_value}')
+def update_options_film_title(search_value):
+    encoded_search_value = quote(search_value) if search_value else ""
+    movies = get_options_from_api(f'{REST_SERVICE_URI}/movies?movieLabel={encoded_search_value}&numberOfResults=500')
+    return movies
 
 @callback(
     Output("genres", "options"),
@@ -268,5 +221,5 @@ def update_multi_options_actors(search_value, value):
     return get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={search_value}')
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0')
-    # app.run_server(debug=True)
+    # app.run_server(debug=True, host='0.0.0.0')
+    app.run_server(debug=True)

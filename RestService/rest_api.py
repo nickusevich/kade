@@ -53,40 +53,30 @@ async def root():
 
 @app.get('/movies')
 @cache(expire=300)
-async def get_movies_titles(title: Optional[List[str]] = Query(None, alias="movieLabel"),
-                            genre: Optional[List[str]] = Query(None, alias="genre"),
-                            actor: Optional[List[str]] = Query(None, alias="actor"),
-                            director: Optional[List[str]] = Query(None, alias="director"),
-                            distributor: Optional[List[str]] = Query(None, alias="distributor"),
-                            writer: Optional[List[str]] = Query(None, alias="writer"),
-                            producer: Optional[List[str]] = Query(None, alias="producer"),
-                            composer: Optional[List[str]] = Query(None, alias="composer"),
-                            cinematographer: Optional[List[str]] = Query(None, alias="cinematographer"),
-                            production_company: Optional[List[str]] = Query(None, alias="productionCompany"),
+async def get_movies_titles(title: Optional[List[str]] = Query(None, alias="movieLabel"), 
+                            number_of_results: Optional[int] = Query(None, alias="numberOfResults"),
                             redis_client: cache = Depends(get_redis_cache)):
     try:
         write_log(f"Getting movies with provided filters", "info")
+        
+        if number_of_results is None:  # set default number of results to 10 if not provided
+            number_of_results = 10
+        
         params = {
             "title": title,
-            "genre": genre,
-            "actor": actor,
-            "director": director,
-            "distributor": distributor,
-            "writer": writer,
-            "producer": producer,
-            "composer": composer,
-            "cinematographer": cinematographer,
-            "production_company": production_company
+            "number_of_results": number_of_results
         }
         filtered_params = {k: v for k, v in params.items() if v}
         
         # Generate a cache key based on the filtered parameters
-        var_name = "movie_" + "_".join(f"{k}_{'_'.join(v)}" for k, v in filtered_params.items())
+        var_name = "movie_details_" + "_".join(f"{k}_{'_'.join(v) if isinstance(v, list) else v}" for k, v in filtered_params.items())
         if (cached_answer := redis_client.get(var_name)) is not None:
             write_log(f"Found movie query in cache")
             return pickle.loads(cached_answer)
 
-        results = await movieDatabase.fetch_movies_by_properties(**params)
+        if isinstance(title, str):
+            title = [title]
+        results = await movieDatabase.fetch_movies_by_properties(title=title, number_of_results=number_of_results)
         
         redis_client.set(var_name, pickle.dumps(results))
         write_log(f"Written movie query into cache")
@@ -98,17 +88,14 @@ async def get_movies_titles(title: Optional[List[str]] = Query(None, alias="movi
 
 @app.get('/movies_details')
 @cache(expire=300)
-async def get_movies_details(movie: Optional[List[str]] = Query(None, alias="movie"),
-                            title: Optional[List[str]] = Query(None, alias="movieLabel"),
+async def get_movies_details(title: Optional[List[str]] = Query(None, alias="movieLabel"),
                             genre: Optional[List[str]] = Query(None, alias="genre"),
                             start_year: Optional[int] = Query(None, alias="startYear"),
                             end_year: Optional[int] = Query(None, alias="endYear"),
-                            ratiing_lower: Optional[float] = Query(None, alias="ratingLower"),
-                            rating_upper: Optional[float] = Query(None, alias="ratingUpper"),
                             actor: Optional[List[str]] = Query(None, alias="actor"),
                             director: Optional[List[str]] = Query(None, alias="director"),                            
                             description: Optional[str] = Query(None, alias="description"),
-                            number_of_results: Optional[int] = Query(None, alias="numberOfResults"),
+                            number_of_results: Optional[int] = Query(None, alias="number_of_results"),
                             distributor: Optional[List[str]] = Query(None, alias="distributor"),
                             writer: Optional[List[str]] = Query(None, alias="writer"),
                             producer: Optional[List[str]] = Query(None, alias="producer"),
@@ -119,17 +106,15 @@ async def get_movies_details(movie: Optional[List[str]] = Query(None, alias="mov
     try:
         write_log(f"Getting movies details with provided filters", "info")
 
-        if not number_of_results: # set default number of results to 10
+        if number_of_results is None:  # set default number of results to 10 if not provided
             number_of_results = 10
         movie_details = []
         params = {
-            "movie": movie,
+            # "movie": movie,
             "title": title,
             "genre": genre,
             "start_year": start_year,
             "end_year": end_year,
-            "rating_lower": ratiing_lower,
-            "rating_upper": rating_upper,
             "actor": actor,
             "director": director,
             "description": description,
@@ -144,14 +129,16 @@ async def get_movies_details(movie: Optional[List[str]] = Query(None, alias="mov
         filtered_params = {k: v for k, v in params.items() if v}
         
         # Generate a cache key based on the filtered parameters
-        var_name = "movie_details_" + "_".join(f"{k}_{'_'.join(v)}" for k, v in filtered_params.items())
+        var_name = "movie_details_" + "_".join(f"{k}_{'_'.join(v) if isinstance(v, list) else v}" for k, v in filtered_params.items())
         if (cached_answer := redis_client.get(var_name)) is not None:
             write_log(f"Found movie query in cache")
             return pickle.loads(cached_answer)
         
         if title: # get similar movies
+            write_log(f"Getting similar movies for {title} calling fetch_similar_movies", "info")
             movies = await movieDatabase.fetch_similar_movies(**params)
         else: # get movies with provided filters
+            write_log(f"Getting movies with provided filters, calling fetch_movies_by_properties", "info")
             movies = await movieDatabase.fetch_movies_by_properties(**params)
         
         if movies:

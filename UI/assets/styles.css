@@ -12,13 +12,6 @@ body {
     padding: 10px;
 }
 
-/* Main title styling */
-.main-title {
-    font-size: 1.5em; /* Adjust the font size */
-    margin: 10px 0; /* Adjust the margins */
-    text-align: center;
-}
-
 /* Filters container */
 .filters-container {
     width: 30%;
@@ -40,6 +33,13 @@ body {
     white-space: nowrap;
 }
 
+/* Main title styling */
+.main-title {
+    font-size: 1.5em; /* Adjust the font size */
+    margin: 10px 0; /* Adjust the margins */
+    text-align: center;
+}
+
 /* Movie card styling */
 .movie-card {
     display: inline-block;
@@ -48,8 +48,37 @@ body {
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    width: 250px;
+    width: 350px;
+    height: 500px;
     background-color: #2d2d2d;
+    overflow: hidden; /* Ensure content is contained within the card */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+    overflow-y: auto; /* Allow vertical scrolling */
+    position: relative; /* Position relative for the index */
+}
+
+/* Movie index styling */
+.movie-card .movie-index {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: #FFD700;
+    color: #000;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+/* Movie title styling */
+.movie-card h3 {
+    color: #FFD700; /* Different color for the title */
+    text-align: center; /* Center the title */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal; /* Allow text to wrap */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
 }
 
 /* Form layout fixes */
@@ -139,6 +168,10 @@ body {
     background: #FFD700;
 }
 
+.range-slider{
+    width: 100%;
+}
+
 /* Results Page (Adjusting for minimal styling) */
 #results-display {
     padding: 10px;
@@ -160,18 +193,24 @@ body {
 .back-link:hover {
     text-decoration: underline;
 }
-.movie-box{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    padding: 10px;
-    justify-content: space-around;
+
+/* Specific styling for Abstract and Starring fields */
+.movie-card p.abstract, .movie-card p.starring, .movie-card p.directors, .movie-card p.genres {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal; /* Allow text to wrap */
+    display: -webkit-box;
+    -webkit-line-clamp: 200; /* Limit to 10 lines */
+    -webkit-box-orient: vertical;
 }
-.result-box{
-    background-color: bisque;
-    border: 2px solid black;
-    border-radius: 15px;
-    width: 250px;
-    padding: 10px;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+
+/* Attribute label styling */
+.movie-card .attribute-label {
+    font-weight: bold; /* Make attribute labels bold */
+    color: #FFC107; /* Different color for attribute labels */
+}
+
+/* Attribute value styling */
+.movie-card .attribute-value {
+    color: #e0e0e0; /* Keep attribute values white */
 }
