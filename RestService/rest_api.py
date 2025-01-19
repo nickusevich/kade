@@ -83,10 +83,10 @@ async def get_movies_titles(title: Optional[str] = Query(None, alias="movieLabel
 @app.get('/movies_details')
 @cache(expire=300)
 async def get_movies_details(title: Optional[List[str]] = Query(None, alias="movieLabel"),
-                            genre: Optional[List[str]] = Query(None, alias="genre"),
+                            genre: Optional[List[str]] = Query(None, alias="genres"),
                             start_year: Optional[int] = Query(None, alias="startYear"),
                             end_year: Optional[int] = Query(None, alias="endYear"),
-                            actor: Optional[List[str]] = Query(None, alias="actor"),
+                            actor: Optional[List[str]] = Query(None, alias="actors"),
                             director: Optional[List[str]] = Query(None, alias="director"),                            
                             description: Optional[str] = Query(None, alias="description"),
                             number_of_results: Optional[int] = Query(None, alias="number_of_results"),
@@ -96,6 +96,7 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
                             composer: Optional[List[str]] = Query(None, alias="composer"),
                             cinematographer: Optional[List[str]] = Query(None, alias="cinematographer"),
                             production_company: Optional[List[str]] = Query(None, alias="productionCompany"),
+                            get_similar_movies: Optional[bool] = Query(False, alias="getSimilarMovies"),
                             redis_client: cache = Depends(get_redis_cache)):
     try:
         write_log(f"Getting movies details with provided filters", "info")
@@ -118,7 +119,8 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
             "producer": producer,
             "composer": composer,
             "cinematographer": cinematographer,
-            "production_company": production_company
+            "production_company": production_company,
+            "get_similar_movies": get_similar_movies
         }
         filtered_params = {k: v for k, v in params.items() if v}
         
