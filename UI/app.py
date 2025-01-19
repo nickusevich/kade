@@ -165,7 +165,7 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
         'getSimilarMovies': True if film_title else False
     }
     movies = requests.get(f'{REST_SERVICE_URI}/movies_details', params=params).json()
-    if not movies:
+    if not movies or ('detail' in movies):
         if len(movies) == 0 or ('detail' in movies and 'not found' in movies['detail'].lower()):
             return html.Div("No movies were found.")
         else:
