@@ -507,77 +507,143 @@ class MovieDatabase:
         return list(unique_movies.values())
     
 
-    async def generate_sparql_query(self, params):
-        """
-        fetch movies similar to the target movie based on genre/release year/actors/directors
+    # async def generate_sparql_query(self, params):
+    #     """
+    #     fetch movies similar to the target movie based on genre/release year/actors/directors
 
-        Returns:
-        list of dicts containing movie URIs and similarity score (similarity score is descending, the movie with highest score has more common properties with the target)
-        """
-        return_data = []
+    #     Returns:
+    #     list of dicts containing movie URIs and similarity score (similarity score is descending, the movie with highest score has more common properties with the target)
+    #     """
+    #     return_data = []
 
-        # Check if connected to the database
-        if not self.is_connected():
-            logging.info("Not connected to the database. Attempting to reconnect.")
-            self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
-            if not self.is_connected():
-                logging.error("Failed to reconnect to the database.")
-                raise Exception("Failed to reconnect to the database.")
+    #     # Check if connected to the database
+    #     if not self.is_connected():
+    #         logging.info("Not connected to the database. Attempting to reconnect.")
+    #         self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
+    #         if not self.is_connected():
+    #             logging.error("Failed to reconnect to the database.")
+    #             raise Exception("Failed to reconnect to the database.")
         
-        title = params.get('title', None)
-        if type(title) == list:
-            title = title[0]
-        genres = params.get('genres', [])
-        actors = params.get('actors', [])
-        director = params.get('director', None)
-        year = params.get('year_range', None)
-        limit = params.get('number_of_results', 10)
+    #     title = params.get('title', None)
+    #     if type(title) == list:
+    #         title = title[0]
+    #     genres = params.get('genres', [])
+    #     actors = params.get('actors', [])
+    #     director = params.get('director', None)
+    #     year = params.get('year_range', None)
+    #     limit = params.get('number_of_results', 10)
 
+    #     query = f"""
+    #     PREFIX dbo: <http://dbpedia.org/ontology/>
+    #     PREFIX dbr: <http://dbpedia.org/resource/>
+
+    #     SELECT ?movie
+    #         (COUNT(?sharedProperty)  AS ?similarityScore)
+    #     WHERE {{
+    #     """
+    #     if title:
+    #         query += f"""
+    #         # target movie
+    #         BIND(dbr:{title.replace(' ', '_')} AS ?targetMovie)
+
+    #         # properties from target movie
+    #         OPTIONAL {{ ?targetMovie dbo:genre ?targetGenre. }}
+    #         OPTIONAL {{ ?targetMovie dbo:releaseYear ?targetYear. }}
+    #         OPTIONAL {{ ?targetMovie dbo:starring ?targetActor. }}
+    #         OPTIONAL {{ ?targetMovie dbo:director ?targetDirector. }}
+
+    #         # check not the same movie
+    #         ?movie a dbo:Film.
+    #         FILTER(?movie != ?targetMovie)
+    #         FILTER(?similarityScore > 0)
+    #         """
+        
+    #     # Add filters using the existing add_filters method
+    #     # filters = []
+    #     # if genres:
+    #     #     add_filters(filters, 'genre', genres, 'dbo:genre')
+    #     # if actors:
+    #     #     add_filters(filters, 'actor', actors, 'dbo:starring')
+    #     # if director:
+    #     #     add_filters(filters, 'director', [director], 'dbo:director')
+    #     # if year is not None and len(year) == 2 and year[0] is not None and year[1] is not None:
+    #     #     filters.append(f'OPTIONAL {{ ?movie dbo:releaseYear ?movieYear . FILTER(?movieYear >= {year[0]} && ?movieYear <= {year[1]}) }}')
+
+    #     # query += "\n".join(filters)
+        
+    #     query += f"""
+    #     }}
+    #     GROUP BY ?movie
+    #     ORDER BY DESC(?similarityScore)
+    #     LIMIT {limit}
+    #     """
+    #     return query
+
+    async def generate_sparql_query(self, params):
+        title = params.get('title')
+        start_year = params.get('start_year', 1940)
+        end_year = params.get('end_year', 2024)
+        number_of_results = params.get('number_of_results', 10)
+
+        if isinstance(title, list):
+            title = title[0]
+
+        # Ensure the title is properly formatted for SPARQL
+        formatted_title = title.replace(' ', '_')
+
+        # Construct the SPARQL query
         query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX dbr: <http://dbpedia.org/resource/>
 
-        SELECT ?movie
-            (COUNT(?sharedProperty)  AS ?similarityScore)
+        SELECT DISTINCT ?movie ?title ?similarityScore
         WHERE {{
-        """
-        if title:
-            query += f"""
-            # target movie
-            BIND(dbr:{title.replace(' ', '_')} AS ?targetMovie)
+            # Explicitly set the target movie
+            BIND(dbr:{formatted_title} AS ?targetMovie)
 
-            # properties from target movie
-            OPTIONAL {{ ?targetMovie dbo:genre ?targetGenre. }}
-            OPTIONAL {{ ?targetMovie dbo:releaseYear ?targetYear. }}
-            OPTIONAL {{ ?targetMovie dbo:starring ?targetActor. }}
-            OPTIONAL {{ ?targetMovie dbo:director ?targetDirector. }}
+            # Retrieve movies linked to the given movie entity
+            ?movie rdf:type dbo:Film ;
+                rdfs:label ?title .
 
-            # check not the same movie
-            ?movie a dbo:Film.
-            FILTER(?movie != ?targetMovie)
-            FILTER(?similarityScore > 0)
-            """
-        
-        # Add filters using the existing add_filters method
-        filters = []
-        if genres:
-            add_filters(filters, 'genre', genres, 'dbo:genre')
-        if actors:
-            add_filters(filters, 'actor', actors, 'dbo:starring')
-        if director:
-            add_filters(filters, 'director', [director], 'dbo:director')
-        if year is not None and len(year) == 2 and year[0] is not None and year[1] is not None:
-            filters.append(f'OPTIONAL {{ ?movie dbo:releaseYear ?movieYear . FILTER(?movieYear >= {year[0]} && ?movieYear <= {year[1]}) }}')
+            # Criteria for relatedness: shared properties
+            OPTIONAL {{
+                ?movie dbo:genre ?genre .
+                ?targetMovie dbo:genre ?genre .
+                BIND(10 AS ?genreWeight)
+            }}
+            OPTIONAL {{
+                ?movie dbo:releaseYear ?movieYear .
+                ?targetMovie dbo:releaseYear ?targetYear .
+                FILTER(?movieYear >= {start_year} && ?movieYear <= {end_year})
+                BIND(8 AS ?releaseYearWeight)
+            }}
+            OPTIONAL {{
+                ?movie dbo:starring ?actor .
+                ?targetMovie dbo:starring ?actor .
+                BIND(6 AS ?actorWeight)
+            }}
+            OPTIONAL {{
+                ?movie dbo:director ?director .
+                ?targetMovie dbo:director ?director .
+                BIND(5 AS ?directorWeight)
+            }}
 
-        query += "\n".join(filters)
-        
-        query += f"""
+            # Sum up the weights as relevance score
+            BIND(COALESCE(?genreWeight, 0) +
+                COALESCE(?releaseYearWeight, 0) +
+                COALESCE(?actorWeight, 0) +
+                COALESCE(?directorWeight, 0) AS ?similarityScore)
+
+            # Filters: Exclude the target movie from results
+            FILTER (?movie != ?targetMovie)
         }}
-        GROUP BY ?movie
+        GROUP BY ?movie ?title ?similarityScore
+        HAVING (?similarityScore > 0) # Keep only movies with a positive relevance score
         ORDER BY DESC(?similarityScore)
-        LIMIT {limit}
+        LIMIT {number_of_results}
         """
         return query
+
     
     async def fetch_similar_movies(self, params):
         query = await self.generate_sparql_query(params)
@@ -594,6 +660,7 @@ class MovieDatabase:
                 return_data = [
                     {
                         "object_uri": result["movie"]["value"],
+                        "label": result["title"]["value"],
                         "similarity_score": result["similarityScore"]["value"]
                     }
                     for result in results["results"]["bindings"]
@@ -613,8 +680,26 @@ async def main():
     """
     db = MovieDatabase()
 
-    # movies = await db.fetch_movies_by_properties(start_year=2000, end_year=2020, number_of_results=10)
-    # movies = await db.fetch_movies_by_properties(title=["Shrek"], get_similar_movies=True)
+    params = {'title': ['Shrek'], 'start_year': None, 'end_year': None, 'genre': None, 'number_of_results': 10, 'actor': None, 'director': None, 'description': None, 'get_similar_movies': True}
+    
+    from urllib.parse import unquote 
+    decoded_params = {}
+    for k, v in params.items():
+        if isinstance(v, str):
+            decoded_params[k] = unquote(v)
+        elif isinstance(v, list):
+            decoded_params[k] = [unquote(i) for i in v]
+        else:
+            decoded_params[k] = v
+
+    filtered_params = {k: v for k, v in params.items() if v}
+        
+    # Generate a cache key based on the filtered parameters
+    var_name = "movie_details_" + "_".join(f"{k}_{'_'.join(v) if isinstance(v, list) else v}" for k, v in filtered_params.items())
+    
+    movies = await db.fetch_movies_by_properties(**params)
+    movie_details = await db.fetch_movies_details(movies)
+    movies = await db.fetch_movies_by_properties(title=["Shrek"], get_similar_movies=True)
 
     # Test fetching actors by name
     actors = await db.fetch_actors_by_name("Lauren Graham")

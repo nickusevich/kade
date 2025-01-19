@@ -132,7 +132,15 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
             return pickle.loads(cached_answer)
         
         # Decode relevant parameters
-        decoded_params = {k: (unquote(v) if isinstance(v, str) else [unquote(i) for i in v]) for k, v in params.items() if v}
+        decoded_params = {}
+        for k, v in params.items():
+            if isinstance(v, str):
+                decoded_params[k] = unquote(v)
+            elif isinstance(v, list):
+                decoded_params[k] = [unquote(i) for i in v]
+            else:
+                decoded_params[k] = v
+
         
         if title: # get similar movies
             write_log(f"Getting similar movies for {title} calling fetch_similar_movies", "info")
