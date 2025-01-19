@@ -53,18 +53,12 @@ async def root():
 
 @app.get('/movies')
 @cache(expire=300)
-async def get_movies_titles(title: Optional[List[str]] = Query(None, alias="movieLabel"), 
-                            number_of_results: Optional[int] = Query(None, alias="numberOfResults"),
+async def get_movies_titles(title: Optional[str] = Query(None, alias="movieLabel"), 
                             redis_client: cache = Depends(get_redis_cache)):
     try:
-        write_log(f"Getting movies with provided filters", "info")
-        
-        if number_of_results is None:  # set default number of results to 10 if not provided
-            number_of_results = 10
-        
+        write_log(f"Getting movies with provided filters", "info")        
         params = {
-            "title": title,
-            "number_of_results": number_of_results
+            "title": title
         }
         filtered_params = {k: v for k, v in params.items() if v}
         
@@ -76,7 +70,7 @@ async def get_movies_titles(title: Optional[List[str]] = Query(None, alias="movi
 
         if isinstance(title, str):
             title = [title]
-        results = await movieDatabase.fetch_movies_by_properties(title=title, number_of_results=number_of_results)
+        results = await movieDatabase.fetch_movies_by_name(title=title)
         
         redis_client.set(var_name, pickle.dumps(results))
         write_log(f"Written movie query into cache")

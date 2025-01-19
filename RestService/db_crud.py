@@ -139,17 +139,17 @@ class MovieDatabase:
 
         return return_data
 
-    async def fetch_movies_by_name(self, title: str = None):
-        """
-        Fetch movies by title from the SPARQL endpoint.
+    # async def fetch_movies_by_name(self, title: str = None):
+    #     """
+    #     Fetch movies by title from the SPARQL endpoint.
 
-        Args:
-            title (str, optional): The title to search for. Defaults to None.
+    #     Args:
+    #         title (str, optional): The title to search for. Defaults to None.
 
-        Returns:
-            list: A list of dictionaries containing movie URIs and labels.
-        """
-        return await self.fetch_objects_by_title("Film", title)
+    #     Returns:
+    #         list: A list of dictionaries containing movie URIs and labels.
+    #     """
+    #     return await self.fetch_objects_by_title("Film", title)
     
     async def fetch_genres_by_name(self, title: str = None):
         """
@@ -270,6 +270,18 @@ class MovieDatabase:
             list: A list of dictionaries containing country URIs and labels.
         """
         return await self.fetch_objects_by_title("Country", name)
+    
+    async def fetch_movies_by_name(self, title: str = None):
+        """
+        Fetch movies by title from the SPARQL endpoint.
+        
+        Args:
+            title (str, optional): The title to search for. Defaults to None.
+    
+        Returns:
+            list: A list of dictionaries containing movie URIs and labels.
+        """
+        return await self.fetch_objects_by_title("Film", title)
 
     async def fetch_movies_by_properties(self, title: list = None, genre: list = None, start_year: int = 1940, end_year: int = 2024, actor: list = None, director: list = None, description: str = "", number_of_results: int = 10, distributor: list = None, writer: list = None, producer: list = None, composer: list = None, cinematographer: list = None, production_company: list = None,
                                          get_similar_movies=False):
@@ -343,6 +355,8 @@ class MovieDatabase:
             add_filters(filters, 'composer', composer, 'dbo:musicComposer')
             add_filters(filters, 'cinematographer', cinematographer, 'dbo:cinematography')
             add_filters(filters, 'production_company', production_company, 'dbo:productionCompany')
+
+            # Nikita we need to add the description filter logic here
 
             if start_year or end_year:
                 if start_year:
@@ -596,6 +610,8 @@ async def main():
     Main function to test the MovieDatabase class methods.
     """
     db = MovieDatabase()
+
+    movies = await db.fetch_movies_by_name()
 
     # Test fetching actors by name
     actors = await db.fetch_actors_by_name("Ali")

@@ -2,16 +2,11 @@ from dash import Dash, html, dcc, Input, Output, State, callback, ctx
 import requests
 import dash
 from dash.exceptions import PreventUpdate
-from urllib.parse import urlencode, parse_qs
+from urllib.parse import urlencode, parse_qs, quote
 import os
-import json
-import asyncio
-from urllib.parse import quote
-
 
 # Initialize the app
 app = Dash(__name__, suppress_callback_exceptions=True)
-
 
 # Function to fetch dropdown options from REST API
 def get_options_from_api(endpoint):
@@ -35,7 +30,7 @@ if is_running_in_docker():
     REST_SERVICE_URI = "http://host.docker.internal:80"
 
 # Fetch initial options
-movies_options = get_options_from_api(f'{REST_SERVICE_URI}/movies?numberOfResults=500')
+movies_options = get_options_from_api(f'{REST_SERVICE_URI}/movies')
 director_options = get_options_from_api(f'{REST_SERVICE_URI}/directors')
 actor_options = get_options_from_api(f'{REST_SERVICE_URI}/actors')
 genre_options = get_options_from_api(f'{REST_SERVICE_URI}/genres')
@@ -62,14 +57,14 @@ app.layout = html.Div([
                 className="dropdown"
             ),
             html.Div([
-                html.Label("Year Range:", className="label", style={"margin-right": "10px"}),
                 dcc.Checklist(
                     id="enable-year-range",
-                    options=[{'label': '', 'value': 'enabled'}],
+                    options=[{'label': 'Enable Year Range', 'value': 'enabled'}],
                     value=['enabled'],
                     className="checkbox",
                     style={"margin-right": "10px"}
                 ),
+                html.Label("Year Range:", className="label", style={"margin-right": "10px"}),
                 dcc.RangeSlider(
                     id="year-range",
                     min=1924,
@@ -119,7 +114,6 @@ app.layout = html.Div([
     html.Div(id="results-display", className="results-container")
 ], className="main-container")
 
-
 # Callback to enable/disable the RangeSlider
 @app.callback(
     Output('year-range', 'disabled'),
@@ -148,18 +142,19 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
         raise PreventUpdate
 
     # Check if any of the search parameters are filled in
-    if not any([film_title, year, genres, number_of_results, actors, director, plot_description]):
+    if not any([film_title, genres, number_of_results, actors, director, plot_description]) and not ('enabled' in enable_year_range and year):
         raise PreventUpdate  # Prevent the page from redirecting if no parameters are selected
 
     params = {
-        'title': film_title,
-        'start_year': year[0] if 'enabled' in enable_year_range else None,
-        'end_year': year[1] if 'enabled' in enable_year_range else None,
+        'title': [film_title] if film_title else None,
+        'start_year': year[0] if 'enabled' in enable_year_range else 1940,
+        'end_year': year[1] if 'enabled' in enable_year_range else 2024,
         'genres': genres,
         'number_of_results': number_of_results,
         'actors': actors,
         'director': director,
-        'description': plot_description
+        'description': plot_description,
+        'getSimilarMovies': True if film_title else False
     }
     movies = requests.get(f'{REST_SERVICE_URI}/movies_details', params=params).json()
     if not movies or ('detail' in movies and 'not found' in movies['detail'].lower()):
@@ -182,14 +177,24 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
     ]
     return html.Div(movie_results, className="movie-results")
 
-@callback(
-    Output("film-title", "options"),
-    Input("film-title", "search_value")
-)
-def update_options_film_title(search_value):
-    encoded_search_value = quote(search_value) if search_value else ""
-    movies = get_options_from_api(f'{REST_SERVICE_URI}/movies?movieLabel={encoded_search_value}&numberOfResults=500')
-    return movies
+# @callback(
+#     Output("film-title", "options"),
+#     [Input("film-title", "search_value"),
+#      State("film-title", "value")]
+# )
+# def update_options_film_title(search_value, current_value):
+#     if search_value is None or search_value == "":
+#         movies = get_options_from_api(f'{REST_SERVICE_URI}/movies')
+#     else:
+#         encoded_search_value = quote(search_value) 
+#         movies = get_options_from_api(f'{REST_SERVICE_URI}/movies?movieLabel={encoded_search_value}')
+    
+    
+#     # Ensure the current value is included in the options
+#     if current_value and current_value not in [movie['value'] for movie in movies]:
+#         movies.append({"label": current_value, "value": current_value})
+    
+#     return movies
 
 @callback(
     Output("genres", "options"),
@@ -222,5 +227,5 @@ def update_multi_options_actors(search_value, value):
     return get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={search_value}')
 
 if __name__ == '__main__':
-    # app.run_server(debug=True, host='0.0.0.0')
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0')
+    # app.run_server(debug=True)
