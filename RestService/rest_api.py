@@ -64,13 +64,11 @@ async def get_movies_titles(title: Optional[str] = Query(None, alias="movieLabel
         filtered_params = {k: v for k, v in params.items() if v}
         
         # Generate a cache key based on the filtered parameters
-        var_name = "movie_details_" + "_".join(f"{k}_{'_'.join(v) if isinstance(v, list) else v}" for k, v in filtered_params.items())
+        var_name = "movies" + "_".join(f"{k}_{'_'.join(v) if isinstance(v, list) else v}" for k, v in filtered_params.items())
         if (cached_answer := redis_client.get(var_name)) is not None:
             write_log(f"Found movie query in cache")
             return pickle.loads(cached_answer)
 
-        if isinstance(title, str):
-            title = [title]
         results = await movieDatabase.fetch_movies_by_name(title=title)
         
         redis_client.set(var_name, pickle.dumps(results))
@@ -84,6 +82,7 @@ async def get_movies_titles(title: Optional[str] = Query(None, alias="movieLabel
 @app.get('/movies_details')
 @cache(expire=300)
 async def get_movies_details(title: Optional[List[str]] = Query(None, alias="movieLabel"),
+                            movie_uri: Optional[List[str]] = Query(None, alias="movieUri"),
                             genre: Optional[List[str]] = Query(None, alias="genres"),
                             start_year: Optional[int] = Query(None, alias="startYear"),
                             end_year: Optional[int] = Query(None, alias="endYear"),
@@ -104,10 +103,11 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
 
         if number_of_results is None:  # set default number of results to 10 if not provided
             number_of_results = 10
-        movie_details = []
+        movies_details = []
         params = {
             # "movie": movie,
             "title": title,
+            "movie_uri": movie_uri,
             "genre": genre,
             "start_year": start_year,
             "end_year": end_year,
@@ -126,7 +126,7 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
         filtered_params = {k: v for k, v in params.items() if v}
         
         # Generate a cache key based on the filtered parameters
-        var_name = "movie_details_" + "_".join(f"{k}_{'_'.join(v) if isinstance(v, list) else v}" for k, v in filtered_params.items())
+        var_name = "movies_details_" + "_".join(f"{k}_{'_'.join(v) if isinstance(v, list) else v}" for k, v in filtered_params.items())
         if (cached_answer := redis_client.get(var_name)) is not None:
             write_log(f"Found movie query in cache")
             return pickle.loads(cached_answer)
@@ -148,17 +148,24 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
         else: # get movies with provided filters
             write_log(f"Getting movies with provided filters, calling fetch_movies_by_properties", "info")
             movies = await movieDatabase.fetch_movies_by_properties(**decoded_params)
-        
+
         if movies:
-            movie_details = await movieDatabase.fetch_movies_details(movies)
+            movies_details = await movieDatabase.fetch_movies_details(movies)
+            
+            if movies_details and title and get_similar_movies:
+                # Copy similarity_score from movies to movies_details if it exists
+                for movie_detail in movies_details:
+                    for movie in movies:
+                        if movie_detail['movie'] == movie['object_uri'] and 'similarity_score' in movie:
+                            movie_detail['similarity_score'] = movie['similarity_score']
         
-        redis_client.set(var_name, pickle.dumps(movie_details))
+        redis_client.set(var_name, pickle.dumps(movies_details))
         write_log(f"Written movie query into cache")
     except Exception as e:
         print(f"Error executing query: {e}")
         raise HTTPException(status_code=500, detail=f"The following error occurred during the operation: {str(e)}")
 
-    return movie_details
+    return movies_details
 
 @app.get('/genres')
 @cache(expire=300)

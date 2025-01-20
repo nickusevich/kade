@@ -76,9 +76,9 @@ body {
 /* Similarity score styling */
 .movie-card .similarity-score {
     position: absolute;
-    top: 5px;
+    bottom: 5px;
     right: 5px;
-    background-color: #FFD700;
+    background-color: #0082e1ad;
     color: #000;
     padding: 2px 5px;
     border-radius: 3px;

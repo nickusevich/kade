@@ -161,6 +161,9 @@ def setup_environment(ttl_file_path):
     CLEAR_CACHE_REST_SERVICE = "http://localhost:80/clear_cache"
     if not wait_for_service(CLEAR_CACHE_REST_SERVICE):
         return
+    PING_REST_SERVICE = "http://localhost:80/genres"
+    if not wait_for_service(PING_REST_SERVICE):
+        return
     print("Creating the UI container...")
     subprocess.run(["docker-compose", "-f", "./UI/ui.yml", "up", "-d", "--build"])
 

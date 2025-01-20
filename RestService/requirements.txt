@@ -8,3 +8,4 @@ redis
 requests
 pandas
 asyncio
+sklearn

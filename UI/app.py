@@ -2,20 +2,33 @@ from dash import Dash, html, dcc, Input, Output, State, callback, ctx
 import requests
 import dash
 from dash.exceptions import PreventUpdate
-from urllib.parse import urlencode, parse_qs, quote
+from urllib.parse import urlencode, parse_qs, quote, unquote
 import os
+import logging
+import time
+
+logging.basicConfig(level=logging.INFO)
 
 # Initialize the app
 app = Dash(__name__, suppress_callback_exceptions=True)
 
 # Function to fetch dropdown options from REST API
-def get_options_from_api(endpoint):
-    response = requests.get(endpoint)
-    if response.status_code == 200:
-        data = response.json()
-        return [{"label": item["label"], "value": item["label"]} for item in data]
-    else:
-        return []
+def get_options_from_api(endpoint, retries=5, wait=5):
+    for attempt in range(retries):
+        try:
+            logging.info(f"Fetching options from API: {endpoint} (attempt {attempt + 1}/{retries})")
+            response = requests.get(endpoint)
+            response.raise_for_status()
+            data = response.json()
+            if data:
+                logging.info(f"Successfully fetched options from API: {endpoint}")
+                return [{"label": item["label"], "value": item["label"]} for item in data], {item["label"]: item["object_uri"] for item in data}
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error fetching options from API (attempt {attempt + 1}/{retries}): {e}")
+            if attempt < retries - 1:
+                time.sleep(wait)
+    logging.error(f"Failed to fetch options from API after {retries} attempts: {endpoint}")
+    return [], {}
 
 def is_running_in_docker():
     """Check if the code is running inside a Docker container."""
@@ -30,10 +43,11 @@ if is_running_in_docker():
     REST_SERVICE_URI = "http://host.docker.internal:80"
 
 # Fetch initial options
-movies_options = get_options_from_api(f'{REST_SERVICE_URI}/movies')
-director_options = get_options_from_api(f'{REST_SERVICE_URI}/directors')
-actor_options = get_options_from_api(f'{REST_SERVICE_URI}/actors')
-genre_options = get_options_from_api(f'{REST_SERVICE_URI}/genres')
+logging.info("Fetching initial options for dropdowns")
+movies_options, movies_uri_mapping = get_options_from_api(f'{REST_SERVICE_URI}/movies')
+director_options, _ = get_options_from_api(f'{REST_SERVICE_URI}/directors')
+actor_options, _ = get_options_from_api(f'{REST_SERVICE_URI}/actors')
+genre_options, _ = get_options_from_api(f'{REST_SERVICE_URI}/genres')
 
 # Define the layout for the home page
 app.layout = html.Div([
@@ -147,14 +161,16 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
     if n_clicks == 0:
         raise PreventUpdate
 
+    # Look up the object_uri from movies_uri_mapping based on the selected film title
+    film_uri = movies_uri_mapping.get(film_title)
+
     # Check if any of the search parameters are filled in
-    if not any([film_title, genres, number_of_results, actors, director, plot_description]) and not ('enabled' in enable_year_range and year):
+    if not any([film_uri, genres, number_of_results, actors, director, plot_description]) and not ('enabled' in enable_year_range and year):
         raise PreventUpdate  # Prevent the page from redirecting if no parameters are selected
-
-
 
     params = {
         'movieLabel': [quote(film_title)] if film_title else None,
+        'movieUri': [quote(film_uri)] if film_uri else None,
         'startYear': year[0] if 'enabled' in enable_year_range else None,
         'endYear': year[1] if 'enabled' in enable_year_range else None,
         'genres': [quote(genre) for genre in genres] if genres else None,
@@ -162,23 +178,19 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
         'actors': [quote(actor) for actor in actors] if actors else None,
         'director': quote(director) if director else None,
         'description': quote(plot_description) if plot_description else None,
-        'getSimilarMovies': True if film_title else False
+        'getSimilarMovies': True if film_uri else False
     }
+    logging.info(f"Sending request to {REST_SERVICE_URI}/movies_details with params: {params}")
     movies = requests.get(f'{REST_SERVICE_URI}/movies_details', params=params).json()
     if not movies or ('detail' in movies):
         if len(movies) == 0 or ('detail' in movies and 'not found' in movies['detail'].lower()):
             return html.Div("No movies were found.")
         else:
             return html.Div("An error occurred while fetching the movies. Please try again later.")
-    
 
     movie_results = [
         html.Div([
-            html.Div(f"{index + 1}", className="movie-index"),
-            html.Div([
-                html.Span("Similarity Score: ", className="attribute-label"),
-                html.Span(movie.get('similarity_score', 'N/A'), className="attribute-value")
-            ], className="similarity-score") if 'similarity_score' in movie and movie['similarity_score'] not in [None, ''] else None,
+            html.Div(f"{index + 1}", className="movie-index"),           
             html.H3(f"{movie.get('title', 'N/A')}"),
             html.P([html.Span("Runtime: ", className="attribute-label"), html.Span(movie.get('runtime', 'N/A'), className="attribute-value")]) if 'runtime' in movie and movie['runtime'] not in [None, ''] else None,
             html.P([html.Span("Release Year: ", className="attribute-label"), html.Span(movie.get('releaseYear', 'N/A'), className="attribute-value")]) if 'releaseYear' in movie and movie['releaseYear'] not in [None, ''] else None,
@@ -186,26 +198,15 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
             html.P([html.Span("Genres: ", className="attribute-label"), html.Span(movie.get('genres', 'N/A'), className="attribute-value")], className="genres") if 'genres' in movie and movie['genres'] not in [None, ''] else None,
             html.P([html.Span("Starring: ", className="attribute-label"), html.Span(movie.get('starring', 'N/A'), className="attribute-value")], className="starring") if 'starring' in movie and movie['starring'] not in [None, ''] else None,
             html.P([html.Span("Directors: ", className="attribute-label"), html.Span(movie.get('directors', 'N/A'), className="attribute-value")], className="directors") if 'directors' in movie and movie['directors'] not in [None, ''] else None,
-            html.P([html.Span("Abstract: ", className="attribute-label"), html.Span(movie.get('abstract', 'N/A'), className="attribute-value")], className="abstract") if 'abstract' in movie and movie['abstract'] not in [None, ''] else None
+            html.P([html.Span("Abstract: ", className="attribute-label"), html.Span(movie.get('abstract', 'N/A'), className="attribute-value")], className="abstract") if 'abstract' in movie and movie['abstract'] not in [None, ''] else None,
+            html.Div([
+                html.Span("Similarity Score: ", className="attribute-label"),
+                html.Span(movie.get('similarity_score', 'N/A'), className="attribute-value")
+            ], className="similarity-score") if 'similarity_score' in movie and movie['similarity_score'] not in [None, ''] else None
         ], className="movie-card")
         for index, movie in enumerate(movies)
     ]
     return html.Div(movie_results, className="movie-results")
-
-# @callback(
-#     Output("film-title", "options"),
-#     [Input("film-title", "search_value"),
-#      State("film-title", "value")]
-# )
-# def update_options_film_title(search_value, current_value):
-#     encoded_search_value = quote(search_value) if search_value else ""
-#     movies = get_options_from_api(f'{REST_SERVICE_URI}/movies?movieLabel={encoded_search_value}&numberOfResults=500')
-    
-#     # Ensure the current value is included in the options
-#     if current_value and current_value not in [movie['value'] for movie in movies]:
-#         movies.append({"label": current_value, "value": current_value})
-    
-#     return movies
 
 @callback(
     Output("genres", "options"),
@@ -214,8 +215,10 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
 )
 def update_multi_options_genres(search_value, value):
     if not search_value:
-        return get_options_from_api(f'{REST_SERVICE_URI}/genres')
-    return get_options_from_api(f'{REST_SERVICE_URI}/genres?genreName={search_value}')
+        results, _ = get_options_from_api(f'{REST_SERVICE_URI}/genres')
+        return results
+    results, _ = get_options_from_api(f'{REST_SERVICE_URI}/genres?genreName={quote(search_value)}')
+    return results
 
 @callback(
     Output("director", "options"),
@@ -224,8 +227,10 @@ def update_multi_options_genres(search_value, value):
 )
 def update_multi_options_directors(search_value, value):
     if not search_value:
-        return get_options_from_api(f'{REST_SERVICE_URI}/directors')
-    return get_options_from_api(f'{REST_SERVICE_URI}/directors?directorName={search_value}')
+        results, _ = get_options_from_api(f'{REST_SERVICE_URI}/directors')
+        return results
+    results, _ = get_options_from_api(f'{REST_SERVICE_URI}/directors?directorName={quote(search_value)}')
+    return results
 
 @callback(
     Output("actors", "options"),
@@ -234,10 +239,11 @@ def update_multi_options_directors(search_value, value):
 )
 def update_multi_options_actors(search_value, value):
     if not search_value:
-        return get_options_from_api(f'{REST_SERVICE_URI}/actors')
+        results, _ = get_options_from_api(f'{REST_SERVICE_URI}/actors')
+        return results
     encoded_search_value = quote(search_value) 
-    actors = get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={encoded_search_value}')
-    return actors
+    results, _ = get_options_from_api(f'{REST_SERVICE_URI}/actors?actorName={encoded_search_value}')
+    return results
 
 if __name__ == '__main__':
     if is_running_in_docker():
