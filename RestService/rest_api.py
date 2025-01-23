@@ -158,6 +158,10 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
                     for movie in movies:
                         if movie_detail['movie'] == movie['object_uri'] and 'similarity_score' in movie:
                             movie_detail['similarity_score'] = movie['similarity_score']
+                            movie_detail['cosine_similarity'] = movie['cosine_similarity']
+                            movie_detail['cosine_similarity_scaled'] = movie['cosine_similarity_scaled']
+                            movie_detail['total_similarity_score'] = movie['total_similarity_score']
+        
         
         redis_client.set(var_name, pickle.dumps(movies_details))
         write_log(f"Written movie query into cache")
