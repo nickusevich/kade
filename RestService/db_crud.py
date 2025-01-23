@@ -10,6 +10,7 @@ import logging
 import asyncio
 import numpy as np
 import os
+from urllib.parse import unquote
 import pandas as pd
 import json
 from sklearn.metrics.pairwise import cosine_similarity
@@ -517,92 +518,10 @@ class MovieDatabase:
         return list(unique_movies.values())
     
 
-    # async def generate_sparql_query(self, params):
-    #     """
-    #     fetch movies similar to the target movie based on genre/release year/actors/directors
-
-    #     Returns:
-    #     list of dicts containing movie URIs and similarity score (similarity score is descending, the movie with highest score has more common properties with the target)
-    #     """
-    #     return_data = []
-
-    #     # Check if connected to the database
-    #     if not self.is_connected():
-    #         logging.info("Not connected to the database. Attempting to reconnect.")
-    #         self.sparql = SPARQLWrapper(GRAPHDB_ENDPOINT)
-    #         if not self.is_connected():
-    #             logging.error("Failed to reconnect to the database.")
-    #             raise Exception("Failed to reconnect to the database.")
-        
-    #     title = params.get('title', None)
-    #     if type(title) == list:
-    #         title = title[0]
-    #     genres = params.get('genres', [])
-    #     actors = params.get('actors', [])
-    #     director = params.get('director', None)
-    #     year = params.get('year_range', None)
-    #     limit = params.get('number_of_results', 10)
-
-    #     query = f"""
-    #     PREFIX dbo: <http://dbpedia.org/ontology/>
-    #     PREFIX dbr: <http://dbpedia.org/resource/>
-
-    #     SELECT ?movie
-    #         (COUNT(?sharedProperty)  AS ?similarityScore)
-    #     WHERE {{
-    #     """
-    #     if title:
-    #         query += f"""
-    #         # target movie
-    #         BIND(dbr:{title.replace(' ', '_')} AS ?targetMovie)
-
-    #         # properties from target movie
-    #         OPTIONAL {{ ?targetMovie dbo:genre ?targetGenre. }}
-    #         OPTIONAL {{ ?targetMovie dbo:releaseYear ?targetYear. }}
-    #         OPTIONAL {{ ?targetMovie dbo:starring ?targetActor. }}
-    #         OPTIONAL {{ ?targetMovie dbo:director ?targetDirector. }}
-
-    #         # check not the same movie
-    #         ?movie a dbo:Film.
-    #         FILTER(?movie != ?targetMovie)
-    #         FILTER(?similarityScore > 0)
-    #         """
-        
-    #     # Add filters using the existing add_filters method
-    #     # filters = []
-    #     # if genres:
-    #     #     add_filters(filters, 'genre', genres, 'dbo:genre')
-    #     # if actors:
-    #     #     add_filters(filters, 'actor', actors, 'dbo:starring')
-    #     # if director:
-    #     #     add_filters(filters, 'director', [director], 'dbo:director')
-    #     # if year is not None and len(year) == 2 and year[0] is not None and year[1] is not None:
-    #     #     filters.append(f'OPTIONAL {{ ?movie dbo:releaseYear ?movieYear . FILTER(?movieYear >= {year[0]} && ?movieYear <= {year[1]}) }}')
-
-    #     # query += "\n".join(filters)
-        
-    #     query += f"""
-    #     }}
-    #     GROUP BY ?movie
-    #     ORDER BY DESC(?similarityScore)
-    #     LIMIT {limit}
-    #     """
-    #     return query
-
     async def generate_sparql_query(self, params):
-        # params = {
-        #         "title": title,
-        #         "movie_uri": movie_uri,
-        #         "genre": genre,
-        #         "actors": actor,
-        #         "director": director,
-        #         "year_range": [start_year, end_year],
-        #         "number_of_results": number_of_results
-        #     }
-
         title = params.get('title')
         genre = params.get('genre')
-        actors = params.get('actors')
+        actors = params.get('actor')
         director = params.get('director')
         movie_uri = params.get('movie_uri')
         start_year = params.get('start_year')
@@ -610,12 +529,12 @@ class MovieDatabase:
 
     
         if movie_uri:
-            if isinstance(movie_uri, list):
+            if len(movie_uri) > 0 and isinstance(movie_uri, list):
                 movie_uri = movie_uri[0]
                 movie_uri = movie_uri.replace("http://dbpedia.org/resource/", 'dbr:')
 
         else:
-            if isinstance(title, list):
+            if title and isinstance(title, list) and len(title) > 0: 
                 title = title[0]
                 title = title.replace(' ', '_')
 
@@ -627,7 +546,7 @@ class MovieDatabase:
 
         # Nikita we need to add the description filter logic here
 
-        if start_year or end_year:
+        if start_year and end_year:
             if start_year:
                 filters.append(f'FILTER (?releaseYear >= "{start_year}"^^xsd:gYear)')
             if end_year:
@@ -712,11 +631,10 @@ class MovieDatabase:
         GROUP BY ?movie ?title ?similarityScore ?plotEmbedding
         HAVING (?similarityScore > 0) # Keep only movies with a positive relevance score
         ORDER BY DESC(?similarityScore)
-        LIMIT {self.limit}
+        LIMIT {500}
         """
         return query
 
-    
     async def fetch_similar_movies(self, params):
         query = await self.generate_sparql_query(params)
         logging.info(f"SPARQL query: {query}")
@@ -743,47 +661,67 @@ class MovieDatabase:
                 # Return the top N results and find similar movies based on the plot embedding
                 if return_data:
                     df_movies = pd.DataFrame(return_data)
+                    logging.info(f"DataFrame created with {len(df_movies)} movies")
+
                     target_movie_uri = params.get('movie_uri')
-                    if isinstance(target_movie_uri, list):
+                    if target_movie_uri and isinstance(target_movie_uri, list) and len(target_movie_uri) > 0:
                         target_movie_uri = target_movie_uri[0]
                     
-                    # Deserialize the JSON string back to a Python list, set to None if plotEmbedding is None
-                    df_movies['embedding'] = df_movies['plotEmbedding'].apply(
-                        lambda embedding_literal: json.loads(embedding_literal) if embedding_literal is not None else None
-                    )
-                    
-                    # Get the embedding of the target movie
-                    target_embedding = df_movies.loc[df_movies['object_uri'] == target_movie_uri, 'embedding'].values[0]
-                    
-                    # Calculate cosine similarity between the target movie and each other movie
-                    df_movies['cosine_similarity'] = df_movies['embedding'].apply(
-                        lambda emb: cosine_similarity([target_embedding], [emb])[0][0] if emb is not None else 0
-                    )
-                    
-                    # Scale cosine similarity to the range of 0 to 100
-                    df_movies['cosine_similarity_scaled'] = ((df_movies['cosine_similarity'] + 1) * 50).astype(int)
+                    if target_movie_uri:
+                        # Deserialize the JSON string back to a Python list, set to None if plotEmbedding is None
+                        df_movies['embedding'] = df_movies['plotEmbedding'].apply(
+                            lambda embedding_literal: json.loads(embedding_literal) if embedding_literal is not None else None
+                        )
+                        logging.info("Embeddings deserialized")
 
-                    # Sum the scaled cosine similarity and the existing similarity score
-                    df_movies['total_similarity_score'] = df_movies['cosine_similarity_scaled'] + df_movies['similarity_score'].astype(int)
+                        # Get the embedding of the target movie
+                        # Ensure target_movie_uri exists in the DataFrame
+                        if target_movie_uri in df_movies['object_uri'].values:
+                            target_embedding_row = df_movies.loc[df_movies['object_uri'] == target_movie_uri, 'embedding']
+                            if not target_embedding_row.empty:
+                                target_embedding = target_embedding_row.values[0]
+                                logging.info(f"Target embedding found for {target_movie_uri}")
+                            else:
+                                target_embedding = None
+                                logging.warning(f"Target embedding not found for {target_movie_uri}")
+                        else:
+                            target_embedding = None
+                            logging.warning(f"Target movie URI {target_movie_uri} not found in DataFrame")
 
-                    
-                    # Sort by total_similarity_score in descending order
-                    df_movies = df_movies.sort_values(by='total_similarity_score', ascending=False)
-                    # Get the top self.limit results
-                    number_of_results = params.get('number_of_results', 10)
-                    top_movies = df_movies.head(number_of_results)
+                        if target_embedding:
+                            # Calculate cosine similarity between the target movie and each other movie
+                            df_movies['cosine_similarity'] = df_movies['embedding'].apply(
+                                lambda emb: cosine_similarity([target_embedding], [emb])[0][0] if emb is not None else 0
+                            )
+                            logging.info("Cosine similarity calculated")
 
-                    # Ensure the target movie is included
-                    if target_movie_uri not in top_movies['object_uri'].values:
-                        target_movie_row = df_movies[df_movies['object_uri'] == target_movie_uri]
-                        top_movies = pd.concat([top_movies, target_movie_row]).drop_duplicates(subset='object_uri')
+                            # Scale cosine similarity to the range of 0 to 100
+                            df_movies['cosine_similarity_scaled'] = ((df_movies['cosine_similarity'] + 1) * 50).astype(int)
 
-                    else: # the target movie should not be counted as limit for result
-                        top_movies = top_movies.head(number_of_results + 1)
+                            # Sum the scaled cosine similarity and the existing similarity score
+                            df_movies['total_similarity_score'] = df_movies['cosine_similarity_scaled'] + df_movies['similarity_score'].astype(int)
 
-                    # Convert the DataFrame to a list of dictionaries
-                    top_movies_list = top_movies.to_dict(orient='records')
-                    return top_movies_list
+                            # Sort by total_similarity_score in descending order
+                            df_movies = df_movies.sort_values(by='total_similarity_score', ascending=False)
+                            logging.info("Movies sorted by total similarity score")
+
+                            # Get the top self.limit results
+                            number_of_results = params.get('number_of_results', 10)
+                            top_movies = df_movies.head(number_of_results)
+
+                            # Ensure the target movie is included
+                            if target_movie_uri not in top_movies['object_uri'].values:
+                                target_movie_row = df_movies[df_movies['object_uri'] == target_movie_uri]
+                                top_movies = pd.concat([top_movies, target_movie_row]).drop_duplicates(subset='object_uri')
+
+                            # Ensure the total number of results is self.limit + 1
+                            if len(top_movies) > number_of_results + 1:
+                                top_movies = top_movies.head(number_of_results + 1)
+
+                            # Convert the DataFrame to a list of dictionaries
+                            top_movies_list = top_movies.to_dict(orient='records')
+                            logging.info(f"Returning {len(top_movies_list)} movies")
+                            return top_movies_list
 
                 return return_data
             else:
@@ -794,15 +732,15 @@ class MovieDatabase:
 
         return []
 
+# Ensure the function is called correctly in your main function or wherever it is used
 async def main():
     """
     Main function to test the MovieDatabase class methods.
     """
     db = MovieDatabase()
 
-    params = {'title': ['Shrek 2'], 'movie_uri': ['http://dbpedia.org/resource/Shrek_2'], 'start_year': None, 'end_year': None, 'genre': None, 'number_of_results': 10, 'actor': ["Antonio Banderas"], 'director': None, 'description': None, 'get_similar_movies': True}
+    params = {'title': ['Titanic%20%281997%20film%29'], 'movie_uri': ['http%3A//dbpedia.org/resource/Titanic_%25281997_film%2529'], 'start_year': None, 'end_year': None, 'genre': ['Drama'], 'number_of_results': 10, 'actor': None, 'director': None, 'description': None, 'get_similar_movies': True}
     
-    from urllib.parse import unquote 
     decoded_params = {}
     for k, v in params.items():
         if isinstance(v, str):
@@ -812,12 +750,8 @@ async def main():
         else:
             decoded_params[k] = v
 
-    filtered_params = {k: v for k, v in params.items() if v}
-        
-    # Generate a cache key based on the filtered parameters
-    var_name = "movie_details_" + "_".join(f"{k}_{'_'.join(v) if isinstance(v, list) else v}" for k, v in filtered_params.items())
     
-    movies = await db.fetch_movies_by_properties(**params)
+    movies = await db.fetch_movies_by_properties(**decoded_params)
     movie_details = await db.fetch_movies_details(movies)
 
     # Test fetching actors by name

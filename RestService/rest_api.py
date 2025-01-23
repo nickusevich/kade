@@ -156,11 +156,15 @@ async def get_movies_details(title: Optional[List[str]] = Query(None, alias="mov
                 # Copy similarity_score from movies to movies_details if it exists
                 for movie_detail in movies_details:
                     for movie in movies:
-                        if movie_detail['movie'] == movie['object_uri'] and 'similarity_score' in movie:
-                            movie_detail['similarity_score'] = movie['similarity_score']
-                            movie_detail['cosine_similarity'] = movie['cosine_similarity']
-                            movie_detail['cosine_similarity_scaled'] = movie['cosine_similarity_scaled']
-                            movie_detail['total_similarity_score'] = movie['total_similarity_score']
+                        if movie_detail['movie'] == movie['object_uri']:
+                            if 'similarity_score' in movie:
+                                movie_detail['similarity_score'] = movie['similarity_score']
+                            if 'cosine_similarity' in movie:
+                                movie_detail['cosine_similarity'] = movie['cosine_similarity']
+                            if 'cosine_similarity_scaled' in movie:
+                                movie_detail['cosine_similarity_scaled'] = movie['cosine_similarity_scaled']
+                            if 'total_similarity_score' in movie:
+                                movie_detail['total_similarity_score'] = movie['total_similarity_score']
         
         
         redis_client.set(var_name, pickle.dumps(movies_details))

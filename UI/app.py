@@ -1,5 +1,7 @@
 from dash import Dash, html, dcc, Input, Output, State, callback, ctx
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import dash
 from dash.exceptions import PreventUpdate
 from urllib.parse import urlencode, parse_qs, quote, unquote
@@ -168,11 +170,15 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
     if not any([film_uri, genres, number_of_results, actors, director, plot_description]) and not ('enabled' in enable_year_range and year):
         raise PreventUpdate  # Prevent the page from redirecting if no parameters are selected
 
+    start_year, end_year = None, None
+    if year and len(year) == 2:
+        start_year, end_year = year[0], year[1]
+
     params = {
         'movieLabel': [quote(film_title)] if film_title else None,
         'movieUri': [quote(film_uri)] if film_uri else None,
-        'startYear': year[0] if 'enabled' in enable_year_range else None,
-        'endYear': year[1] if 'enabled' in enable_year_range else None,
+        'startYear': start_year if 'enabled' in enable_year_range else None,
+        'endYear': end_year if 'enabled' in enable_year_range else None,
         'genres': [quote(genre) for genre in genres] if genres else None,
         'number_of_results': number_of_results,
         'actors': [quote(actor) for actor in actors] if actors else None,
@@ -180,8 +186,34 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
         'description': quote(plot_description) if plot_description else None,
         'getSimilarMovies': True if film_uri else False
     }
+    
     logging.info(f"Sending request to {REST_SERVICE_URI}/movies_details with params: {params}")
-    movies = requests.get(f'{REST_SERVICE_URI}/movies_details', params=params).json()
+
+    # Create a session
+    session = requests.Session()
+
+    # Define a retry strategy
+    retry_strategy = Retry(
+        total=3,  # Total number of retries
+        status_forcelist=[429, 500, 502, 503, 504],  # Retry on these status codes
+        allowed_methods=["HEAD", "GET", "OPTIONS"],  # Retry on these methods
+        backoff_factor=1  # Wait 1 second between retries
+    )
+
+    # Mount the retry strategy to the session
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+
+    try:
+        # Make the request
+        response = session.get(f'{REST_SERVICE_URI}/movies_details', params=params, timeout=5000)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        movies = response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error(f"An error occurred: {e}")
+        movies = []
+
     if not movies or ('detail' in movies):
         if len(movies) == 0 or ('detail' in movies and 'not found' in movies['detail'].lower()):
             return html.Div("No movies were found.")
