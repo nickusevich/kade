@@ -9,3 +9,5 @@ requests
 pandas
 asyncio
 scikit-learn
+sentence_transformers
+torch

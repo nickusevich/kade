@@ -12,6 +12,8 @@ import numpy as np
 import os
 from urllib.parse import unquote
 import pandas as pd
+from sentence_transformers import SentenceTransformer
+import torch
 import json
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -346,10 +348,11 @@ class MovieDatabase:
             PREFIX dbo: <http://dbpedia.org/ontology/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT DISTINCT ?movie ?title
+            SELECT DISTINCT ?movie ?title ?plotEmbedding
             WHERE {
             ?movie a dbo:Film .
             ?movie rdfs:label ?title .
+            OPTIONAL {{ ?movie dbo:plotEmbedding ?plotEmbedding . }}
             """
 
             # Add filters based on provided properties
@@ -365,6 +368,10 @@ class MovieDatabase:
             add_filters(filters, 'cinematographer', cinematographer, 'dbo:cinematography')
             add_filters(filters, 'production_company', production_company, 'dbo:productionCompany')
 
+            max_number_of_results = number_of_results
+            if description and len(description) > 0:
+                max_number_of_results = 1000
+
             # Nikita we need to add the description filter logic here
 
             if start_year or end_year:
@@ -379,7 +386,7 @@ class MovieDatabase:
             FILTER (LANG(?title) = "en")
             }"""
             query += f"""
-            LIMIT {number_of_results}
+            LIMIT {max_number_of_results}
             """
 
             logging.info(f"SPARQL query: {query} - fetch_movies_by_properties")
@@ -394,10 +401,52 @@ class MovieDatabase:
                     return_data = [
                         {
                             "object_uri": result["movie"]["value"],
-                            "label": result["title"]["value"]
+                            "label": result["title"]["value"],
+                            "plotEmbedding": result["plotEmbedding"]["value"]
                         }
                         for result in results["results"]["bindings"]
                     ]
+
+                    if description and len(description) > 0:
+                        # Filter the movies based on the description
+                         # Convert return_data to DataFrame
+                        df_movies = pd.DataFrame(return_data)
+                        logging.info(f"DataFrame created with {len(df_movies)} movies")
+
+                        # Deserialize the JSON string back to a Python list, set to None if plotEmbedding is None
+                        df_movies['embedding'] = df_movies['plotEmbedding'].apply(
+                            lambda embedding_literal: json.loads(embedding_literal) if embedding_literal is not None else None
+                        )
+                        logging.info("Embeddings deserialized")
+
+                        # Calculate the embedding of the given description
+                        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+                        model = SentenceTransformer('all-MiniLM-L6-v2', device=device)
+                        description_embedding = model.encode(description)
+                        logging.info("Description embedding calculated")
+
+                        # Calculate cosine similarity between the description and each movie
+                        df_movies['cosine_similarity'] = df_movies['embedding'].apply(
+                            lambda emb: cosine_similarity([description_embedding], [emb])[0][0] if emb is not None else 0
+                        )
+                        logging.info("Cosine similarity calculated")
+
+                        # Scale cosine similarity to the range of 0 to 100
+                        df_movies['cosine_similarity_scaled'] = ((df_movies['cosine_similarity'] + 1) * 50).astype(int)
+
+                        # Calculate the total_similarity_score of the description with itself
+                        description_total_similarity_score = df_movies['cosine_similarity_scaled'].max()
+
+                        # Scale total_similarity_score to the range of 0 to 10
+                        df_movies['total_similarity_score'] = (df_movies['cosine_similarity_scaled'] / description_total_similarity_score) * 10
+
+                        # Sort by total_similarity_score in descending order
+                        df_movies = df_movies.sort_values(by='total_similarity_score', ascending=False)
+                        logging.info("Movies sorted by total similarity score")
+                        top_movies = df_movies.head(number_of_results)
+                        top_movies_list = top_movies.to_dict(orient='records')
+                        logging.info(f"Returning {len(top_movies_list)} movies")
+                        return top_movies_list
                 else:
                     logging.warning("No results found in SPARQL query response.")
             except Exception as e:
@@ -699,7 +748,15 @@ class MovieDatabase:
                             df_movies['cosine_similarity_scaled'] = ((df_movies['cosine_similarity'] + 1) * 50).astype(int)
 
                             # Sum the scaled cosine similarity and the existing similarity score
-                            df_movies['total_similarity_score'] = df_movies['cosine_similarity_scaled'] + df_movies['similarity_score'].astype(int)
+                            df_movies['total_similarity_score'] = df_movies['cosine_similarity_scaled'] + df_movies.get('similarity_score', 0).fillna(0).astype(int)
+
+
+                            # Calculate the total_similarity_score of the target movie with itself
+                            target_total_similarity_score = df_movies.loc[df_movies['object_uri'] == target_movie_uri, 'total_similarity_score'].values[0]
+
+                            # Scale total_similarity_score to the range of 0 to 10
+                            df_movies['total_similarity_score'] = (df_movies['total_similarity_score'] / target_total_similarity_score) * 10
+
 
                             # Sort by total_similarity_score in descending order
                             df_movies = df_movies.sort_values(by='total_similarity_score', ascending=False)
