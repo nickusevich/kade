@@ -484,7 +484,7 @@ class MovieDatabase:
                     FILTER (lang(?cinematographer_label) = 'en')
                     }}
         }}
-        GROUP BY ?movie ?title ?abstract ?runtime ?budget ?boxOffice ?releaseYear ?country_label
+        GROUP BY ?movie ?title ?abstract ?runtime ?budget ?boxOffice ?releaseYear ?country_label ?plotEmbedding
         """
         self.sparql.setQuery(query)
         self.sparql.setReturnFormat(JSON)
@@ -590,11 +590,23 @@ class MovieDatabase:
     #     return query
 
     async def generate_sparql_query(self, params):
+        # params = {
+        #         "title": title,
+        #         "movie_uri": movie_uri,
+        #         "genre": genre,
+        #         "actors": actor,
+        #         "director": director,
+        #         "year_range": [start_year, end_year],
+        #         "number_of_results": number_of_results
+        #     }
+
         title = params.get('title')
+        genre = params.get('genre')
+        actors = params.get('actors')
+        director = params.get('director')
         movie_uri = params.get('movie_uri')
-        start_year = params.get('start_year', 1940)
-        end_year = params.get('end_year', 2024)
-        number_of_results = params.get('number_of_results', 10)
+        start_year = params.get('start_year')
+        end_year = params.get('end_year')
 
     
         if movie_uri:
@@ -606,6 +618,24 @@ class MovieDatabase:
             if isinstance(title, list):
                 title = title[0]
                 title = title.replace(' ', '_')
+
+        # Add filters based on provided properties
+        filters = []
+        add_filters(filters, 'genre', genre, 'dbo:genre')
+        add_filters(filters, 'actor', actors, 'dbo:starring')
+        add_filters(filters, 'director', director, 'dbo:director')
+
+        # Nikita we need to add the description filter logic here
+
+        if start_year or end_year:
+            if start_year:
+                filters.append(f'FILTER (?releaseYear >= "{start_year}"^^xsd:gYear)')
+            if end_year:
+                filters.append(f'FILTER (?releaseYear <= "{end_year}"^^xsd:gYear)')
+
+        filters_str = ""
+        if filters and len(filters) > 0:
+            filters_str = " ".join(filters)
 
         # Construct the SPARQL query
         query = f"""
@@ -621,9 +651,23 @@ class MovieDatabase:
             ?movie rdf:type dbo:Film ;
                 rdfs:label ?title .
 
+            # add properties from the selected movies    
             OPTIONAL {{
                 ?movie dbo:plotEmbedding ?plotEmbedding .
             }}
+
+            OPTIONAL {{ ?movie dbo:abstract ?abstract . }}
+            OPTIONAL {{ ?movie dbo:runtime ?runtime . }}
+            OPTIONAL {{ ?movie dbo:budget ?budget . }}
+            OPTIONAL {{ ?movie dbo:plotEmbedding ?plotEmbedding . }}
+            OPTIONAL {{ ?movie dbo:boxOffice ?boxOffice . }}
+            OPTIONAL {{ ?movie dbo:releaseYear ?releaseYear . }}
+            OPTIONAL {{ ?movie dbo:country ?country .
+                    ?country rdfs:label ?country_label .
+                    FILTER (lang(?country_label) = 'en')
+                    }}     
+
+
 
             # Criteria for relatedness: shared properties
             OPTIONAL {{
@@ -641,17 +685,31 @@ class MovieDatabase:
                 ?targetMovie dbo:director ?director .
                 BIND(5 AS ?directorWeight)
             }}
+            OPTIONAL {{
+                ?movie dbo:country ?country .
+                ?targetMovie dbo:country ?country .
+                BIND(4 AS ?countryWeight)
+            }}
+            OPTIONAL {{
+                ?movie dbo:country ?country .
+                ?targetMovie dbo:country ?country .
+                BIND(3 AS ?releaseYearWeight)
+            }}
+
 
             # Sum up the weights as relevance score
             BIND(COALESCE(?genreWeight, 0) +
                 COALESCE(?releaseYearWeight, 0) +
                 COALESCE(?actorWeight, 0) +
+                COALESCE(?countryWeight, 0) +
                 COALESCE(?directorWeight, 0) AS ?similarityScore)
 
             # Filters: Exclude the target movie from results
             # FILTER (?movie != ?targetMovie)
+
+            {filters_str}
         }}
-        GROUP BY ?movie ?title ?similarityScore
+        GROUP BY ?movie ?title ?similarityScore ?plotEmbedding
         HAVING (?similarityScore > 0) # Keep only movies with a positive relevance score
         ORDER BY DESC(?similarityScore)
         LIMIT {self.limit}
@@ -671,39 +729,61 @@ class MovieDatabase:
             logging.info(f"Executing SPARQL query: {query}")
             results = self.sparql.query().convert()
             if "results" in results and "bindings" in results["results"]:
+                results_binding = results["results"]["bindings"]
                 return_data = [
                     {
-                        "object_uri": result["movie"]["value"],
-                        "label": result["title"]["value"],
-                        "plotEmbedding": result["plotEmbedding"]["value"],
-                        "similarity_score": result["similarityScore"]["value"]
+                        "object_uri": result["movie"]["value"] if "movie" in result and result["movie"]["value"] is not None else None,
+                        "label": result["title"]["value"] if "title" in result and result["title"]["value"] is not None else None,
+                        "plotEmbedding": result["plotEmbedding"]["value"] if "plotEmbedding" in result and result["plotEmbedding"]["value"] is not None else None,
+                        "similarity_score": result["similarityScore"]["value"] if "similarityScore" in result and result["similarityScore"]["value"] is not None else None
                     }
-                    for result in results["results"]["bindings"]
+                    for result in results_binding
                 ]
 
                 # Return the top N results and find similar movies based on the plot embedding
                 if return_data:
                     df_movies = pd.DataFrame(return_data)
-                    # Deserialize the JSON string back to a Python list
-                    df_movies['embedding'] = df_movies['plotEmbedding'].apply(lambda embedding_literal: json.loads(embedding_literal))
+                    target_movie_uri = params.get('movie_uri')
+                    if isinstance(target_movie_uri, list):
+                        target_movie_uri = target_movie_uri[0]
                     
-                    # Calculate cosine similarity between each pair of movies
-                    embeddings = list(df_movies['embedding'])
-                    similarity_matrix = cosine_similarity(embeddings)
+                    # Deserialize the JSON string back to a Python list, set to None if plotEmbedding is None
+                    df_movies['embedding'] = df_movies['plotEmbedding'].apply(
+                        lambda embedding_literal: json.loads(embedding_literal) if embedding_literal is not None else None
+                    )
                     
-                    # Create a DataFrame for the similarity matrix using object_uri
-                    similarity_df = pd.DataFrame(similarity_matrix, index=df_movies['object_uri'], columns=df_movies['object_uri'])
+                    # Get the embedding of the target movie
+                    target_embedding = df_movies.loc[df_movies['object_uri'] == target_movie_uri, 'embedding'].values[0]
                     
-                    # Calculate the weighted score and add it to the DataFrame
-                    weighted_scores = []
-                    for i, row in df_movies.iterrows():
-                        object_uri = row['object_uri']
-                        similarity_score = row['similarity_score']
-                        similarity_scores = similarity_df[object_uri]
-                        weighted_scores.append(weighted_score)
+                    # Calculate cosine similarity between the target movie and each other movie
+                    df_movies['cosine_similarity'] = df_movies['embedding'].apply(
+                        lambda emb: cosine_similarity([target_embedding], [emb])[0][0] if emb is not None else 0
+                    )
                     
-                    df_movies['similarity_score'] = weighted_scores
+                    # Scale cosine similarity to the range of 0 to 100
+                    df_movies['cosine_similarity_scaled'] = ((df_movies['cosine_similarity'] + 1) * 50).astype(int)
 
+                    # Sum the scaled cosine similarity and the existing similarity score
+                    df_movies['total_similarity_score'] = df_movies['cosine_similarity_scaled'] + df_movies['similarity_score'].astype(int)
+
+                    
+                    # Sort by total_similarity_score in descending order
+                    df_movies = df_movies.sort_values(by='total_similarity_score', ascending=False)
+                    # Get the top self.limit results
+                    number_of_results = params.get('number_of_results', 10)
+                    top_movies = df_movies.head(number_of_results)
+
+                    # Ensure the target movie is included
+                    if target_movie_uri not in top_movies['object_uri'].values:
+                        target_movie_row = df_movies[df_movies['object_uri'] == target_movie_uri]
+                        top_movies = pd.concat([top_movies, target_movie_row]).drop_duplicates(subset='object_uri')
+
+                    else: # the target movie should not be counted as limit for result
+                        top_movies = top_movies.head(number_of_results + 1)
+
+                    # Convert the DataFrame to a list of dictionaries
+                    top_movies_list = top_movies.to_dict(orient='records')
+                    return top_movies_list
 
                 return return_data
             else:
@@ -720,7 +800,7 @@ async def main():
     """
     db = MovieDatabase()
 
-    params = {'title': ['Shrek'], 'start_year': None, 'end_year': None, 'genre': None, 'number_of_results': 10, 'actor': None, 'director': None, 'description': None, 'get_similar_movies': True}
+    params = {'title': ['Shrek 2'], 'movie_uri': ['http://dbpedia.org/resource/Shrek_2'], 'start_year': None, 'end_year': None, 'genre': None, 'number_of_results': 10, 'actor': ["Antonio Banderas"], 'director': None, 'description': None, 'get_similar_movies': True}
     
     from urllib.parse import unquote 
     decoded_params = {}
@@ -739,26 +819,10 @@ async def main():
     
     movies = await db.fetch_movies_by_properties(**params)
     movie_details = await db.fetch_movies_details(movies)
-    movies = await db.fetch_movies_by_properties(title=["Shrek"], get_similar_movies=True)
 
     # Test fetching actors by name
     actors = await db.fetch_actors_by_name("Lauren Graham")
     print(f"Actors found: {len(actors)}")
-
-    results = await db.fetch_movies_by_properties(title=["shrek"], number_of_results=5000)
-
-    #test fetching similar movies
-    params = {
-        "title": "%27Til_We_Meet_Again",
-        "genres":["Drama","Action"],
-        "actors":["Ali","Smith"],
-        "director":"James Cameron",
-        "year_range":[1990,2023],
-        "similar_movies":5
-    }
-    similar_movies = await db.fetch_similar_movies(params)
-    print(f"similar movies found: {len(similar_movies)}")
-    print(similar_movies)
 
     properties_to_test = ["movies", "genres", "actors", "directors", "distributors", "writers", "producers", "composers", "cinematographers", "productionCompanies"]
     for property_to_test in properties_to_test:
@@ -788,24 +852,6 @@ async def main():
 
     movies = await db.fetch_movies_by_properties()
     print(movies[:10])
-
-    params = {
-            "title": "",
-            "genre": "",
-            "actor": "",
-            "director": "",
-            "distributor": "",
-            "writer": "",
-            "producer": "",
-            "composer": "",
-            "cinematographer": "",
-            "production_company": ""
-        }
-    filtered_params = {k: v for k, v in params.items() if v}
-    var_name = "movie_" + "_".join(f"{k}_{v}" for k, v in filtered_params.items())
-
-    print(var_name)
-    
 
 if __name__ == "__main__":
     asyncio.run(main())

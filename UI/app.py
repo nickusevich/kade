@@ -201,8 +201,8 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
             html.P([html.Span("Abstract: ", className="attribute-label"), html.Span(movie.get('abstract', 'N/A'), className="attribute-value")], className="abstract") if 'abstract' in movie and movie['abstract'] not in [None, ''] else None,
             html.Div([
                 html.Span("Similarity Score: ", className="attribute-label"),
-                html.Span(movie.get('similarity_score', 'N/A'), className="attribute-value")
-            ], className="similarity-score") if 'similarity_score' in movie and movie['similarity_score'] not in [None, ''] else None
+                html.Span(movie.get('total_similarity_score', 'N/A'), className="attribute-value")
+            ], className="similarity-score") if 'total_similarity_score' in movie and movie['total_similarity_score'] not in [None, ''] else None
         ], className="movie-card")
         for index, movie in enumerate(movies)
     ]
