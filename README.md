@@ -64,17 +64,17 @@ You can verify the status of the containers using the following command:
 docker ps or via Docker Desktop -
 ```
 
-![Docker](<Screenshots/dockers.png>)
+![Docker](<Screenshots4ReadMe/dockers.png>)
 
 Usage
 Once the setup is complete, you can access the services as follows:
 
 GraphDB: http://localhost:7200
-![DB](<Screenshots/db.png>)
+![DB](<Screenshots4ReadMe/DB.png>)
 REST Service: http://localhost:80/docs
-![Rest Service](<Screenshots/RestService.png>)
+![Rest Service](<Screenshots4ReadMe/RestService.png>)
 UI: http://localhost:8050/
-![UI](<Screenshots/UI.png>)
+![UI](<Screenshots4ReadMe/UI.png>)
 
 
 Cleanup
