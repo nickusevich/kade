@@ -232,7 +232,7 @@ def handle_search_and_display(n_clicks, film_title, enable_year_range, year,
             html.P([html.Span("Directors: ", className="attribute-label"), html.Span(movie.get('directors', 'N/A'), className="attribute-value")], className="directors") if 'directors' in movie and movie['directors'] not in [None, ''] else None,
             html.P([html.Span("Abstract: ", className="attribute-label"), html.Span(movie.get('abstract', 'N/A'), className="attribute-value")], className="abstract") if 'abstract' in movie and movie['abstract'] not in [None, ''] else None,
             html.Div([
-            html.Span("Target Movie", className="attribute-value") if movie.get('movie') == film_uri else html.Div([
+            html.Span("Target Movie", className="target-movie") if movie.get('movie') == film_uri else html.Div([
                 html.Span("Similarity Score: ", className="attribute-label"),
                 html.Span(f"{float(movie.get('total_similarity_score', 0)):.2f}", className="attribute-value")
             ])

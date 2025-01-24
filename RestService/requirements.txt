@@ -1,6 +1,6 @@
-fastapi~=0.89.1
-pydantic~=1.10.8
-uvicorn~=0.22.0
+fastapi~=0.112.2
+pydantic~=2.8.2
+uvicorn~=0.34.0
 numpy
 SPARQLWrapper
 fastapi-cache2
@@ -11,3 +11,16 @@ asyncio
 scikit-learn
 sentence_transformers
 torch
+
+# fastapi==0.112.2
+# pydantic~=2.8.2
+# uvicorn==0.34.0
+# pandas==2.2.2
+# numpy==1.26.4
+# scikit-learn==1.6.0
+# requests==2.32.3
+# sentence-transformers==3.3.1
+# torch==2.5.1
+# redis==3.5.3
+# SPARQLWrapper==2.0.0
+# fastapi-cache==0.1.0

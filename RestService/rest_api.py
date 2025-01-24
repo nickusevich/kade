@@ -45,6 +45,14 @@ FastAPICache.init(RedisBackend(redis_client), prefix="fastapi-cache")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Lifespan context manager invoked.", flush=True)
+    # Startup actions
+    write_log("Starting up the application...", "info")
+    # FastAPICache.init(RedisBackend(redis_client), prefix="fastapi-cache")
+    # movieDatabase = MovieDatabase()
+    yield
+    # Shutdown actions
+    write_log("Shutting down the application...", "info")
+
 
 app = FastAPI(lifespan=lifespan, title="Knowledge and Data Engineer assignment FastAPI Service")
 

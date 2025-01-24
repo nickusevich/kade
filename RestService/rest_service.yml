@@ -12,11 +12,11 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
-          cpus: '0.4'
+          memory: 4G
+          cpus: '0.6'
         reservations:
-          memory: 128M
-          cpus: '0.2'
+          memory: 2G
+          cpus: '0.9'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/ping"]
       interval: 5s

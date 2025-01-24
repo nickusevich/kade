@@ -230,3 +230,7 @@ body {
 .movie-card .attribute-value {
     color: #e0e0e0; /* Keep attribute values white */
 }
+
+.movie-card .target-movie {
+    color: #ad699f; /* Keep attribute values white */
+}

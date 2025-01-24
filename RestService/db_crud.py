@@ -370,7 +370,7 @@ class MovieDatabase:
 
             max_number_of_results = number_of_results
             if description and len(description) > 0:
-                max_number_of_results = 1000
+                max_number_of_results = 5000
 
             # Nikita we need to add the description filter logic here
 
@@ -402,7 +402,7 @@ class MovieDatabase:
                         {
                             "object_uri": result["movie"]["value"],
                             "label": result["title"]["value"],
-                            "plotEmbedding": result["plotEmbedding"]["value"]
+                            "plotEmbedding": result.get("plotEmbedding", {}).get("value", "")
                         }
                         for result in results["results"]["bindings"]
                     ]
@@ -415,7 +415,7 @@ class MovieDatabase:
 
                         # Deserialize the JSON string back to a Python list, set to None if plotEmbedding is None
                         df_movies['embedding'] = df_movies['plotEmbedding'].apply(
-                            lambda embedding_literal: json.loads(embedding_literal) if embedding_literal is not None else None
+                            lambda embedding_literal: json.loads(embedding_literal) if (embedding_literal is not None and len(embedding_literal) > 0) else None
                         )
                         logging.info("Embeddings deserialized")
 
@@ -795,6 +795,25 @@ async def main():
     Main function to test the MovieDatabase class methods.
     """
     db = MovieDatabase()
+
+    params = {'title': None, 'movie_uri': None, 'start_year': None, 'end_year': None, 'genre': None, 'number_of_results': 10, 'actor': None, 'director': None, 'description': 'love', 'get_similar_movies': False}
+    movies_desc = await db.fetch_movies_by_properties(**params)
+
+    params = {'title': ['Titanic%20%281997%20film%29'], 'movie_uri': ['http%3A//dbpedia.org/resource/Titanic_%25281997_film%2529'], 'start_year': None, 'end_year': None, 'genre': ['Drama'], 'number_of_results': 10, 'actor': None, 'director': None, 'description': None, 'get_similar_movies': True}
+    
+    decoded_params = {}
+    for k, v in params.items():
+        if isinstance(v, str):
+            decoded_params[k] = unquote(v)
+        elif isinstance(v, list):
+            decoded_params[k] = [unquote(i) for i in v]
+        else:
+            decoded_params[k] = v
+
+    
+    movies = await db.fetch_movies_by_properties(**decoded_params)
+    movie_details = await db.fetch_movies_details(movies)
+
 
     params = {'title': ['Titanic%20%281997%20film%29'], 'movie_uri': ['http%3A//dbpedia.org/resource/Titanic_%25281997_film%2529'], 'start_year': None, 'end_year': None, 'genre': ['Drama'], 'number_of_results': 10, 'actor': None, 'director': None, 'description': None, 'get_similar_movies': True}
     
